@@ -8,7 +8,7 @@
 // | Geeklog configuration file.                                               |
 // |                                                                           |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2001 by the following authors:                              |
+// | Copyright (C) 2001-2004 by the following authors:                         |
 // |                                                                           |
 // | Authors: Tony Bibbs - tony@tonybibbs.com                                  |
 // +---------------------------------------------------------------------------+
@@ -32,7 +32,7 @@
 // | on configuration                                                          |
 // +---------------------------------------------------------------------------+
 //
-// $Id: config.php,v 1.69.2.2.2.2 2003/12/05 19:37:24 dhaun Exp $
+// $Id: config.php,v 1.69.2.2.2.3 2004/01/19 20:13:11 dhaun Exp $
 
 // To get Geeklog up and running, you need to make sure the settings in the
 // following sections are correct:
@@ -417,7 +417,7 @@ if (!defined ('LB')) {
     define('LB',"\n");
 }
 if (!defined ('VERSION')) {
-    define('VERSION', '1.3.7sr4');
+    define('VERSION', '1.3.7sr5');
 }
 
 $_STATES = array(

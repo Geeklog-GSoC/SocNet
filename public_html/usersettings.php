@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: usersettings.php,v 1.93 2004/02/28 09:29:51 dhaun Exp $
+// $Id: usersettings.php,v 1.93.2.1 2004/05/31 10:44:52 dhaun Exp $
 
 require_once('lib-common.php');
 require_once($_CONF['path_system'] . 'lib-user.php');
@@ -921,7 +921,9 @@ function savepreferences($A)
 
     $etids = '';
     if (sizeof ($ETIDS) > 0) {
-        $etids = addslashes (implode (' ', $ETIDS));
+        $allowed_etids = buildTopicList ();
+        $AETIDS = explode (' ', $allowed_etids);
+        $etids = addslashes (implode (' ', array_intersect ($AETIDS, $ETIDS)));
     }
 
     if (!isset ($A['tzid'])) {
@@ -1042,6 +1044,11 @@ if (isset ($_USER['uid']) && ($_USER['uid'] > 1) && !empty ($mode)) {
         } else {
             $display = COM_refresh ($_CONF['site_url'] . '/index.php');
         }
+        break;
+    case 'plugin':
+        PLG_profileExtrasSave ($HTTP_POST_VARS['plugin']);
+        $display = COM_refresh ($_CONF['site_url']
+                                . '/usersettings.php?mode=edit&msg=5');
         break;
     }
 } else {

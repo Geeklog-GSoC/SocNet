@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: profiles.php,v 1.20 2003/01/05 21:23:51 dhaun Exp $
+// $Id: profiles.php,v 1.20.4.1 2003/12/05 19:36:01 dhaun Exp $
 
 include('lib-common.php');
 
@@ -48,7 +48,13 @@ include('lib-common.php');
 */
 function contactemail($uid,$author,$authoremail,$subject,$message) 
 {
-    global $_TABLES, $_CONF, $LANG08, $LANG_CHARSET;
+    global $_CONF, $_TABLES, $_USER, $LANG08, $LANG_CHARSET;
+
+    // check for correct $_CONF permission
+    if (empty ($_USER['username']) && (($_CONF['loginrequired'] == 1) ||
+            ($_CONF['emailuserloginrequired'] == 1)) && ($uid != 2)) {
+        return COM_refresh ($_CONF['site_url'] . '/index.php');
+    }
 
     if (!empty($author) && !empty($subject) && !empty($message)) {
         if (COM_isemail($authoremail)) {
@@ -156,7 +162,13 @@ function contactform($uid, $subject='', $message='')
 
 function mailstory($sid,$to,$toemail,$from,$fromemail,$sid, $shortmsg) 
 {
- 	global $_TABLES, $_CONF, $LANG01, $LANG08, $A;
+ 	global $_CONF, $_USER, $LANG01, $LANG08, $A;
+
+    // check for correct $_CONF permission
+    if (empty ($_USER['username']) && (($_CONF['loginrequired'] == 1) ||
+            ($_CONF['emailstoryloginrequired'] == 1))) {
+        return COM_refresh ($_CONF['site_url'] . '/article.php?story=' . $sid);
+    }
 	
  	$sql = "SELECT uid,title,introtext,bodytext,UNIX_TIMESTAMP(date) AS day FROM {$_TABLES['stories']} WHERE sid = '$sid' ";
  	$result = DB_query($sql);

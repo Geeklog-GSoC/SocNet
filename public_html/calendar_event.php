@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: calendar_event.php,v 1.25 2003/06/16 09:11:22 dhaun Exp $
+// $Id: calendar_event.php,v 1.25.2.1 2004/01/18 20:04:30 dhaun Exp $
 
 require_once('lib-common.php');
 require_once($_CONF['path_system'] . 'classes/calendar.class.php');
@@ -390,8 +390,13 @@ case 'saveuserevent':
     }
     break;
 case 'deleteevent':
-    DB_query("DELETE FROM {$_TABLES['personal_events']} WHERE uid={$_USER['uid']} AND eid='$eid'");
-    $display .= COM_refresh($_CONF['site_url'] . '/calendar.php?mode=personal&amp;msg=26');
+    if ($_USER['uid'] > 1) {
+        DB_query ("DELETE FROM {$_TABLES['personal_events']} WHERE uid={$_USER['uid']} AND eid='$eid'");
+        $display .= COM_refresh ($_CONF['site_url']
+                                 . '/calendar.php?mode=personal&amp;msg=26');
+    } else {
+        $display .= COM_refresh ($_CONF['site_url'] . '/index.php');
+    }
     break;
 default:
     if (!empty($eid)) {

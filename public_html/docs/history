@@ -1,7 +1,22 @@
 GeekLog History/Changes:
 
+- Added some scripts in admin/install to help with the installation:
+  + info.php just does a phpinfo()
+  + check.php will check the file and directory permissions
+  + configinfo.php will display the contents of config.php
+  Note: It is now even more important that you remove the install directory
+  after the installation went through (or at least block read access to this
+  directory).
+- Disable all onXXX Javascript events in HTML user postings.
+- Fill in user name and email address when writing an email to a user (via
+  the 'send email' form from the user profile).
+- Make sure that the first comment to a story has the 'title' field filled in
+  (previously, only comments to comments took over the title).
+- Cut off the subject at the first linefeed when sending email to a user,
+  thus preventing the injection of additional email headers.
 - Added a test for register_globals=off in the install script (and display a
-  warning if it is off).
+  warning if it is off). Also added a hint what the current path is and tries
+  to guess the /path/to/geeklog.
 - Fixed the "12pm bug": Posting a story between 12 and 1 pm would result in
   the story being posted with a date in 1969.
 - Use mysql_connect() instead of mysql_pconnect() in MySQL class.

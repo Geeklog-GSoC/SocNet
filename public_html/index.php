@@ -11,7 +11,7 @@
 // | Copyright (C) 2000,2001 by the following authors:                         |
 // |                                                                           |
 // | Authors: Tony Bibbs       - tony@tonybibbs.com                            |
-// |          Mark Limburg     - mlimburg@dingoblue.net.au                     |
+// |          Mark Limburg     - mlimburg@users.sourceforge.net                |
 // |          Jason Wittenburg - jwhitten@securitygeeks.com                    |
 // +---------------------------------------------------------------------------+
 // |                                                                           |
@@ -31,8 +31,9 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: index.php,v 1.24 2002/04/23 04:22:02 mlimburg Exp $
+// $Id: index.php,v 1.24.2.1 2002/06/08 15:39:18 dhaun Exp $
 
+$topic = strip_tags ($topic);
 require_once('lib-common.php');
 
 $display .= COM_siteHeader();
@@ -131,7 +132,7 @@ if ($nrows > 0) {
     if (empty($topic)) {
         $base_url = $_CONF['site_url'] . '/index.php';
     } else {
-        $base_url = $_CONf['site_url'] . '/index.php?topic=' . $topic;
+        $base_url = $_CONF['site_url'] . '/index.php?topic=' . $topic;
     }
     $display .= COM_printPageNavigation($base_url,$page, $num_pages);
 } else {

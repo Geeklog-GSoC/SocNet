@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: story.php,v 1.99 2003/07/25 10:08:55 dhaun Exp $
+// $Id: story.php,v 1.99.2.1 2004/01/18 19:58:01 dhaun Exp $
 
 /**
 * This is the Geeklog story administration page.
@@ -932,7 +932,17 @@ function submitstory($type='',$sid,$uid,$tid,$title,$introtext,$bodytext,$hits,$
 */
 function deletestory ($sid)
 {
-    global $_TABLES, $_CONF;
+    global $_CONF, $_TABLES, $_USER;
+
+    $result = DB_query ("SELECT tid,owner_id,group_id,perm_owner,perm_group,perm_members,perm_anon FROM {$_TABLES['stories']} WHERE sid = '$sid'");
+    $A = DB_fetchArray ($result);
+    $access = SEC_hasAccess ($A['owner_id'], $A['group_id'], $A['perm_owner'],
+            $A['perm_group'], $A['perm_members'], $A['perm_anon']);
+    $access = min ($access, SEC_hasTopicAccess ($A['tid']));
+    if ($access < 3) {
+        COM_accessLog ("User {$_USER['username']} tried to illegally delete story $sid.");
+        return COM_refresh ($_CONF['site_admin_url'] . '/story.php');
+    }
 
     $result = DB_query ("SELECT ai_filename FROM {$_TABLES['article_images']} WHERE ai_sid = '$sid'");
     $nrows = DB_numRows ($result);
@@ -975,8 +985,14 @@ if (($mode == $LANG24[11]) && !empty ($LANG24[11])) { // delete
         COM_errorLog ('Attempted to delete story sid=' . $sid);
         echo COM_refresh ($_CONF['site_admin_url'] . '/story.php');
     } else if ($type == 'submission') {
-        DB_delete ($_TABLES['storysubmission'], 'sid', $sid,
-                   $_CONF['site_admin_url'] . '/moderation.php');
+        $tid = DB_getItem ($_TABLES['storysubmission'], 'tid', "sid = '$sid'");
+        if (hasTopicAccess ($tid) < 3) {
+            COM_accessLog ("User {$_USER['username']} tried to illegally delete story submission $sid.");
+            return COM_refresh ($_CONF['site_admin_url'] . '/index.php');
+        } else {
+            DB_delete ($_TABLES['storysubmission'], 'sid', $sid,
+                       $_CONF['site_admin_url'] . '/moderation.php');
+        }
     } else {
         echo deletestory ($sid);
     }

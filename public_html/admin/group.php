@@ -8,7 +8,7 @@
 // |                                                                           |
 // | Geeklog group administration page.                                        |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000-2003 by the following authors:                         |
+// | Copyright (C) 2000-2004 by the following authors:                         |
 // |                                                                           |
 // | Authors: Tony Bibbs        - tony@tonybibbs.com                           |
 // |          Mark Limburg      - mlimburg@users.sourceforge.net               |
@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: group.php,v 1.28 2003/06/28 11:24:45 dhaun Exp $
+// $Id: group.php,v 1.28.2.1 2004/01/18 19:58:01 dhaun Exp $
 
 /**
 * This file is the Geeklog Group administration page
@@ -579,15 +579,35 @@ function listusers ($grp_id, $curpage = 1, $query_limit = 50)
     return $retval;
 }
 
+/**
+* Delete a group
+*
+*/  
+function deleteGroup ($grp_id)
+{       
+    global $_CONF, $_TABLES, $_USER;
+        
+    if (!SEC_inGroup ('Root') && (DB_getItem ($_TABLES['groups'], 'grp_name',
+            "grp_id = $grp_id") == 'Root')) { 
+        COM_accessLog ("User {$_USER['username']} tried to delete the Root group with insufficient privileges.");
+        return COM_refresh ($_CONF['site_admin_url'] . '/group.php');
+    }
+
+    DB_delete ($_TABLES['access'], 'acc_grp_id', $grp_id);
+    DB_delete ($_TABLES['group_assignments'], 'ug_grp_id', $grp_id);
+    DB_delete ($_TABLES['group_assignments'], 'ug_main_grp_id', $grp_id);
+    DB_delete ($_TABLES['groups'], 'grp_id', $grp_id);
+
+    return COM_refresh ($_CONF['site_admin_url'] . '/group.php?msg=50');
+}
+
 // MAIN
 if (($mode == $LANG_ACCESS['delete']) && !empty ($LANG_ACCESS['delete'])) {
     if (!isset ($grp_id) || empty ($grp_id) || ($grp_id == 0)) {
         COM_errorLog ('Attempted to delete group grp_id=' . $grp_id);
         $display .= COM_refresh ($_CONF['site_admin_url'] . '/group.php');
     } else {
-        DB_delete($_TABLES['access'],'acc_grp_id',$grp_id);
-        DB_delete($_TABLES['groups'],'grp_id',$grp_id);
-        $display = COM_refresh($_CONF['site_admin_url'] . '/group.php?msg=50');
+        $display .= deleteGroup ($grp_id);
     }
 } else if (($mode == $LANG_ACCESS['save']) && !empty ($LANG_ACCESS['save'])) {
     $display .= savegroup($grp_id,$grp_name,$grp_descr,$grp_gl_core,$features,

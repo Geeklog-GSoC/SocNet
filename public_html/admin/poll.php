@@ -8,7 +8,7 @@
 // |                                                                           |
 // | Geeklog poll administration page                                          |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000-2003 by the following authors:                         |
+// | Copyright (C) 2000-2004 by the following authors:                         |
 // |                                                                           |
 // | Authors: Tony Bibbs        - tony@tonybibbs.com                           |
 // |          Mark Limburg      - mlimburg@users.sourceforge.net               |
@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: poll.php,v 1.33 2003/07/14 17:02:42 dhaun Exp $
+// $Id: poll.php,v 1.33.2.1 2004/01/18 19:58:01 dhaun Exp $
 
 // Set this to true if you want to log debug messages to error.log
 $_POLL_VERBOSE = false;
@@ -368,6 +368,29 @@ function listpoll()
     return $retval;
 }
 
+/**
+* Delete a poll
+*
+*/ 
+function deletePoll ($qid)
+{
+    global $_CONF, $_TABLES, $_USER;
+
+    $result = DB_query ("SELECT owner_id,group_id,perm_owner,perm_group,perm_members,perm_anon FROM {$_TABLES['pollquestions']} WHERE qid = '$qid'");
+    $Q = DB_fetchArray ($result);
+    $access = SEC_hasAccess ($Q['owner_id'], $Q['group_id'], $Q['perm_owner'],
+            $Q['perm_group'], $Q['perm_members'], $Q['perm_anon']);
+    if ($access < 3) {
+        COM_accessLog ("User {$_USER['username']} tried to illegally delete poll $qid.");   
+        return COM_refresh ($_CONF['site_admin_url'] . '/poll.php');
+    }   
+                        
+    DB_delete ($_TABLES['pollquestions'], 'qid', $qid);
+    DB_delete ($_TABLES['pollanswers'], 'qid', $qid);
+        
+    return COM_refresh ($_CONF['site_admin_url'] . '/poll.php?msg=20');
+}
+
 // MAIN
 
 $display = '';
@@ -399,9 +422,7 @@ if ($mode == 'edit') {
         COM_errorLog ('Attempted to delete poll qid=' . $qid);
         $display .= COM_refresh ($_CONF['site_admin_url'] . '/poll.php');
     } else {
-        DB_delete($_TABLES['pollquestions'],'qid',$qid);
-        DB_delete($_TABLES['pollanswers'],'qid',$qid);
-        $display .= COM_refresh($_CONF['site_admin_url'] . '/poll.php?msg=20');
+        $display .= deletePoll ($qid);
     }
 } else { // 'cancel' or no mode at all
     $display .= COM_siteHeader('menu');

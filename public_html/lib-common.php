@@ -14,6 +14,7 @@
 // |          Mark Limburg      - mlimburg@users.sourceforge.net               |
 // |          Jason Whittenburg - jwhitten@securitygeeks.com                   |
 // |          Dirk Haun         - dirk@haun-online.de                          |
+// |          Vincent Furia     - vinny01@users.sourceforge.net                |
 // +---------------------------------------------------------------------------+
 // |                                                                           |
 // | This program is free software; you can redistribute it and/or             |
@@ -32,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.301.2.1 2004/05/31 10:50:38 dhaun Exp $
+// $Id: lib-common.php,v 1.301.2.2 2004/05/31 18:19:04 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting( E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR );
@@ -5121,21 +5122,23 @@ function COM_extractLinks( $fulltext, $maxlength = 26 )
 {
     $rel = array();
 
-    preg_match_all( "/(<a.*?href=\"(.*?)\".*?>)(.*?)(<\/a>)/i", $fulltext, $matches );
+    /* Only match anchor tags that contain 'href="<something>"'
+     */
+    preg_match_all( "/<a[^>]*href=\"([^\"]*)\"[^>]*>([^<]*)<\/a>/i", $fulltext, $matches );
     for ( $i=0; $i< count( $matches[0] ); $i++ )
     {
-        $matches[3][$i] = strip_tags( $matches[3][$i] );
-        if ( !strlen( trim( $matches[3][$i] ) ) ) {
-            $matches[3][$i] = strip_tags( $matches[2][$i] );
+        $matches[2][$i] = strip_tags( $matches[2][$i] );
+        if ( !strlen( trim( $matches[2][$i] ) ) ) {
+            $matches[2][$i] = strip_tags( $matches[1][$i] );
         }
 
         // if link is too long, shorten it and add ... at the end
-        if ( ( $maxlength > 0 ) && ( strlen( $matches[3][$i] ) > $maxlength ) )
+        if ( ( $maxlength > 0 ) && ( strlen( $matches[2][$i] ) > $maxlength ) )
         {
-            $matches[3][$i] = substr( $matches[3][$i], 0, $maxlength - 3 ) . '...';
+            $matches[2][$i] = substr( $matches[2][$i], 0, $maxlength - 3 ) . '...';
         }
 
-        $rel[] = $matches[1][$i] . $matches[3][$i] . $matches[4][$i];
+        $rel[] = '<a href="' . $matches[1][$i] . '">' . $matches[2][$i] . '</a>';
     }
 
     return( $rel );

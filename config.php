@@ -32,7 +32,7 @@
 // | information                                                               |
 // +---------------------------------------------------------------------------+
 //
-// $Id: config.php,v 1.30 2002/04/24 16:05:13 tony_bibbs Exp $
+// $Id: config.php,v 1.30.2.1 2002/06/09 21:12:33 dhaun Exp $
 
 // +---------------------------------------------------------------------------+
 // | DATABASE SETTINGS                                                         |
@@ -207,7 +207,7 @@ $_CONF['censorlist']    = array('fuck','cunt','fucker','fucking','pussy','cock',
 
 // Define a few useful things for GL
 define('LB',"\n");
-define('VERSION', '1.3.5');
+define('VERSION', '1.3.5-1');
 
 //$_CONF['default_state_cde'] = 'IA'; // NOT IMPLEMENTED
 $_STATES = array(

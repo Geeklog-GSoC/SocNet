@@ -31,9 +31,13 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: index.php,v 1.24.2.1 2002/06/08 15:39:18 dhaun Exp $
+// $Id: index.php,v 1.24.2.2 2002/07/08 11:15:24 dhaun Exp $
 
-$topic = strip_tags ($topic);
+if (isset ($HTTP_GET_VARS['topic'])) {
+    $topic = strip_tags ($HTTP_GET_VARS['topic']);
+} else {
+    $topic = '';
+}
 require_once('lib-common.php');
 
 $display .= COM_siteHeader();

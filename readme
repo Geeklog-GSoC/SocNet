@@ -1,7 +1,8 @@
 GeekLog Readme
-April 16, 2002
+July 8, 2002
 
-For the quick-and-dirty installation instructions see INSTALL
+For the installation instructions please see docs/install.html.
+
 
 WELCOME
 -------
@@ -81,7 +82,7 @@ https://sourceforge.net/bugs/?group_id=7371
 
 SYSTEM REQUIREMENTS AND INSTALLATION
 ------------------------------------
-See INSTALL.HTML in the /docs directory
+See install.html in the /docs directory
 
 SECURITY ISSUES
 ---------------

@@ -28,22 +28,6 @@
     <tr>
       <td valign="Top" rowspan="2"><font face="Verdana, Arial, Helvetica, sans-serif" size="5"><b>
      GeekLog Configuration Guide</b></font>
-      <ul>
-        <li><b><a href="#overview">Overview</a>
-          </b></li>
-        <li><b><a href="#installer">Installing Geeklog using the installation script (preferred)</b></li>
-        <li><b><a href="#manual">Manually Installing Geeklog</b></li>
-        <li><b><a href="#config.php">Setting up config.php</a></b></li>
-        <li><b><a href="#database">Setting up lib-database.php</a></b></li>
-        <li><b><a href="#localization">Localization</a>
-          </b></li>
-        <ul>
-          <li><b><a href="#locale">Locale and Date Formats</a>
-            </b></li>
-        </ul>
-        <li><b><a href="#support">Support</a>
-          </b></li>
-      </ul>
       <p><font class="chaptertitle"><b><a name="overview"></a>Overview</b></font></p>
 
       <p>GeekLog was originally developed for the Security Geeks web site and was originally authored by Jason Whittenburg.  In early 2001, Jason decided it was time to devote his time to other things and the project has since been maintained by Tony Bibbs who uses Geeklog to run <a href="http://www.iowaoutdoors.org" target="_blank">Iowa Outdoors</a>.  Geeklog is bonafied open-source software and has been released under the GNU GPL for use by others. Configuring GeekLog is meant to be an easy process though it will require you to have access to several components of your system. 
@@ -52,11 +36,11 @@
 
       <p><font class="chaptertitle"><b><a name="installer"></a>Installing Geeking Using Installation Script</b></font></p>
 
-      <p>As of Geeklog 1.3, users can install Geeklog using the installation script.  This script, when it works, completely configures Geeklog for your system including creating or upgrading your database structures (NOTE: it is assumed you have already created the MySQL database before runnig the script). To use the installation script you must first unpack the Geeklog tarball into the directory where it will reside.  If you are using a webhosting company to install Geeklog and need your webtree to be in someplace other than our default /path/to/geeklog/public_html/ (or <drive>:\path\to\geeklog\public_html\ on Windows) relax, you can move the files to your web tree and specify their location during the setup. I'll assume you have already uncompressed the Geeklog .tar.gz file and, optionally, moved your webtree.  Now you need to point your browser to http://your_geeklog_base_url/admin/install.php.  From there simply follow the instructions.  <b>NOTE:</b> The installation script will need sufficient rights to be able to write the configuration options you choose to a set of files on the filesystem.  The installer will perform a write test to see if you can use the installer to do the installation or if you will need to configure Geeklog manually.  If the installer tells you the write test failed please follow the <a href="#manual">manual installation instructions</a> below.</p> 
-
-      <p><font class="chaptertitle"><b><a name="manual">Installing Geeklog Manually</a></font></p>
+<p>This information was outdated and has been removed. Please refer to the <a href="install.html">installation instructions</a> instead.</p>
 
       <p><font class="chaptertitle"><b><a name="config.php"></a>Setting up config.php</b></font></p>
+
+<p><strong>Note:</strong> Some of this information may be out of date. Better documentation is being worked on ...</p>
 
       <p>GeekLog's server settings are configured in a text file called config.php. It is necessary to edit this file to get your system running as well  as configuring it to your preferences. This file contains a set of variables that are defined below: </p>
 
@@ -263,46 +247,6 @@ the cookie.</td>
             <td width="16%">cookie_path</td>
             <td width="13%">/</td>
             <td width="71%">Cookie path. </td>
-          </tr>
-        </tbody>
-      </table>
-      <p><font class="sectiontitle"><b>Plugin Settings</b></font></p>
-      <table border="1" width="100%" class="usual">
-        <tbody>
-          <tr bgcolor="#000000">
-            <th bgcolor="#000000" width="12%"><b><font color="#ffffff" class="usual">
-     Variable</font></b></th>
-            <th width="13%" bgcolor="#000000"><b><font color="#ffffff" class="usual">
-    Default Value</font></b></th>
-            <th width="75%" bgcolor="#000000"><b><font color="#ffffff" class="usual">
-    Description</font></b></th>
-          </tr>
-          <tr>
-            <td width="12%">unzipcommand</td>
-            <td width="13%">unix command<br>
-            </td>
-            <td width="75%">2 commands for unzcopressing plugins. &nbsp;The
-  first one is for Unix based OS's, and the second is for Windows. &nbsp;Comment
-  as appropriate</td>
-          </tr>
-          <tr>
-            <td width="12%">rmcommand<br>
-            </td>
-            <td width="13%">unix command<br>
-            </td>
-            <td width="75%">2 commands for removing directories during plugin
-  install. &nbsp;First command is for Unix based OS, the second is for Windows.
-  &nbsp;Comment as appropriate.<br>
-            </td>
-          </tr>
-          <tr>
-            <td valign="Top">ostype<br>
-            </td>
-            <td valign="Top">PHP_OS<br>
-            </td>
-            <td valign="Top">Redundant, but require variable for making sure 
- plugins are OS-compatable.<br>
-            </td>
           </tr>
         </tbody>
       </table>
@@ -635,8 +579,6 @@ comment for the user</td>
         </tbody>
       </table>
       </p>
-      <p><font class="chaptertitle"><b><a name="database"></a>Setting up lib-database</b></font></p>
-      <p>( Coming Soon )</p>
 <!---Database Settings-->
       <p><font class="sectiontitle"><b>Database Settings<br>
       <br>
@@ -686,12 +628,7 @@ for geeklog</td>
      Localization</b></font></p>
       <p>Localizing GeekLog is now fairly easy. All strings         are contained 
   in a language file, the default file that ships with the         tar ball 
-  is english.php.&nbsp; As people translate the file, local versions     
-   will be posted on the <a href="http://geeklog.sf.net/download.php">GeekLog
-           Download Page</a>
-     .&nbsp; If you translate a language file for GeekLog         please
-forward   me a copy at <a href="mailto:tane@zopegeeks.org">tane@zopegeeks.org</a>
-   .       </p>
+  is english.php. People interested in translating Geeklog to other languages are encouraged to join the <a href="http://lists.sourceforge.net/lists/listinfo/geeklog-translations">geeklog-translations</a> mailing list. All important information concerning translating Geeklog will be posted there.</p>
       <p><font class="chaptertitle"><b><a name="locale"></a>
      Locale and Date Formats</b></font></p>
       <p>You can set the locale and date format in the config.php        
@@ -760,48 +697,6 @@ as  the first day of the           week.</tt></li>
         <li><tt>%Y - year as a decimal number including the century</tt></li>
         <li><tt>%Z - time zone or name or abbreviation</tt></li>
         <li><tt>%% - a literal `%' character</tt></li>
-      </ul>
-      <font class="chaptertitle"><b><a name="support"></a>
-     Support</b></font>
-      <ul>
-        <li><b>Webpage </b>- The <a href="http://geeklog.sf.net">Geeklog 
-website</a>
-    is the best place for the latest news and updates<br>
-        </li>
-        <li><b>Bug reports</b> - Submit bug reports at <a href="http://sourceforge.net/bugs/?func=addbug&amp;group_id=7371">
-     SourceForge</a>
-     .</li>
-        <li><b>Mailing lists</b> - Join the <a href="http://sourceforge.net/mail/?group_id=7371">
-     mailing           list</a>
-     .</li>
-        <li><b>Patches</b> - Please submit patches at <a href="http://sourceforge.net/patch/?group_id=7371">
-     SourceForge</a>
-     .</li>
-        <li><b>General Help</b> - A better place for general           "I 
-  can't do it!" help is the <a href="http://sourceforge.net/mail/?group_id=7371">
-     mailing           list</a>
-     . Stuff that may be of more general interest is welcome here;      
-    but you will probably get better help on the lists.</li>
-        <li><b>Link submissions</b> - Use the <a href="http://geeklog.sf.net/submit.php?type=link">
-     contribute           link</a>
-      link to tell us about your new site running GeekLog.</li>
-        <li><b>Story submissions</b> - Use the <a href="http://geeklog.sf.net/submit.php?type=story">
-     contribute           news</a>
-      link to tell us your ideas for the GeekLog site and questions.    
-      DO NOT use this for bug reports. Use SourceForge for <a href="http://sourceforge.net/bugs/?func=addbug&amp;group_id=7371">
-     bug           reports</a>
-     . Also try not to use it for general "I can't do this!" help;      
-    you'll get a much better response for those on the <a href="http://sourceforge.net/mail/?group_id=7371">
-     mailing           list</a>
-     .</li>
-        <li><b>Feature requests</b> - Where to send feature           requests 
-  depends a bit on what the request is. In general, the mailing          
-list  is a decent place, and if it is something significant, you may    
-      want to send it in as a story submission. You may also want to go over
-          to SourceForge and submit it as a <a href="http://sourceforge.net/bugs/?func=addbug&amp;group_id=7371">
-     bug           report</a>
-      (make sure you select "Feature Request" for the "Group"),         
- so  we can have it filed and we can track it easily.</li>
       </ul>
       </td>
     </tr>

@@ -1,5 +1,10 @@
 GeekLog History/Changes:
 
+July ??, 2002 (1.3.5sr2)
+-------------
+- New installation instructions (now back in docs/install.html).
+  Please note that some of the other documentation may be out of date ...
+- Display of stories in older stories block was off by one day.
 - Added some scripts in admin/install to help with the installation:
   + info.php just does a phpinfo()
   + check.php will check the file and directory permissions

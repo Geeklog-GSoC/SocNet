@@ -11,7 +11,7 @@
 // | Copyright (C) 2000,2001 by the following authors:                         |
 // |                                                                           |
 // | Authors: Tony Bibbs       - tony@tonybibbs.com                            |
-// |          Mark Limburg     - mlimburg@dingoblue.net.au                     |
+// |          Mark Limburg     - mlimburg@users.sourceforge.net
 // |          Jason Wittenburg - jwhitten@securitygeeks.com                    |
 // +---------------------------------------------------------------------------+
 // |                                                                           |
@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: story.php,v 1.44 2002/04/23 17:13:36 tony_bibbs Exp $
+// $Id: story.php,v 1.44.2.1 2002/07/04 07:59:04 dhaun Exp $
 
 include('../lib-common.php');
 include('auth.inc.php');
@@ -208,6 +208,8 @@ function storyeditor($sid = '', $mode = '')
             $publish_hour = $publish_hour - 12;
         }
         $ampm = 'pm';
+    } else {
+        $ampm = 'am';
     }
     if ($ampm == 'pm') {
         $story_templates->set_var('publishpm_selected','selected="SELECTED"');
@@ -779,7 +781,9 @@ case 'editsubmission':
     break;
 case 'save':
     if ($publish_ampm == 'pm') {
-        $publish_hour = $publish_hour + 12;
+        if ($publish_hour < 12) {
+            $publish_hour = $publish_hour + 12;
+        }
     }
     if ($publish_ampm == 'am' AND $publish_hour == 12) {
         $publish_hour = '00';

@@ -1,6 +1,20 @@
 GeekLog History/Changes:
 
-June 10, 2002
+- Added a test for register_globals=off in the install script (and display a
+  warning if it is off).
+- Fixed the "12pm bug": Posting a story between 12 and 1 pm would result in
+  the story being posted with a date in 1969.
+- Use mysql_connect() instead of mysql_pconnect() in MySQL class.
+- The redirect after submitting a story always went to /index.php
+- HTML tags are now stripped out of search queries. 
+- Removed the logging of all search queries to error.log.
+- Fixed a wrong link from personal events in the upcoming events block.
+- The "Home" link in the section block was not active on pages > 1. It was,
+  however, always active on the home page when the Geeklog site was not
+  located in the DocumentRoot.
+
+
+June 10, 2002 (1.3.5sr1)
 -------------
 - This release addresses security issues recently discovered by the people at
   olympos.org. These issues allow for the injection of malicious javascript

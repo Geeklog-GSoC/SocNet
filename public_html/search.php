@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: search.php,v 1.17 2002/04/23 04:22:03 mlimburg Exp $
+// $Id: search.php,v 1.17.2.1 2002/07/04 07:59:03 dhaun Exp $
 
 require_once('lib-common.php');
 
@@ -420,7 +420,7 @@ function searchstories($query,$topic,$datestart,$dateend, $author, $type='all')
             for ($j = 1; $j <= $cur_plugin->num_searchresults; $j++) {
                 $columns = current($cur_plugin->searchresults);
                 for ($x = 1; $x <= count($columns); $x++) {
-                    COM_errorLog('column val = ' . current($columns),1);
+                    // COM_errorLog('column val = ' . current($columns),1);
                     $searchresults->set_var('data', current($columns));
                     $searchresults->parse('data_cols','resultcolumn',true);
                     next($columns);
@@ -472,9 +472,10 @@ function searchresults($A)
 // MAIN
 $display .= COM_siteHeader();
 if ($mode == 'search') {
-	$display .= searchstories($query,$topic,$datestart,$dateend,$author,$type);
+    $query = strip_tags ($query);
+    $display .= searchstories($query,$topic,$datestart,$dateend,$author,$type);
 } else {
-	$display .= searchform();
+    $display .= searchform();
 }
 $display .= COM_siteFooter();
 echo $display;

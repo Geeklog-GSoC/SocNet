@@ -29,7 +29,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: mysql.class.php,v 1.6 2002/01/03 21:23:00 tony_bibbs Exp $
+// $Id: mysql.class.php,v 1.6.2.1 2002/07/04 07:59:04 dhaun Exp $
 
 class database {
 
@@ -72,7 +72,7 @@ class database {
         }
 
         // Connect to MySQL server
-        $conn = mysql_pconnect($this->_host,$this->_user,$this->_pass) or die('Cannnot connect to DB server');
+        $conn = mysql_connect($this->_host,$this->_user,$this->_pass) or die('Cannnot connect to DB server');
 
         // Set the database
         @mysql_select_db($this->_name) or die('error selecting database');

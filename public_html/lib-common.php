@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.79 2002/04/24 14:15:52 tony_bibbs Exp $
+// $Id: lib-common.php,v 1.79.2.1 2002/07/04 07:59:03 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
@@ -1058,7 +1058,7 @@ function COM_pollResults($qid,$scale=400,$order='',$mode='')
 */
 function COM_showTopics($topic='') 
 {
-    global $_TABLES, $_CONF, $_USER, $LANG01, $PHP_SELF;
+    global $_TABLES, $_CONF, $_USER, $LANG01, $PHP_SELF, $page;
 	
     if ($_CONF['sortmethod'] == 'alpha') {
         $result = DB_query("SELECT * FROM {$_TABLES['topics']} ORDER BY tid ASC");
@@ -1070,7 +1070,7 @@ function COM_showTopics($topic='')
 
     // Give a link to the hompage here since a lot of people use this for navigating the site
 
-    if (($PHP_SELF <> "/index.php") OR !empty($topic)) {
+    if (($PHP_SELF <> "/index.php") OR !empty($topic) OR ($page > 1)) {
         $retval .= '<a href="' . $_CONF['site_url'] . '/index.php"><b>' . $LANG01[90] . '</b></a><br>';
     } else {
         $retval .= $LANG01[90] . '<br>';
@@ -2016,7 +2016,7 @@ function COM_getpassword($loginname)
         $U = DB_fetchArray($result);
         return $U['passwd'];
     } else {
-        $tmp = $LANG01[32] . $loginname . '!';
+        $tmp = $LANG01[32] . ': ' . $loginname;
         COM_errorLog($tmp,1);
     }
 }
@@ -2124,8 +2124,12 @@ function COM_printUpcomingEvents($help='',$title='')
 
             if ($numDays < 14) {
                 // Display the url now!
-                $retval .= '<li><a href="' . $_CONF['site_url'] . '/calendar_event.php?eid=' . $theEvent['eid']
-                    . '">' . stripslashes($theEvent['title']) . '</a></li>';
+                $retval .= '<li><a href="' . $_CONF['site_url'] . '/calendar_event.php?';
+                if ($z == 2) {
+                    $retval .= 'mode=personal&amp;';
+                }
+                $retval .= eid=' . $theEvent['eid'] . '">'
+                        . stripslashes($theEvent['title']) . '</a></li>';
             }
             $theRow ++ ;
         }

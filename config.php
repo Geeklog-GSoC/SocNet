@@ -28,17 +28,17 @@
 // | Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.           |
 // |                                                                           |
 // +---------------------------------------------------------------------------+
-// | See the INSTALL.HTML file for more information on configuration           | 
+// | See the INSTALL.HTML file for more information on configuration           |
 // | information                                                               |
 // +---------------------------------------------------------------------------+
 //
-// $Id: config.php,v 1.30.2.2 2002/06/10 06:56:51 dhaun Exp $
+// $Id: config.php,v 1.30.2.3 2002/07/04 07:59:03 dhaun Exp $
 
 // +---------------------------------------------------------------------------+
 // | DATABASE SETTINGS                                                         |
 // |                                                                           |
 // | All paths must have a trailing slash ('/'). The 'path' value signifies    |
-// | where the config.php (this file) resides                                  | 
+// | where the config.php (this file) resides                                  |
 // +---------------------------------------------------------------------------+
 $_DB_dbms           = 'mysql';              // Currently only MySQL is support, do not change
 $_DB_host           = 'localhost';  
@@ -53,7 +53,7 @@ $_CONF['allow_mysqldump']   = 1;            // 1 = on, 0 = off
 // | SERVER SETTINGS                                                           |
 // |                                                                           |
 // | All paths must have a trailing slash ('/'). The 'path' value signifies    |
-// | where the config.php (this file) resides                                  | 
+// | where the config.php (this file) resides                                  |
 // +---------------------------------------------------------------------------+
 
 $_CONF['path']              = '/path/to/geeklog/';
@@ -92,7 +92,7 @@ $_CONF['daytime']   = '%m/%d %I:%M%p';
 $_CONF['shortdate'] = '%x';
 
 // +---------------------------------------------------------------------------+
-// | SESSION SETTINGS                                                          | 
+// | SESSION SETTINGS                                                          |
 // |                                                                           |
 // | cookie_ip will store md5(remoteip + randomnum) as the session ID in the   |
 // | cookie. This is more secure but will more than likely require dialed up   |
@@ -206,8 +206,10 @@ $_CONF['censorreplace'] = '*censored*';
 $_CONF['censorlist']    = array('fuck','cunt','fucker','fucking','pussy','cock','c0ck','cum','twat','clit','bitch','fuk','fuking','motherfucker');
 
 // Define a few useful things for GL
-define('LB',"\n");
-define('VERSION', '1.3.5sr1');
+if (!defined ('LB')) {
+    define('LB',"\n");
+}
+define('VERSION', '1.3.5sr2');
 
 //$_CONF['default_state_cde'] = 'IA'; // NOT IMPLEMENTED
 $_STATES = array(

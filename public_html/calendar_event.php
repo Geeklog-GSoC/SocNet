@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: calendar_event.php,v 1.16 2002/04/23 04:22:02 mlimburg Exp $
+// $Id: calendar_event.php,v 1.16.2.1 2002/07/04 07:59:03 dhaun Exp $
 
 require_once('lib-common.php');
 require_once($_CONF['path_system'] . 'classes/calendar.class.php');
@@ -402,6 +402,7 @@ default:
         $cal_templates->set_var('lang_month','');
         $cal_templates->set_var('event_year','');
         $cal_templates->set_var('event_details','');
+        $cal_templates->set_var('site_url', $_CONF['site_url']);
         $cal_templates->parse('output','events');
         $display .= $cal_templates->finish($cal_templates->get_var('output'));
         $display .= $LANG02[1];

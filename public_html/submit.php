@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: submit.php,v 1.54.2.1 2003/12/05 19:34:41 dhaun Exp $
+// $Id: submit.php,v 1.54.2.2 2004/01/18 19:58:41 dhaun Exp $
 
 require_once('lib-common.php');
 
@@ -738,10 +738,6 @@ $display .= COM_siteHeader();
 
 if ($mode == $LANG12[8]) { // submit
     $display .= savesubmission($type,$HTTP_POST_VARS);
-} else if ($mode == $LANG12[52]) { // delete
-    if (!empty($eid)) {
-        DB_delete($_TABLES['personal_events'], 'eid',$eid,$_CONF['site_url'].'/calendar.php?mode=personal');
-    }  
 } else {
     switch($type) {
         case 'link':

@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: submit.php,v 1.65.2.1 2004/05/31 19:37:10 vinny Exp $
+// $Id: submit.php,v 1.65.2.2 2004/12/14 22:33:45 dhaun Exp $
 
 require_once('lib-common.php');
 
@@ -256,12 +256,12 @@ function submitstory($topic = '')
         $A = $HTTP_POST_VARS;
     } else {
         $A['sid'] = COM_makeSid();
-        if (isset ($_USER['uid']) && ($_USER['uid'] > 1)) {
-            $A['uid'] = $_USER['uid'];
-        } else {
-            $A['uid'] = 1;
-        }
         $A['unixdate'] = time();
+    }
+    if (isset ($_USER['uid']) && ($_USER['uid'] > 1)) {
+        $A['uid'] = $_USER['uid'];
+    } else {
+        $A['uid'] = 1;
     }
 
     if (empty($A['postmode'])) {
@@ -314,6 +314,7 @@ function submitstory($topic = '')
     } else {
         $storyform->set_var('status_url', $_CONF['site_url'] . '/users.php');
         $storyform->set_var('lang_loginout', $LANG12[2]);
+        $storyform->set_var('separator', ' | ');
         $storyform->set_var('seperator', ' | ');
         $storyform->set_var('create_account','<a href="' . $_CONF['site_url'] . '/users.php?mode=new">' . $LANG12[53] . '</a>');
     }
@@ -470,8 +471,9 @@ function savesubmission($type,$A)
 
     switch ($type) {
     case 'link':
-        $A['category'] = strip_tags($A['category']);
         if (!empty($A['title']) && !empty($A['description']) && !empty($A['url'])) {
+            $A['category'] = strip_tags ($A['category']);
+            $A['categorydd'] = strip_tags ($A['categorydd']);
             if ($A['categorydd'] != $LANG12[18] && !empty($A['categorydd'])) {
                 $A['category'] = $A['categorydd'];
             } else if ($A['categorydd'] != $LANG12[18]) {
@@ -480,9 +482,11 @@ function savesubmission($type,$A)
                     . $LANG12[21]
                     . COM_endBlock(COM_getBlockTemplate('_msg_block', 'footer'))
                     . submissionform($type);
-					    
+
                     return $retval;
             }
+            $A['category'] = addslashes ($A['category']);
+
             $A['description'] = addslashes(htmlspecialchars(COM_checkWords($A['description'])));
             $A['title'] = addslashes(strip_tags(COM_checkWords($A['title'])));
             $A['url'] = strip_tags ($A['url']);
@@ -501,22 +505,27 @@ function savesubmission($type,$A)
             }
             $A['lid'] = COM_makeSid();
             COM_updateSpeedlimit ('submit');
+
             if (($_CONF['linksubmission'] == 1) && !SEC_hasRights('link.submit')) {
-                $result = DB_save($_TABLES['linksubmission'],'lid,category,url,description,title,date',"{$A['lid']},'{$A['category']}','{$A['url']}','{$A['description']}','{$A['title']}',NOW()",$_CONF['site_url'].'/index.php?msg=3');
+                $result = DB_save($_TABLES['linksubmission'],'lid,category,url,description,title,date',"{$A['lid']},'{$A['category']}','{$A['url']}','{$A['description']}','{$A['title']}',NOW()");
                 if (isset ($_CONF['notification']) && in_array ('link', $_CONF['notification'])) {
                     sendNotification ($_TABLES['linksubmission'], $A);
                 }
+
+                $retval = COM_refresh ($_CONF['site_url'] . '/index.php?msg=3');
             } else { // add link directly
                 if (isset ($_USER['uid']) && ($_USER['uid'] > 1)) {
                     $owner_id = $_USER['uid'];
                 } else {
                     $owner_id = 1; // anonymous user
                 }
-                $result = DB_save($_TABLES['links'],'lid,category,url,description,title,date,owner_id', "{$A['lid']},'{$A['category']}','{$A['url']}','{$A['description']}','{$A['title']}',NOW(),$owner_id", $_CONF['site_url'] . '/links.php');
+                $result = DB_save($_TABLES['links'],'lid,category,url,description,title,date,owner_id', "{$A['lid']},'{$A['category']}','{$A['url']}','{$A['description']}','{$A['title']}',NOW(),$owner_id");
                 if (isset ($_CONF['notification']) && in_array ('link', $_CONF['notification'])) {
                     sendNotification ($_TABLES['links'], $A);
                 }
                 COM_rdfUpToDateCheck ();
+
+                $retval = COM_refresh ($_CONF['site_url'] . '/links.php');
             }
         } else {
             $retval .= COM_startBlock ($LANG12[22], '',
@@ -529,19 +538,32 @@ function savesubmission($type,$A)
         }
         break;
     case 'event':
+        $A['title'] = strip_tags (COM_checkWords ($A['title']));
+        $A['start_year'] = COM_applyFilter ($A['start_year'], true);
+        $A['start_month'] = COM_applyFilter ($A['start_month'], true);
+        $A['start_day'] = COM_applyFilter ($A['start_day'], true);
+
         if (!empty($A['title']) && (!empty($A['start_month']) AND !empty($A['start_day']) AND !empty($A['start_year']))) {
+            $A['end_year'] = COM_applyFilter ($A['end_year'], true);
+            $A['end_month'] = COM_applyFilter ($A['end_month'], true);
+            $A['end_day'] = COM_applyFilter ($A['end_day'], true);
+
             $A['datestart'] = $A['start_year'] . '-' . $A['start_month'] . '-' . $A['start_day'];
             if (empty($A['end_year'])) {
                 $A['dateend'] = $A['datestart'];
             } else {
                 $A['dateend'] = $A['end_year'] . '-' . $A['end_month'] . '-' . $A['end_day'];
             }
-            $A['description'] = addslashes(htmlspecialchars(COM_checkWords($A["description"])));
-            $A['title'] = addslashes(strip_tags(COM_checkWords($A['title'])));
-            $A['address1'] = addslashes(strip_tags(COM_checkWords($A['address1'])));
-            $A['address2'] = addslashes(strip_tags(COM_checkWords($A['address2'])));
-            $A['city'] = addslashes(strip_tags(COM_checkWords($A['city'])));
-            $A['location'] = addslashes(strip_tags(COM_checkWords($A['location'])));
+
+            $A['description'] = addslashes (htmlspecialchars (COM_checkWords ($A['description'])));
+            $A['address1'] = addslashes (strip_tags (COM_checkWords ($A['address1'])));
+            $A['address2'] = addslashes (strip_tags (COM_checkWords ($A['address2'])));
+            $A['city'] = addslashes (strip_tags (COM_checkWords ($A['city'])));
+            $A['zipcode'] = addslashes (strip_tags (COM_checkWords ($A['zipcode'])));
+            $A['state'] = addslashes (strip_tags (COM_checkWords ($A['state'])));
+            $A['location'] = addslashes (strip_tags (COM_checkWords ($A['location'])));
+            $A['event_type'] = addslashes (strip_tags (COM_checkWords ($A['event_type'])));
+
             $A['url'] = strip_tags ($A['url']);
             if (!empty ($A['url'])) {
                 $pos = strpos ($A['url'], ':');
@@ -556,9 +578,7 @@ function savesubmission($type,$A)
                 }
                 $A['url'] = addslashes ($A['url']);
             }
-            if (empty($A['eid'])) {
-                $A['eid'] = COM_makesid();
-            }
+            $A['eid'] = addslashes (COM_makeSid ());
 
             COM_updateSpeedlimit ('submit');
 
@@ -566,43 +586,50 @@ function savesubmission($type,$A)
                 $A['allday'] = 1;
             } else {
                 $A['allday'] = 0;
-                if ($A['start_ampm'] == 'pm' AND $A['start_hour'] <> 12) {
-                    $A['start_hour'] = $A['start_hour'] + 12;
-                }
-                if ($A['start_ampm'] == 'am' AND $A['start_hour'] == 12) {
-                    $A['start_hour'] = '00';
-                }
-                if ($A['end_ampm'] == 'pm') {
-                    $A['end_hour'] = $A['end_hour'] + 12;
-                }
-                if ($A['end_ampm'] == 'am' AND $A['end_hour'] == 12) {
-                    $A['end_hour'] = '00';
-                }
-                $A['timestart'] = $A['start_hour'] . ':' . $A['start_minute'] . ':00';
-                if (empty($A['end_hour'])) {
-                    $A['timeend'] = $A['start_hour'] + 1 . ':' . $A['start_minute'] . ':00';
-                } else {
-                    $A['timeend'] = $A['end_hour'] . ':' . $A['end_minute'] . ':00';
-                }
             }
+
+            $A['start_hour'] = COM_applyFilter ($A['start_hour'], true);
+            $A['start_minute'] = COM_applyFilter ($A['start_minute'], true);
+            $A['end_hour'] = COM_applyFilter ($A['end_hour'], true);
+            $A['end_minute'] = COM_applyFilter ($A['end_minute'], true);
+
+            if ($A['start_ampm'] == 'pm' AND $A['start_hour'] <> 12) {
+                $A['start_hour'] = $A['start_hour'] + 12;
+            }
+            if ($A['start_ampm'] == 'am' AND $A['start_hour'] == 12) {
+                $A['start_hour'] = '00';
+            }
+            if ($A['end_ampm'] == 'pm' AND $A['end_hour'] <> 12) {
+                $A['end_hour'] = $A['end_hour'] + 12;
+            }
+            if ($A['end_ampm'] == 'am' AND $A['end_hour'] == 12) {
+                $A['end_hour'] = '00';
+            }
+            $A['timestart'] = $A['start_hour'] . ':' . $A['start_minute'] . ':00';
+            $A['timeend'] = $A['end_hour'] . ':' . $A['end_minute'] . ':00';
 
             if ($A['calendar_type'] == 'master') {
                 if (($_CONF['eventsubmission'] == 1) && !SEC_hasRights('event.submit')) {
-                    $result = DB_save($_TABLES['eventsubmission'],'eid,title,event_type,url,datestart,timestart,dateend,timeend,allday,location,address1,address2,city,state,zipcode,description',"{$A['eid']},'{$A['title']}','{$A['event_type']}','{$A['url']}','{$A['datestart']}','{$A['timestart']}','{$A['dateend']}','{$A['timeend']}',{$A['allday']},'{$A['location']}','{$A['address1']}','{$A['address2']}','{$A['city']}','{$A['state']}','{$A['zipcode']}','{$A['description']}'",$_CONF['site_url']."/index.php?msg=4");
+                    $result = DB_save($_TABLES['eventsubmission'],'eid,title,event_type,url,datestart,timestart,dateend,timeend,allday,location,address1,address2,city,state,zipcode,description',"{$A['eid']},'{$A['title']}','{$A['event_type']}','{$A['url']}','{$A['datestart']}','{$A['timestart']}','{$A['dateend']}','{$A['timeend']}',{$A['allday']},'{$A['location']}','{$A['address1']}','{$A['address2']}','{$A['city']}','{$A['state']}','{$A['zipcode']}','{$A['description']}'");
                     if (isset ($_CONF['notification']) && in_array ('event', $_CONF['notification'])) {
                         sendNotification ($_TABLES['eventsubmission'], $A);
                     }
+
+                    $retval = COM_refresh ($_CONF['site_url']
+                                           . '/index.php?msg=4');
                 } else {
                     if (isset ($_USER['uid']) && ($_USER['uid'] > 1)) {
                         $owner_id = $_USER['uid'];
                     } else {
                         $owner_id = 1; // anonymous user
                     }
-                    $result = DB_save($_TABLES['events'],'eid,title,event_type,url,datestart,timestart,dateend,timeend,allday,location,address1,address2,city,state,zipcode,description,owner_id',"{$A['eid']},'{$A['title']}','{$A['event_type']}','{$A['url']}','{$A['datestart']}','{$A['timestart']}','{$A['dateend']}','{$A['timeend']}',{$A['allday']},'{$A['location']}','{$A['address1']}','{$A['address2']}','{$A['city']}','{$A['state']}','{$A['zipcode']}','{$A['description']}',$owner_id", $_CONF['site_url'] . '/calendar.php');
+                    $result = DB_save($_TABLES['events'],'eid,title,event_type,url,datestart,timestart,dateend,timeend,allday,location,address1,address2,city,state,zipcode,description,owner_id',"{$A['eid']},'{$A['title']}','{$A['event_type']}','{$A['url']}','{$A['datestart']}','{$A['timestart']}','{$A['dateend']}','{$A['timeend']}',{$A['allday']},'{$A['location']}','{$A['address1']}','{$A['address2']}','{$A['city']}','{$A['state']}','{$A['zipcode']}','{$A['description']}',$owner_id");
                     if (isset ($_CONF['notification']) && in_array ('event', $_CONF['notification'])) {
                         sendNotification ($_TABLES['events'], $A);
                     }
                     COM_rdfUpToDateCheck ();
+
+                    $retval = COM_refresh ($_CONF['site_url'] . '/calendar.php');
                 }
             } else {
                 if (isset ($_USER['uid']) && ($_USER['uid'] > 1)) {
@@ -612,7 +639,10 @@ function savesubmission($type,$A)
                     COM_accessLog ("Attempt to write to the personal calendar of user {$A['uid']}.");
                     return COM_refresh ($_CONF['site_url'] . '/calendar.php');
                 }
-                $result = DB_save($_TABLES['personal_events'],'uid,eid,title,event_type,url,datestart,timestart,dateend,timeend,allday,location,address1,address2,city,state,zipcode,description',"{$A['uid']},'{$A['eid']}','{$A['title']}','{$A['event_type']}','{$A['url']}','{$A['datestart']}','{$A['timestart']}','{$A['dateend']}','{$A['timeend']}',{$A['allday']},'{$A['location']}','{$A['address1']}','{$A['address2']}','{$A['city']}','{$A['state']}','{$A['zipcode']}','{$A['description']}'",$_CONF['site_url'].'/calendar.php?mode=personal&msg=4');
+                $result = DB_save($_TABLES['personal_events'],'uid,eid,title,event_type,url,datestart,timestart,dateend,timeend,allday,location,address1,address2,city,state,zipcode,description',"{$A['uid']},'{$A['eid']}','{$A['title']}','{$A['event_type']}','{$A['url']}','{$A['datestart']}','{$A['timestart']}','{$A['dateend']}','{$A['timeend']}',{$A['allday']},'{$A['location']}','{$A['address1']}','{$A['address2']}','{$A['city']}','{$A['state']}','{$A['zipcode']}','{$A['description']}'");
+
+                $retval = COM_refresh ($_CONF['site_url']
+                                       . '/calendar.php?mode=personal&msg=17');
             }
                 
         } else {
@@ -643,29 +673,41 @@ function savesubmission($type,$A)
         }
 
         if (!empty($A['title']) && !empty($A['introtext'])) {
-            $A['title'] = addslashes(strip_tags(COM_checkWords($A['title'])));
-            $A['title'] = str_replace('$','&#36;',$A['title']);
-            $introtext = $A['introtext'];
+            $A['title'] = COM_stripslashes ($A['title']);
+            $A['introtext'] = COM_stripslashes ($A['introtext']);
+
+            $A['title'] = strip_tags (COM_checkWords ($A['title']));
+            $A['title'] = addslashes (str_replace ('$', '&#36;', $A['title']));
+
             if ($A['postmode'] == 'html') {
                 $A['introtext'] = addslashes(COM_checkHTML(COM_checkWords($A['introtext'])));
             } else {
                 $A['introtext'] = addslashes(htmlspecialchars(COM_checkWords($A['introtext'])));
             }
-            $A['sid'] = COM_makeSid();
+            $A['sid'] = addslashes (COM_makeSid());
             if (isset ($_USER['uid']) && ($_USER['uid'] > 1)) {
                 $A['uid'] = $_USER['uid'];
             } else {
                 $A['uid'] = 1;
             }					
             COM_updateSpeedlimit ('submit');
+            
+            $A['tid'] = addslashes ($A['tid']);
+            $result = DB_query ("SELECT group_id,perm_owner,perm_group,perm_members,perm_anon FROM {$_TABLES['topics']} WHERE tid = '{$A['tid']}'" . COM_getTopicSQL ('AND'));
+            if (DB_numRows ($result) == 0) {
+                // user doesn't have access to this topic - bail
+                return COM_refresh ($_CONF['site_url'] . '/index.php');
+            }
+            $T = DB_fetchArray ($result);
+
             if (($_CONF['storysubmission'] == 1) && !SEC_hasRights('story.submit')) {
-                DB_save($_TABLES['storysubmission'],"sid,tid,uid,title,introtext,date,postmode","{$A['sid']},'{$A['tid']}',{$A['uid']},'{$A['title']}','{$A['introtext']}',NOW(),'{$A['postmode']}'",$_CONF['site_url'].'/index.php?msg=2');
+                DB_save($_TABLES['storysubmission'],"sid,tid,uid,title,introtext,date,postmode","{$A['sid']},'{$A['tid']}',{$A['uid']},'{$A['title']}','{$A['introtext']}',NOW(),'{$A['postmode']}'");
                 if (isset ($_CONF['notification']) && in_array ('story', $_CONF['notification'])) {
                     sendNotification ($_TABLES['storysubmission'], $A);
                 }
+
+                $retval .= COM_refresh ($_CONF['site_url'] . '/index.php?msg=2');
             } else { // post this story directly
-                $result = DB_query ("SELECT * FROM {$_TABLES['topics']} WHERE tid='{$A['tid']}'");
-                $T = DB_fetchArray ($result);
                 $related = addslashes (COM_whatsRelated ($introtext, $A['uid'], $A['tid']));
                 DB_save ($_TABLES['stories'], 'sid,uid,tid,title,introtext,related,date,commentcode,postmode,owner_id,group_id,perm_owner,perm_group,perm_members,perm_anon', "{$A['sid']},{$A['uid']},'{$A['tid']}','{$A['title']}','{$A['introtext']}','{$related}',NOW(),{$_CONF['comment_code']},'{$A['postmode']}',{$A['uid']},{$T['group_id']},{$T['perm_owner']},{$T['perm_group']},{$T['perm_members']},{$T['perm_anon']}");
 
@@ -712,7 +754,12 @@ if (isset ($HTTP_POST_VARS['mode'])) {
 $mode = COM_applyFilter ($http_vars['mode']);
 
 if ($mode == $LANG12[8]) { // submit
-    $display .= savesubmission ($type, $HTTP_POST_VARS);
+    if (empty ($_USER['username']) &&
+        (($_CONF['loginrequired'] == 1) || ($_CONF['submitloginrequired'] == 1))) {
+        $display = COM_refresh ($_CONF['site_url'] . '/index.php');
+    } else {
+        $display .= savesubmission ($type, $HTTP_POST_VARS);
+    }
 } else {
     switch($type) {
         case 'link':

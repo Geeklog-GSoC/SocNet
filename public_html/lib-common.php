@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.79.2.5 2002/07/08 14:18:18 dhaun Exp $
+// $Id: lib-common.php,v 1.79.2.6 2002/07/09 07:40:52 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
@@ -106,10 +106,9 @@ if (DB_getItem($_TABLES['blocks'],'is_enabled',"name = 'whosonline_block'") == 1
         $curtime = time();
         // Insert anonymous user session
         DB_query("INSERT INTO {$_TABLES['sessions']} (sess_id, start_time, remote_ip, uid) VALUES ($sess_id,$curtime,'$REMOTE_ADDR',1)");
-    } else {
-        // Clear out any expired sessions
-        DB_query("DELETE FROM {$_TABLES['sessions']} WHERE uid = 1 AND start_time < " . (time() - $_CONF['whosonline_threshold']));
     }
+    // Clear out any expired sessions
+    DB_query("DELETE FROM {$_TABLES['sessions']} WHERE uid = 1 AND start_time < " . (time() - $_CONF['whosonline_threshold']));
 }
 
 require_once($_CONF['path'] . 'language/' . $_CONF['language'] . '.php');
@@ -1754,13 +1753,13 @@ function COM_olderstuff()
                 $A = DB_fetchArray($result);
                 $daycheck = strftime("%A",$A['day']);
                 if ($day != $daycheck) {
-                    $day2 = strftime("%m/%d",$A['day']);
-                    $string .= '<br><b>' . $daycheck . '</b> <small>' . $day2 . '</small><br>' . LB;
                     if ($day != 'noday') {
                         $daylist = COM_makeList ($oldnews);
                         $daylist = preg_replace ("/(\015\012)|(\015)|(\012)/", "", $daylist);
-                        $string .= $daylist;
+                        $string .= $daylist . '<br>';
                     }
+                    $day2 = strftime("%m/%d",$A['day']);
+                    $string .= '<b>' . $daycheck . '</b> <small>' . $day2 . '</small>' . LB;
                     $oldnews = array ();
                     $day = $daycheck;
                 }

@@ -5,14 +5,14 @@
 // | Geeklog 1.3                                                               |
 // +---------------------------------------------------------------------------+
 // | lib-common.php                                                            |
-// | Geeklog common library.                                                   |
 // |                                                                           |
+// | Geeklog calendar.                                                         |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000,2001 by the following authors:                         |
+// | Copyright (C) 2000-2004 by the following authors:                         |
 // |                                                                           |
-// | Authors: Tony Bibbs       - tony@tonybibbs.com                            |
-// |          Mark Limburg     - mlimburg@users.sourceforge.net                |
-// |          Jason Wittenburg - jwhitten@securitygeeks.com                    |
+// | Authors: Tony Bibbs        - tony@tonybibbs.com                           |
+// |          Mark Limburg      - mlimburg@users.sourceforge.net               |
+// |          Jason Whittenburg - jwhitten@securitygeeks.com                   |
 // +---------------------------------------------------------------------------+
 // |                                                                           |
 // | This program is free software; you can redistribute it and/or             |
@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: calendar.php,v 1.27 2003/01/06 18:20:24 dhaun Exp $
+// $Id: calendar.php,v 1.27.4.1 2004/01/23 21:15:26 dhaun Exp $
 
 include('lib-common.php');
 include($_CONF['path_system'] . 'classes/calendar.class.php');
@@ -287,8 +287,12 @@ function getPriorSunday($month, $day, $year)
 
 $display .= COM_siteHeader('');
 
+if ($mode != 'personal') {
+    $mode = '';
+}
+
 // Set mode back to master if user refreshes screen after their session expires
-if (empty($_USER['uid']) AND $mode == 'personal') {
+if (($_USER['uid'] <= 1) AND $mode == 'personal') {
     $mode = '';
 }
 
@@ -301,8 +305,28 @@ if ($mode == 'personal' AND $_CONF['personalcalendars'] == 0) {
     exit;
 }
 
+if (!empty ($msg)) {
+    if (is_numeric ($msg) && ($msg > 0)) {
+        $display .= COM_showMessage ($msg);
+    }
+}
+
+if (!in_array ($view, array ('month', 'week', 'day'))) {
+    $view = '';
+}
+
 // Create new calendar object
 $cal = new Calendar();
+
+if (!empty ($month) && !is_numeric ($month)) {
+    $month = '';
+}
+if (!empty ($week) && !is_numeric ($week)) {
+    $week = '';
+}
+if (!empty ($day) && !is_numeric ($day)) {
+    $day = '';
+}
 
 if ($view == 'week' AND (empty($month) AND empty($day) AND empty($year))) {
     list($month, $day, $year) = getPriorSunday(date('m', time()), date("j", time()), date('Y', time()));

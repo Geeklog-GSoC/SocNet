@@ -37,6 +37,15 @@ of files that have been changed since the last release.</p>
     event ID.</li>
 <li>It was possible to browse through the comments of a story even if the user
     did not have access to the actual story (reported by Peter Roozemaal).</li>
+<li>Due to an XSS issue, it was possible to change someone's account settings
+    (including the password) if you got them to click on a specially crafted
+    link (reported by Jelmer, fix suggested by Vincent Furia).</li>
+<li>The comment display suffered from the possibility of an SQL injection
+    (reported by Jelmer).</li>
+<li>It was possible to inject Javascript code in the calendar (reported by
+    Jelmer).</li>
+<li>It was possible to execute (but not save) Javascript code in the comment
+    preview (reported by Jelmer).</li>
 </ol>
 
 

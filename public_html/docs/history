@@ -1,6 +1,6 @@
 GeekLog History/Changes:
 
-January 21, 2004 (1.3.7sr5)
+January 26, 2004 (1.3.7sr5)
 ----------------
 
 This release addresses the following security issues:
@@ -15,6 +15,15 @@ This release addresses the following security issues:
    event ID.
 4. It was possible to browse through the comments of a story even if the user
    did not have access to the actual story (reported by Peter Roozemaal).
+5. Due to an XSS issue, it was possible to change someone's account settings
+   (including the password) if you got them to click on a specially crafted
+   link (reported by Jelmer, fix suggested by Vincent Furia).
+6. The comment display suffered from the possibility of an SQL injection
+   (reported by Jelmer).
+7. It was possible to inject Javascript code in the calendar (reported by
+   Jelmer).
+8. It was possible to execute (but not save) Javascript code in the comment
+   preview (reported by Jelmer).
 
 
 December 5, 2003 (1.3.7sr4)

@@ -8,7 +8,7 @@
 // | Shows details of an event or events                                       |
 // |                                                                           |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000,2001 by the following authors:                         |
+// | Copyright (C) 2000-2004 by the following authors:                         |
 // |                                                                           |
 // | Authors: Tony Bibbs       - tony@tonybibbs.com                            |
 // |          Mark Limburg     - mlimburg@users.sourceforge.net                |
@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: calendar_event.php,v 1.23 2002/11/27 18:11:26 dhaun Exp $
+// $Id: calendar_event.php,v 1.23.4.1 2004/01/19 20:11:02 dhaun Exp $
 
 require_once('lib-common.php');
 require_once($_CONF['path_system'] . 'classes/calendar.class.php');
@@ -390,8 +390,12 @@ case 'saveuserevent':
     }
     break;
 case 'deleteevent':
-    DB_query("DELETE FROM {$_TABLES['personal_events']} WHERE uid={$_USER['uid']} AND eid='$eid'");
-    $display .= COM_refresh($_CONF['site_url'] . '/calendar.php?mode=personal&amp;msg=26');
+    if ($_USER['uid'] > 1) {
+        DB_query("DELETE FROM {$_TABLES['personal_events']} WHERE uid={$_USER['uid']} AND eid='$eid'");
+        $display .= COM_refresh($_CONF['site_url'] . '/calendar.php?mode=personal&amp;msg=26');
+    } else {
+        $display .= COM_refresh($_CONF['site_url'] . '/index.php');
+    }
     break;
 default:
     if (!empty($eid)) {

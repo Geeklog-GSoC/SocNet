@@ -32,7 +32,7 @@
 // | on configuration                                                          |
 // +---------------------------------------------------------------------------+
 //
-// $Id: config.php,v 1.69 2003/01/13 13:21:29 dhaun Exp $
+// $Id: config.php,v 1.69.2.1 2003/05/26 11:56:49 dhaun Exp $
 
 // To get Geeklog up and running, you need to make sure the settings in the
 // following sections are correct:
@@ -355,8 +355,12 @@ $_CONF['linksperpage'] = 10; // links per page
 
 // Parameters for checking words and HTML tags
 
+// *** Warning: Adding the following tags to the list of allowable HTML can
+// *** make your site vulnerable to scripting attacks!
+// *** Use with care: <img> <span> <marquee> <script> <embed> <object> <iframe>
 $_CONF['allowablehtml'] = '<p>,<b>,<i>,<a>,<em>,<br>,<tt>,<hr>,<li>,<ol>,<ul>,<code>,<pre>';
 $_CONF['adminhtml'] = $_CONF['allowablehtml'] . ', <div>,<table>,<tr>,<td>,<th>';
+
 $_CONF['censormode']    = 1;
 $_CONF['censorreplace'] = '*censored*';
 $_CONF['censorlist']    = array('fuck','cunt','fucker','fucking','pussy','cock','c0ck',' cum ','twat','clit','bitch','fuk','fuking','motherfucker');
@@ -409,7 +413,7 @@ $_STATES = array(
         'NE'=>'Nebraska',
         'NV'=>'Nevada',
         'NH'=>'New Hampshire',
-        'NJ'=>'New Jersy',
+        'NJ'=>'New Jersey',
         'NM'=>'New Mexico',
         'NY'=>'New York',
         'NC'=>'North Carolina',
@@ -427,7 +431,7 @@ $_STATES = array(
         'VT'=>'Vermont',
         'VA'=>'Virginia',
         'WA'=>'Washington',
-        'WV'=>'West Viginia',
+        'WV'=>'West Virginia',
         'WI'=>'Wisconsin',
         'WY'=>'Wyoming'
     );

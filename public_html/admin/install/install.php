@@ -35,7 +35,7 @@
 // | Please read docs/install.html which describes how to install Geeklog.     |
 // +---------------------------------------------------------------------------+
 //
-// $Id: install.php,v 1.52 2003/08/07 10:23:16 dhaun Exp $
+// $Id: install.php,v 1.52.2.1 2003/10/25 16:38:47 dhaun Exp $
 
 // this should help expose parse errors (e.g. in config.php) even when
 // display_errors is set to Off in php.ini
@@ -162,7 +162,9 @@ function INST_getDatabaseSettings($install_type, $geeklog_path)
 
 function INST_createDatabaseStructures()
 {
-    global $_CONF, $_DB_dbms, $_DB_host, $_DB_user, $_DB_pass, $_TABLES;
+    global $_CONF, $_DB, $_DB_dbms, $_DB_host, $_DB_user, $_DB_pass, $_TABLES;
+
+    $_DB->setDisplayError (true);
 
     // Because the create table syntax can vary from dbms-to-dbms we are
     // leaving that up to each database driver (e.g. mysql.class.php, 
@@ -258,7 +260,9 @@ function get_SP_Ver()
 }
 
 function INST_doDatabaseUpgrades($current_gl_version, $table_prefix) {
-    global $_TABLES, $_CONF, $_DB_dbms, $_DB_table_prefix;
+    global $_TABLES, $_CONF, $_DB, $_DB_dbms, $_DB_table_prefix;
+
+    $_DB->setDisplayError (true);
 
     // Because the upgrade sql syntax can vary from dbms-to-dbms we are
     // leaving that up to each Geeklog database driver

@@ -31,14 +31,14 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id
+// $Id: comment.php,v 1.14.2.4 2002/07/06 16:53:16 dhaun Exp $
 
 require_once('lib-common.php');
 
 // Uncomment the line below if you need to debug the HTTP variables being passed
 // to the script.  This will sometimes cause errors but it will allow you to see
 // the data being passed in a POST operation
-// debug($HTTP_POST_VARS);
+// echo COM_debug($HTTP_POST_VARS);
 
 /**
 * Displays the comment form
@@ -277,6 +277,11 @@ case display:
     break;
 default:
     if (!empty($sid)) {
+        if (empty ($title)) {
+            $result = DB_query ("SELECT title FROM {$_TABLES['stories']} WHERE sid = $sid");
+            $A = DB_fetchArray ($result);
+            $title = $A['title'];
+        }
         $display .= COM_siteHeader()
             . commentform('','','',$title,'',$sid,$pid,$type,$mode,$postmode)
             . COM_siteFooter();

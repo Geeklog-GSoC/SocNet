@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: story.php,v 1.79 2003/01/10 14:21:28 dhaun Exp $
+// $Id: story.php,v 1.79.2.1 2003/05/23 11:43:47 dhaun Exp $
 
 /**
 * This is the Geeklog story administration page.
@@ -637,6 +637,9 @@ function submitstory($type='',$sid,$uid,$tid,$title,$introtext,$bodytext,$hits,$
 {
     global $_TABLES, $_CONF, $LANG24, $MESSAGE, $HTTP_POST_FILES;
 
+    // Convert array values to numeric permission values
+    list($perm_owner,$perm_group,$perm_members,$perm_anon) = SEC_getPermissionValues($perm_owner,$perm_group,$perm_members,$perm_anon);
+
     $access = 0;
     if (DB_count ($_TABLES['stories'], 'sid', $sid) > 0) {
         $result = DB_query ("SELECT owner_id,group_id,perm_owner,perm_group,perm_members,perm_anon FROM {$_TABLES['stories']} WHERE sid = '{$sid}'");
@@ -678,9 +681,6 @@ function submitstory($type='',$sid,$uid,$tid,$title,$introtext,$bodytext,$hits,$
                 }
             }
         }
-
-        // Convert array values to numeric permission values
-        list($perm_owner,$perm_group,$perm_members,$perm_anon) = SEC_getPermissionValues($perm_owner,$perm_group,$perm_members,$perm_anon);
 
         if ($featured == '1') {
             // there can only be one non-draft featured story
@@ -754,7 +754,7 @@ function submitstory($type='',$sid,$uid,$tid,$title,$introtext,$bodytext,$hits,$
                 }    
                 $upload->setAutomaticResize(true);
             }
-            $upload->setAllowedMimeTypes(array('image/gif','image/jpeg','image/pjpeg','image/x-png','image/png'));
+            $upload->setAllowedMimeTypes(array('image/gif'=>'.gif','image/jpeg'=>'.jpg,.jpeg','image/pjpeg'=>'.jpg,.jpeg','image/x-png'=>'.png','image/png'=>'.png'));
             if (!$upload->setPath($_CONF['path_html'] . 'images/articles')) {
                 print 'File Upload Errors:<br>' . $upload->printErrors();
                 exit;

@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: usersettings.php,v 1.49 2003/01/05 21:35:07 dhaun Exp $
+// $Id: usersettings.php,v 1.49.2.1 2003/05/23 11:43:47 dhaun Exp $
 
 include_once('lib-common.php');
 
@@ -480,7 +480,7 @@ function saveuser($A)
                 }
                 $upload->setAutomaticResize(true);
             }
-            $upload->setAllowedMimeTypes(array('image/gif','image/jpeg','image/pjpeg','image/x-png','image/png'));
+            $upload->setAllowedMimeTypes(array('image/gif'=>'.gif','image/jpeg'=>'.jpg,.jpeg','image/pjpeg'=>'.jpg,.jpeg','image/x-png'=>'.png','image/png'=>'.png'));
             if (!$upload->setPath($_CONF['path_html'] . 'images/userphotos')) {
                 print 'File Upload Errors:<BR>' . $upload->printErrors();
                 exit;

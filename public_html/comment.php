@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: comment.php,v 1.38 2003/01/13 18:54:45 dhaun Exp $
+// $Id: comment.php,v 1.38.4.1 2003/12/05 19:29:01 dhaun Exp $
 
 /**
 * This file is responsible for letting user enter a comment and saving the
@@ -214,7 +214,14 @@ function commentform($uid,$save,$anon,$title,$comment,$sid,$pid='0',$type,$mode,
 */
 function savecomment($uid,$save,$anon,$title,$comment,$sid,$pid,$type,$postmode) 
 {
-    global $_TABLES, $_CONF, $LANG03, $REMOTE_ADDR; 
+    global $_CONF, $_TABLES, $_USER, $LANG03, $REMOTE_ADDR; 
+
+    if(($uid == 0) || ($uid != $_USER['uid']) ||
+            (empty ($_USER['username']) && (($_CONF['loginrequired'] == 1) ||
+            ($_CONF['commentsloginrequired'] == 1)))) {
+        $retval .= COM_refresh ($_CONF['site_url'] . '/index.php');
+        return $retval;
+    }
 
     // Get signature
     $sig = '';

@@ -1,5 +1,24 @@
 GeekLog History/Changes:
 
+June 10, 2002
+-------------
+- This release addresses security issues recently discovered by the people at
+  olympos.org. These issues allow for the injection of malicious javascript
+  code (which could be used to access the admin's cookie) and the injection
+  of MySQL code which could be used to access and even damaged the database
+  (under certain circumstances). Details will be available in a report on
+  the Bugtraq list shortly after this release is out.
+- The following bugs from the 1.3.5 release have also been fixed:
+  + missing field 'emailfromadmin' in userprefs table (fresh installs only)
+  + fixed a typo that prevented the page navigation from working
+  + fixed batch user import
+  + fixed logo size and path to search in XSilver theme
+  + optimized size of image files in XSilver theme
+  + fixed path to search in Clean theme
+
+
+April 24, 2002
+--------------
 - Change installation so that server configuration is manual, DB configuration is scripted
 - Search page now properly generates the right link to search comments
 - Comments to polls now show up in whats new block

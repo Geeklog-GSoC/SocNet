@@ -8,11 +8,11 @@
 // | Geeklog topic administration page.                                        |
 // |                                                                           |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000,2001 by the following authors:                         |
+// | Copyright (C) 2000-2004 by the following authors:                         |
 // |                                                                           |
-// | Authors: Tony Bibbs       - tony@tonybibbs.com                            |
-// |          Mark Limburg     - mlimburg@users.sourceforge.net                |
-// |          Jason Wittenburg - jwhitten@securitygeeks.com                    |
+// | Authors: Tony Bibbs        - tony@tonybibbs.com                           |
+// |          Mark Limburg      - mlimburg@users.sourceforge.net               |
+// |          Jason Whittenburg - jwhitten@securitygeeks.com                   |
 // +---------------------------------------------------------------------------+
 // |                                                                           |
 // | This program is free software; you can redistribute it and/or             |
@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: topic.php,v 1.31.2.1 2003/05/23 11:49:27 dhaun Exp $
+// $Id: topic.php,v 1.31.2.1.2.1 2004/01/19 20:09:02 dhaun Exp $
 
 require_once('../lib-common.php');
 require_once('auth.inc.php');
@@ -268,6 +268,29 @@ function listtopics() {
 	return $retval;
 }
 
+/**
+* Delete a topic
+* 
+*/
+function deleteTopic ($tid)
+{
+    global $_CONF, $_TABLES, $_USER;
+    
+    $result = DB_query ("SELECT owner_id,group_id,perm_owner,perm_group,perm_members,perm_anon FROM {$_TABLES['topics']} WHERE tid ='$tid'");    $A = DB_fetchArray ($result);     $access = SEC_hasAccess ($A['owner_id'], $A['group_id'], $A['perm_owner'],
+            $A['perm_group'], $A['perm_members'], $A['perm_anon']);
+    if ($access < 3) {
+        COM_accessLog ("User {$_USER['username']} tried to illegally delete topic $tid.");
+        return COM_refresh ($_CONF['site_admin_url'] . '/topic.php');
+    }
+
+    DB_delete ($_TABLES['stories'], 'tid', $tid);
+    DB_delete ($_TABLES['storysubmission'], 'tid', $tid);
+    DB_delete ($_TABLES['blocks'], 'tid', $tid);
+    DB_delete ($_TABLES['topics'], 'tid', $tid);
+
+    return COM_refresh ($_CONF['site_admin_url'] . '/topic.php?msg=14');
+}
+
 ###############################################################################
 # MAIN
 $display = '';
@@ -277,10 +300,7 @@ if (($mode == $LANG27[21]) && !empty ($LANG27[21])) { // delete
         COM_errorLog ('Attempted to delete topic tid=' . $tid);
         $display .= COM_refresh ($_CONF['site_admin_url'] . '/topic.php');
     } else {
-        DB_delete($_TABLES['stories'],'tid',$tid);
-        DB_delete($_TABLES['storysubmission'],'tid',$tid);
-        DB_delete($_TABLES['blocks'],'tid',$tid);
-        DB_delete($_TABLES['topics'],'tid',$tid,$_CONF['site_admin_url'] . '/topic.php?msg=14');
+        $display .= deleteTopic ($tid);
     }
 } else if (($mode == $LANG27[19]) && !empty ($LANG27[19])) { // save
     savetopic($tid,$topic,$imageurl,$sortnum,$limitnews,$owner_id,$group_id,

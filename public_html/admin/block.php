@@ -8,11 +8,11 @@
 // | Geeklog block administration.                                             |
 // |                                                                           |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000,2001 by the following authors:                         |
+// | Copyright (C) 2000-2004 by the following authors:                         |
 // |                                                                           |
-// | Authors: Tony Bibbs       - tony@tonybibbs.com                            |
-// |          Mark Limburg     - mlimburg@users.sourceforge.net                |
-// |          Jason Wittenburg - jwhitten@securitygeeks.com                    |
+// | Authors: Tony Bibbs        - tony@tonybibbs.com                           |
+// |          Mark Limburg      - mlimburg@users.sourceforge.net               |
+// |          Jason Whittenburg - jwhitten@securitygeeks.com                   |
 // +---------------------------------------------------------------------------+
 // |                                                                           |
 // | This program is free software; you can redistribute it and/or             |
@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: block.php,v 1.45.2.1 2003/05/23 11:49:27 dhaun Exp $
+// $Id: block.php,v 1.45.2.1.2.1 2004/01/19 20:09:02 dhaun Exp $
 
 // Uncomment the line below if you need to debug the HTTP variables being passed
 // to the script.  This will sometimes cause errors but it will allow you to see
@@ -489,6 +489,28 @@ function listblocks()
     return $retval;
 }
 
+/**
+* Delete a block
+*
+*/ 
+function deleteBlock ($bid)                                                    
+{
+    global $_CONF, $_TABLES, $_USER;
+
+    $result = DB_query ("SELECT tid,owner_id,group_id,perm_owner,perm_group,perm_members,perm_anon FROM {$_TABLES['blocks']} WHERE bid ='$bid'");
+    $A = DB_fetchArray($result);                                               
+    $access = SEC_hasAccess ($A['owner_id'], $A['group_id'], $A['perm_owner'], 
+            $A['perm_group'], $A['perm_members'], $A['perm_anon']);            
+    if (($access < 3) || (hasBlockTopicAccess ($A['tid']) < 3)) { 
+        COM_accessLog ("User {$_USER['username']} tried to illegally delete block $bid.");                                                                     
+        return COM_refresh ($_CONF['site_admin_url'] . '/block.php');          
+    }
+
+    DB_delete ($_TABLES['blocks'], 'bid', $bid);
+
+    return COM_refresh ($_CONF['site_admin_url'] . '/block.php?msg=12');
+}
+
 // MAIN
 if (isset ($HTTP_POST_VARS['mode'])) {
     $mode = $HTTP_POST_VARS['mode'];
@@ -508,7 +530,7 @@ if (($mode == $LANG21[56]) && !empty ($LANG21[56])) { // delete
         COM_errorLog ('Attempted to delete block bid=' . $bid);
         $display .= COM_refresh ($_CONF['site_admin_url'] . '/block.php');
     } else {
-        DB_delete($_TABLES['blocks'],'bid',$bid,$_CONF['site_admin_url'] . '/block.php?msg=12');
+        $display .= deleteBlock ($bid);
     }
 } else if (($mode == $LANG21[54]) && !empty ($LANG21[54])) { // save
     $display .= saveblock($bid,$name,$title,$help,$type,$blockorder,$content,

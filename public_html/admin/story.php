@@ -8,11 +8,11 @@
 // | Geeklog story administration page.                                        |
 // |                                                                           |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000,2001 by the following authors:                         |
+// | Copyright (C) 2000-2004 by the following authors:                         |
 // |                                                                           |
-// | Authors: Tony Bibbs       - tony@tonybibbs.com                            |
-// |          Mark Limburg     - mlimburg@users.sourceforge.net                |
-// |          Jason Wittenburg - jwhitten@securitygeeks.com                    |
+// | Authors: Tony Bibbs        - tony@tonybibbs.com                           |
+// |          Mark Limburg      - mlimburg@users.sourceforge.net               |
+// |          Jason Whittenburg - jwhitten@securitygeeks.com                   |
 // +---------------------------------------------------------------------------+
 // |                                                                           |
 // | This program is free software; you can redistribute it and/or             |
@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: story.php,v 1.79.2.1 2003/05/23 11:43:47 dhaun Exp $
+// $Id: story.php,v 1.79.2.1.2.1 2004/01/19 20:09:02 dhaun Exp $
 
 /**
 * This is the Geeklog story administration page.
@@ -843,6 +843,17 @@ if (($mode == $LANG24[11]) && !empty ($LANG24[11])) { // delete
     } else if ($type == 'submission') {
         DB_delete($_TABLES['storysubmission'],'sid',$sid,$_CONF['site_admin_url'] . "/moderation.php");
     } else {
+
+        $result = DB_query ("SELECT tid,owner_id,group_id,perm_owner,perm_group,perm_members,perm_anon FROM {$_TABLES['stories']} WHERE sid = '$sid'");
+        $A = DB_fetchArray ($result);
+        $access = SEC_hasAccess ($A['owner_id'], $A['group_id'], $A['perm_owner'], $A['perm_group'], $A['perm_members'], $A['perm_anon']);
+        $access = min ($access, SEC_hasTopicAccess ($A['tid']));
+        if ($access < 3) {
+            COM_accessLog ("User {$_USER['username']} tried to illegally delete story $sid.");
+            echo COM_refresh ($_CONF['site_admin_url'] . '/story.php');
+            exit;
+        }
+
         $result = DB_query("SELECT ai_filename FROM {$_TABLES['article_images']} WHERE ai_sid = '$sid'");
         $nrows = DB_numRows($result);
         for ($i = 1; $i <= $nrows; $i++) {

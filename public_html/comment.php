@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: comment.php,v 1.38.4.3 2004/01/19 20:10:30 dhaun Exp $
+// $Id: comment.php,v 1.38.4.4 2004/01/23 21:28:58 dhaun Exp $
 
 /**
 * This file is responsible for letting user enter a comment and saving the
@@ -72,10 +72,6 @@ function commentform($uid,$save,$anon,$title,$comment,$sid,$pid='0',$type,$mode,
 {
     global $_TABLES, $HTTP_POST_VARS, $REMOTE_ADDR, $_CONF, $LANG03, $LANG12, $LANG_LOGIN, $_USER;
 
-	if ($uid > 1) {
-        $sig = DB_getItem($_TABLES['users'], 'sig', "uid='$uid'");
-    }
-
     if (empty($_USER['username']) &&
         (($_CONF['loginrequired'] == 1) || ($_CONF['commentsloginrequired'] == 1))) {
         $retval .= COM_startBlock($LANG_LOGIN[1]);
@@ -105,24 +101,34 @@ function commentform($uid,$save,$anon,$title,$comment,$sid,$pid='0',$type,$mode,
                 . $LANG03[8]
                 . COM_endBlock();
         } else {
-            if ($postmode == 'html') {
-                $commenttext = stripslashes($comment);
-                $commenttext = str_replace('$','&#36;',$commenttext);
 
-                $comment = COM_checkHTML(COM_checkWords($comment));
-                $title = COM_checkHTML(htmlspecialchars(COM_checkWords($title)));
-            } else {
-                $title = stripslashes(htmlspecialchars(COM_checkWords($title)));
-                $comment = stripslashes(htmlspecialchars(COM_checkWords($comment)));
-                $commenttext = str_replace('$','&#36;',$comment);
-                $title = str_replace('$','&#36;',$title);
+            if (empty ($postmode)) {
+                $postmode = $_CONF['postmode'];
             }
-            // Replace { and } with special HTML equivalents
+
+            $sig = '';
+            if ($uid > 1) {
+                $sig = DB_getItem ($_TABLES['users'], 'sig', "uid='$uid'");
+            }
+
+            $commenttext = htmlspecialchars (COM_stripslashes ($comment));
+
+            if ($postmode == 'html') {
+                $comment = COM_checkWords (COM_checkHTML (addslashes (COM_stripslashes ($comment))));
+            } else {
+                $comment = htmlspecialchars (COM_checkWords (COM_stripslashes ($comment)));
+            }
+            // Replace $, {, and } with special HTML equivalents
+            $commenttext = str_replace('$','&#36;',$commenttext);
             $commenttext = str_replace('{','&#123;',$commenttext);
             $commenttext = str_replace('}','&#125;',$commenttext);
 
-            $title = strip_tags(COM_checkWords($title));
-            $HTTP_POST_VARS['title'] = $title;
+            $title = htmlspecialchars (COM_checkWords (strip_tags (COM_stripslashes ($title))));
+            // $title = str_replace('$','&#36;',$title); done in COM_getComment
+            $title = str_replace('{','&#123;',$title);
+            $title = str_replace('}','&#125;',$title);
+
+            $HTTP_POST_VARS['title'] = addslashes ($title);
             $newcomment = $comment;
             if (!empty ($sig)) {
                 if (!$postmode == 'html') {
@@ -223,6 +229,13 @@ function savecomment($uid,$save,$anon,$title,$comment,$sid,$pid,$type,$postmode)
         return $retval;
     }
 
+    // Clean 'em up a bit!
+    if ($postmode == 'html') {
+        $comment = COM_checkWords (COM_checkHTML (addslashes (COM_stripslashes ($comment))));
+    } else {
+        $comment = htmlspecialchars (COM_checkWords (COM_stripslashes ($comment)));
+    }
+
     // Get signature
     $sig = '';
     if ($uid > 1) {
@@ -236,22 +249,17 @@ function savecomment($uid,$save,$anon,$title,$comment,$sid,$pid,$type,$postmode)
         }
     }
 
-    // Clean 'em up a bit!
-    if ($postmode == 'html') {
-        $comment = addslashes(COM_checkHTML(COM_checkWords($comment)));
-    } else {
-        $comment = addslashes(htmlspecialchars(COM_checkWords($comment)));
-    } 
-
     // check again for non-int pid's
     // this should just create a top level comment that is a reply to the original item
     if (!is_numeric($pid)) {
         $pid = 0;
     }
 
-    $title = addslashes(strip_tags(COM_checkWords($title)));
+    $title = htmlspecialchars (COM_checkWords (strip_tags (COM_stripslashes ($title))));
 
     if (!empty($title) && !empty($comment)) {
+        $title = addslashes ($title);
+        $comment = addslashes ($comment);
         DB_save($_TABLES['commentspeedlimit'],'ipaddress, date',"'$REMOTE_ADDR',unix_timestamp()");
         DB_save($_TABLES['comments'],'sid,uid,comment,date,title,pid,type',"'$sid',$uid,'$comment',now(),'$title',$pid,'$type'");
 		
@@ -388,11 +396,17 @@ function Comment_getPermSQL($type = 'WHERE', $u_id = 0, $access = 2, $table = ''
 $title = strip_tags ($title);
 switch ($mode) {
 case $LANG03[14]: //Preview
+    if (!is_numeric ($pid)) {
+        $pid = 0;
+    }
     $display .= COM_siteHeader()
         . commentform($uid,$save,$anon,$title,$comment,$sid,$pid,$type,$mode,$postmode)
         . COM_siteFooter(); 
     break;
 case $LANG03[11]: //Submit Comment
+    if (!is_numeric ($pid)) {
+        $pid = 0;
+    }
     $display .= savecomment($uid,$save,$anon,$title,$comment,$sid,$pid,$type,$postmode);
     break;
 case $LANG01[28]: //Delete
@@ -400,6 +414,9 @@ case $LANG01[28]: //Delete
     break;
 case 'display':
     if (!empty ($sid) && !empty ($type)) {
+        if (!is_numeric ($pid)) {
+            $pid = 0;
+        }
         $allowed = 1;
         if ($type == 'article') {
             $result = DB_query ("SELECT COUNT(*) AS count FROM {$_TABLES['stories']} WHERE (sid = '$sid') AND (draft_flag = 0) AND (date <= NOW())" . Comment_getPermSQL ('AND'));

@@ -7,7 +7,7 @@ This release addresses the following security issues:
 
 - It was possible to post anonymous comments, even when anonymous comment
   posting had been switched off in config.php [Vinny, Dirk]
-- Added an additional check for the comment speed limit [Vinny]
+- Added additional speed limit checks for comments and submissions [Vinny]
 - It was still possible to read the comments to stories, even when the user
   didn't have access to the story's topic (provided they knew the story id)
   [Vinny, Dirk]

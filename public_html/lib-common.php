@@ -11,7 +11,7 @@
 // | Copyright (C) 2000,2001 by the following authors:                         |
 // |                                                                           |
 // | Authors: Tony Bibbs       - tony@tonybibbs.com                            |
-// |          Mark Limburg     - mlimburg@dingoblue.net.au                     
+// |          Mark Limburg     - mlimburg@users.sourceforge.net                |
 // |          Jason Wittenburg - jwhitten@securitygeeks.com                    |
 // +---------------------------------------------------------------------------+
 // |                                                                           |
@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.79.2.1 2002/07/04 07:59:03 dhaun Exp $
+// $Id: lib-common.php,v 1.79.2.2 2002/07/07 19:50:49 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
@@ -40,12 +40,12 @@ error_reporting(E_ERROR | E_WARNING | E_PARSE);
 $_COM_VERBOSE = false; 
 
 // +---------------------------------------------------------------------------+
-// | Configuration Include: You shoud only have to modify this include         | 
+// | Configuration Include: You shoud only have to modify this include         |
 // +---------------------------------------------------------------------------+
 require_once('/path/to/geeklog/config.php');
 
 // +---------------------------------------------------------------------------+
-// | Library Includes: You shouldn't have to touch anything below here         | 
+// | Library Includes: You shouldn't have to touch anything below here         |
 // +---------------------------------------------------------------------------+
 
 // Instantiate page timer that times how fast each page is created
@@ -1662,6 +1662,18 @@ function COM_checkWords($Message)
     return ($EditedMessage);
 }
 
+/**
+*  Takes some amount of text and replaces all javascript events on*= with in   
+*
+*  This script takes some amount of text and matches all javascript events,
+*  on*= (onBlur= onMouseClick=) and replaces them with in*=
+*  Essentially this will cause onBlur to become inBlur, onFocus to be inFocus   
+*  These are not valid javascript events and the browser will ignore them.     
+*/ 
+function COM_killJS($Message) 
+{
+        return (preg_replace('/on(\w*) ?=/','in\1=',$Message));
+}
 
 /**
 * This function COM_checks html tags.
@@ -1683,7 +1695,7 @@ function COM_checkHTML($str)
     $str = preg_replace("/\n/","",$str);
     $str = strip_tags($str,$_CONF['allowablehtml']);
 
-    return $str;
+    return COM_killJS($str);
 }
 
 /**

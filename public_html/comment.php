@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: comment.php,v 1.54 2004/03/02 08:20:07 dhaun Exp $
+// $Id: comment.php,v 1.54.2.1 2004/05/31 10:47:51 dhaun Exp $
 
 /**
 * This file is responsible for letting user enter a comment and saving the
@@ -241,12 +241,29 @@ function savecomment ($uid, $title, $comment, $sid, $pid, $type, $postmode)
 
     $retval = '';
 
+    // ignore $uid as it may be manipulated anyway
+    if (empty ($_USER['uid'])) {
+        $uid = 1;
+    } else {
+        $uid = $_USER['uid'];
+    }
+
     if (empty ($sid) || empty ($title) || empty ($comment) || empty ($type) ||
-            ($uid < 1) || (($uid != $_USER['uid']) &&
-            !empty ($_USER['username'])) || (empty ($_USER['username'])
-            && (($_CONF['loginrequired'] == 1) ||
-           ($_CONF['commentsloginrequired'] == 1)))) {
+            (($uid == 1) && (($_CONF['loginrequired'] == 1) ||
+                ($_CONF['commentsloginrequired'] == 1)))) {
         $retval .= COM_refresh ($_CONF['site_url'] . '/index.php');
+        return $retval;
+    }
+
+    // Check for people breaking the speed limit
+    COM_clearSpeedlimit ($_CONF['commentspeedlimit'], 'comment');
+    $last = COM_checkSpeedlimit ('comment');
+    if ($last > 0) {
+        $retval .= COM_startBlock ($LANG12[26], '', COM_getBlockTemplate ('_msg_block', 'header'))
+                . $LANG03[7]
+                . $last
+                . $LANG03[8]
+                . COM_endBlock (COM_getBlockTemplate ('_msg_block', 'footer'));
         return $retval;
     }
 

@@ -1,5 +1,22 @@
 GeekLog History/Changes:
 
+December 5, 2003 (1.3.8-1sr3)
+----------------
+
+This release addresses the following security-related issues:
+
+1. As "dr.wh0" pointed out, the category field for link submissions was not
+   filtered at all. Although you probably can't cause too much harm with
+   those 32 characters, this has now been fixed.
+2. Vincent Furia found that the restrictions for the form to email users
+   could be circumvented and could even be used to spam users. 
+   In addition to fixing theses issues, there is now also a speed limit
+   on that form (defaults to the speed limit for story submissions).
+3. There was a way to post comments anonymously even when posting for
+   anonymous users had been disabled.
+4. It was possible to post comments under someone else's username.
+
+
 October 14, 2003 (1.3.8-1sr2)
 ----------------
 
@@ -366,6 +383,34 @@ Static Pages Plugin 1.3
   static pages editor.
 
 Please see docs/staticpages.html for details.
+
+
+October 12, 2003 (1.3.7sr3)
+----------------
+
+This release is intended to address some of the security issues reported in
+September and early October 2003.
+
+1. Includes Ulf Harnhammar's kses HTML filter to address possible Javascript
+   injections and CSS defacements.
+
+   When upgrading from an earlier version, please make sure to copy over the
+   $_CONF['user_html'] and $_CONF['admin_html'] arrays from the included
+   config.php to your own copy of that file.
+
+2. While almost all of the alleged SQL injection issues could not be
+   reproduced, this release includes an update to the MySQL class to not
+   report SQL errors in the browser any more (but only in Geeklog's error.log).
+   This will avoid disclosing any sensitive information as part of the error
+   message.
+
+   Please note that at the moment we do NOT recommend to use Geeklog with
+   MySQL 4.1 (which, at the time of this writing, is in alpha state and should
+   not be used on production sites anyway).
+
+   An upcoming release of Geeklog will address the remaining SQL issues,
+   including any problems with MySQL 4.1.
+
 
 May 26, 2003 (1.3.7sr2)
 ------------

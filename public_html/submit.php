@@ -397,7 +397,7 @@ function savesubmission($type,$A)
             $A['title'] = addslashes(strip_tags(COM_checkWords($A['title'])));
             $A['url'] = strip_tags ($A['url']);
             $pos = strpos ($A['url'], ':');
-            if ($pos === false) {
+            if ($pos === false && !empty ($A['url'])) {
                 $A['url'] = 'http://' . $A['url'];
             }
             else {
@@ -435,7 +435,7 @@ function savesubmission($type,$A)
             $A['location'] = addslashes(strip_tags(COM_checkWords($A['location'])));
             $A['url'] = strip_tags ($A['url']);
             $pos = strpos ($A['url'], ':');
-            if ($pos === false) {
+            if ($pos === false && !empty ($A['url'])) {
                 $A['url'] = 'http://' . $A['url'];
             }
             else {

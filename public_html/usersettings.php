@@ -429,7 +429,7 @@ function saveuser($A)
         }
         $A['homepage'] = strip_tags ($A['homepage']);
         $pos = strpos ($A['homepage'], ':');
-        if ($pos === false) {
+        if ($pos === false && !empty ($A['homepage'])) {
             $A['homepage'] = 'http://' . $A['homepage'];
         }
         else {

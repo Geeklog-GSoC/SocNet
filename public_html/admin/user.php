@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: user.php,v 1.46.4.1 2004/01/19 20:07:59 dhaun Exp $
+// $Id: user.php,v 1.46.4.2 2004/01/24 16:33:05 dhaun Exp $
 
 // Set this to true to get various debug messages from this script
 $_USER_VERBOSE = false;
@@ -127,12 +127,12 @@ function edituser($uid = '', $msg = '')
         $user_templates->set_var('delete_photo_option','');
     }
     $user_templates->set_var('lang_fullname', $LANG28[4]);
-    $user_templates->set_var('user_fullname', $A['fullname']);
+    $user_templates->set_var('user_fullname', htmlspecialchars($A['fullname']));
     $user_templates->set_var('lang_password', $LANG28[5]); 
     $user_templates->set_var('lang_emailaddress', $LANG28[7]);
-    $user_templates->set_var('user_email', $A['email']);
+    $user_templates->set_var('user_email', htmlspecialchars($A['email']));
     $user_templates->set_var('lang_homepage', $LANG28[8]);
-    $user_templates->set_var('user_homepage', $A['homepage']);
+    $user_templates->set_var('user_homepage', htmlspecialchars($A['homepage']));
     $user_templates->set_var('do_not_use_spaces', $LANG28[9]);
 
 	if (SEC_inGroup('Group Admin')) {

@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: profiles.php,v 1.20.4.1 2003/12/05 19:36:01 dhaun Exp $
+// $Id: profiles.php,v 1.20.4.2 2004/01/01 15:27:14 dhaun Exp $
 
 include('lib-common.php');
 
@@ -162,7 +162,7 @@ function contactform($uid, $subject='', $message='')
 
 function mailstory($sid,$to,$toemail,$from,$fromemail,$sid, $shortmsg) 
 {
- 	global $_CONF, $_USER, $LANG01, $LANG08, $A;
+ 	global $_TABLES, $_CONF, $_USER, $LANG01, $LANG08, $A;
 
     // check for correct $_CONF permission
     if (empty ($_USER['username']) && (($_CONF['loginrequired'] == 1) ||

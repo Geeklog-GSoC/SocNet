@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-plugins.php,v 1.27.2.1 2004/07/17 12:19:55 dhaun Exp $
+// $Id: lib-plugins.php,v 1.27.2.2 2004/10/07 18:57:42 dhaun Exp $
 
 /**
 * This is the plugin library for Geeklog.  This is the API that plugins can
@@ -196,7 +196,9 @@ function PLG_getMenuItems()
         $function = 'plugin_getmenuitems_' . $A['pi_name'];
         if (function_exists($function)) {
             $menuitems = $function();
-            $menu = array_merge($menu,$menuitems);
+            if (is_array ($menuitems)) {
+                $menu = array_merge ($menu, $menuitems);
+            }
         }
     }
     return $menu;
@@ -538,7 +540,7 @@ function PLG_getCCOptions()
                 if (!empty ($cur_plugin->adminlabel) &&
                     !empty ($cur_plugin->adminurl) &&
                     !empty ($cur_plugin->plugin_image)) {
-	            $plugins[$i] = $cur_plugin; 
+	            $plugins[] = $cur_plugin; 
                 }
             }
         }

@@ -11,7 +11,7 @@
 // | Copyright (C) 2000,2001 by the following authors:                         |
 // |                                                                           |
 // | Authors: Tony Bibbs       - tony@tonybibbs.com                            |
-// |          Mark Limburg     - mlimburg@dingoblue.net.au                     |
+// |          Mark Limburg     - mlimburg@users.sourceforge.net                |
 // |          Jason Wittenburg - jwhitten@securitygeeks.com                    |
 // +---------------------------------------------------------------------------+
 // |                                                                           |
@@ -251,6 +251,7 @@ function deletecomment($cid,$sid,$type)
 }
 
 // MAIN
+$title = strip_tags ($title);
 switch ($mode) {
 case $LANG03[14]: //Preview
     $display .= COM_siteHeader()

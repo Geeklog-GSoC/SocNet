@@ -8,11 +8,11 @@
 // | Geeklog common library.                                                   |
 // |                                                                           |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000,2001 by the following authors:                         |
+// | Copyright (C) 2000-2004 by the following authors:                         |
 // |                                                                           |
-// | Authors: Tony Bibbs       - tony@tonybibbs.com                            |
-// |          Mark Limburg     - mlimburg@users.sourceforge.net                |
-// |          Jason Wittenburg - jwhitten@securitygeeks.com                    |
+// | Authors: Tony Bibbs        - tony@tonybibbs.com                           |
+// |          Mark Limburg      - mlimburg@users.sourceforge.net               |
+// |          Jason Whittenburg - jwhitten@securitygeeks.com                   |
 // +---------------------------------------------------------------------------+
 // |                                                                           |
 // | This program is free software; you can redistribute it and/or             |
@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: submit.php,v 1.48.4.1 2003/12/05 19:34:18 dhaun Exp $
+// $Id: submit.php,v 1.48.4.2 2004/01/19 20:10:04 dhaun Exp $
 
 require_once('lib-common.php');
 
@@ -721,10 +721,6 @@ $display .= COM_siteHeader();
 
 if ($mode == $LANG12[8]) { // submit
     $display .= savesubmission($type,$HTTP_POST_VARS);
-} else if ($mode == $LANG12[52]) { // delete
-    if (!empty($eid)) {
-        DB_delete($_TABLES['personal_events'], 'eid',$eid,$_CONF['site_url'].'/calendar.php?mode=personal');
-    }  
 } else {
     switch($type) {
         case 'link':

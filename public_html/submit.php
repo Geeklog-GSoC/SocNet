@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: submit.php,v 1.54 2003/06/25 08:39:02 dhaun Exp $
+// $Id: submit.php,v 1.54.2.1 2003/12/05 19:34:41 dhaun Exp $
 
 require_once('lib-common.php');
 
@@ -520,6 +520,7 @@ function savesubmission($type,$A)
 
     switch ($type) {
     case 'link':
+        $A['category'] = strip_tags($A['category']);
         if (!empty($A['title']) && !empty($A['description']) && !empty($A['url'])) {
             if ($A['categorydd'] != $LANG12[18] && !empty($A['categorydd'])) {
                 $A['category'] = $A['categorydd'];

@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: user.php,v 1.31 2002/04/20 08:29:29 dhaun Exp $
+// $Id: user.php,v 1.31.2.1 2002/06/08 22:23:01 dhaun Exp $
 
 // Set this to true to get various debug messages from this script
 $_USER_VERBOSE = false;
@@ -483,6 +483,8 @@ function emailpassword($username)
 
 function display_form()
 {
+    global $_CONF;
+
 	$retval .="<FORM action=".$_CONF['site_admin_url']."/user.php method=post enctype=multipart/form-data>
 			Path:<INPUT type=file name=importfile size=40>
 			<INPUT type=hidden name=mode value=import>

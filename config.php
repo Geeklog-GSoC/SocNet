@@ -32,7 +32,7 @@
 // | information                                                               |
 // +---------------------------------------------------------------------------+
 //
-// $Id: config.php,v 1.30.2.3 2002/07/04 07:59:03 dhaun Exp $
+// $Id: config.php,v 1.30.2.4 2002/07/07 19:49:50 dhaun Exp $
 
 // +---------------------------------------------------------------------------+
 // | DATABASE SETTINGS                                                         |
@@ -98,7 +98,7 @@ $_CONF['shortdate'] = '%x';
 // | cookie. This is more secure but will more than likely require dialed up   |
 // | users to login each and every time.  If ipbasedsessid is turned off       |
 // | (which it is by default) it will just store a random number as the        |
-// | session ID in the cookie.                                                 | 
+// | session ID in the cookie.                                                 |
 // |                                                                           |
 // | default_perm_cookie_timeout is how long you want the permanent cookie     |
 // | to persist for.  This can be overridden by the user in their user prefs   |
@@ -187,7 +187,7 @@ $_CONF['article_image_align']   = 'right'; 	// Options are left or right.
 $_CONF['commentspeedlimit']     = 45;
 $_CONF['commentsloginrequired'] = 0;
 $_CONF['comment_limit']         = 100;        // Default Number of Comments under Story
-$_CONF['comment_mode']          = threaded; // Default Comment Mode; from 'threaded','nested','nocomments',and 'flat'
+$_CONF['comment_mode']          = 'threaded'; // Default Comment Mode; from 'threaded','nested','nocomments',and 'flat'
 
 // Poll Settings                                            
 $_CONF['maxanswers']        = 10;
@@ -209,7 +209,9 @@ $_CONF['censorlist']    = array('fuck','cunt','fucker','fucking','pussy','cock',
 if (!defined ('LB')) {
     define('LB',"\n");
 }
-define('VERSION', '1.3.5sr2');
+if (!defined ('VERSION')) {
+    define('VERSION', '1.3.5sr2');
+}
 
 //$_CONF['default_state_cde'] = 'IA'; // NOT IMPLEMENTED
 $_STATES = array(

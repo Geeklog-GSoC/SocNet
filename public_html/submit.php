@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: submit.php,v 1.65 2004/02/28 11:02:14 dhaun Exp $
+// $Id: submit.php,v 1.65.2.1 2004/05/31 19:37:10 vinny Exp $
 
 require_once('lib-common.php');
 
@@ -453,6 +453,20 @@ function sendNotification ($table, $A)
 function savesubmission($type,$A) 
 {
     global $_CONF, $_TABLES, $_USER, $LANG12;
+
+    COM_clearSpeedlimit ($_CONF['speedlimit'], 'submit');
+
+    $last = COM_checkSpeedlimit ('submit');
+
+    if ($last > 0) {
+        $retval .= COM_startBlock ($LANG12[26], '',
+                           COM_getBlockTemplate ('_msg_block', 'header'))
+            . $LANG12[30]
+            . $last
+            . $LANG12[31]
+            . COM_endBlock (COM_getBlockTemplate ('_msg_block', 'footer'));
+        return $retval;
+    }
 
     switch ($type) {
     case 'link':

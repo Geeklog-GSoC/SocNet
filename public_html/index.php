@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: index.php,v 1.56 2004/02/28 16:57:47 dhaun Exp $
+// $Id: index.php,v 1.56.2.1 2004/05/31 10:51:17 dhaun Exp $
 
 require_once('lib-common.php');
 
@@ -150,18 +150,7 @@ if (!empty($U['tids'])) {
     }
 }
 
-$tresult = DB_query ("SELECT tid FROM {$_TABLES['topics']}" . COM_getPermSQL());
-$trows = DB_numRows ($tresult);
-if ($trows > 0) {
-    $tids = array ();
-    for ($i = 0; $i < $trows; $i++) {
-        $T = DB_fetchArray ($tresult);
-        $tids[] = $T['tid'];
-    }
-    if (sizeof ($tids) > 0) {
-        $sql .= "AND (tid IN ('" . implode ("','", $tids) . "')) ";
-    }
-}
+$sql .= COM_getTopicSQL ('AND') . ' ';
 
 if ($newstories) {
     $sql .= "AND (date >= (date_sub(NOW(), INTERVAL {$_CONF['newstoriesinterval']} SECOND))) ";

@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: comment.php,v 1.54.2.1 2004/05/31 10:47:51 dhaun Exp $
+// $Id: comment.php,v 1.54.2.2 2004/05/31 10:51:17 dhaun Exp $
 
 /**
 * This file is responsible for letting user enter a comment and saving the
@@ -428,7 +428,7 @@ case 'display':
     if (!empty ($sid) && !empty ($type)) {
         $allowed = 1;
         if ($type == 'article') {
-            $result = DB_query ("SELECT COUNT(*) AS count FROM {$_TABLES['stories']} WHERE (sid = '$sid') AND (draft_flag = 0) AND (date <= NOW())" . COM_getPermSQL ('AND'));
+            $result = DB_query ("SELECT COUNT(*) AS count FROM {$_TABLES['stories']} WHERE (sid = '$sid') AND (draft_flag = 0) AND (date <= NOW())" . COM_getPermSQL ('AND') . COM_getTopicSQL ('AND'));
             $A = DB_fetchArray ($result);
             $allowed = $A['count'];
         } else if ($type == 'poll') {

@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: submit.php,v 1.48 2003/01/01 20:02:19 efarmboy Exp $
+// $Id: submit.php,v 1.48.4.1 2003/12/05 19:34:18 dhaun Exp $
 
 require_once('lib-common.php');
 
@@ -149,7 +149,7 @@ function submitevent($mode = '', $month = '', $day = '', $year = '', $hour='')
         }
     } else {
         $eventform->set_var('master_checked', 'selected="SELECTED"');
-        $eventform->set_var('personl_option', '');
+        $eventform->set_var('personal_option', '');
     }
     $eventform->set_var('lang_link', $LANG12[11]);
     $eventform->set_var('lang_startdate', $LANG12[12]);
@@ -511,6 +511,7 @@ function savesubmission($type,$A)
 
     switch ($type) {
     case 'link':
+        $A['category'] = strip_tags($A['category']);
         if (!empty($A['title']) && !empty($A['description']) && !empty($A['url'])) {
             if ($A['categorydd'] != $LANG12[18] && !empty($A['categorydd'])) {
                 $A['category'] = $A['categorydd'];

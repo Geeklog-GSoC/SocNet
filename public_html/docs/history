@@ -1,5 +1,37 @@
 GeekLog History/Changes:
 
+Jun 1, 2004 (1.3.9sr1)
+-----------
+
+This release addresses the following security issues:
+
+- It was possible to post anonymous comments, even when anonymous comment
+  posting had been switched off in config.php [Vinny, Dirk]
+- Added an additional check for the comment speed limit [Vinny]
+- It was still possible to read the comments to stories, even when the user
+  didn't have access to the story's topic (provided they knew the story id)
+  [Vinny, Dirk]
+- If none of the topics were visible for anonymous users, the site's index
+  page may still have displayed some stories for anonymous users, depending on
+  the stories' permissions [Vinny, Dirk]
+- Users still got Daily Digest emails for topics from which they had been
+  removed (bug #178) [Dirk]
+- It was possible to subscribe to the Daily Digest for all topics, even if the
+  user did not have access to certain topics [Dirk]
+- Don't list stories or comments in the user profile if the current user isn't
+  allowed to see the topics they were posted under (bug #208) [Dirk]
+
+Non-security related fixes:
+
+- Fixed an SQL error in COM_showTopics if users excluded topics (in their
+  preferences) [Dirk]
+- Fixed sporadic "Duplicate entry '...' for key 1." messages in error.log
+  (caused by the handling of pseudo-session ids for anonymous users) [Dirk]
+- Fixed incorrect author names in Daily Digest (bug #207) [Dirk]
+- The plugin_profileblocksedit_<plugin-name> Plugin API function wasn't working
+  due to a missing piece of code in usersettings.php [Dirk]
+
+
 Mar 14, 2004 (1.3.9)
 ------------
 

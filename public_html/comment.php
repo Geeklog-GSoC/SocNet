@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: comment.php,v 1.44.2.2 2003/12/07 10:02:53 dhaun Exp $
+// $Id: comment.php,v 1.44.2.3 2004/01/18 19:59:09 dhaun Exp $
 
 /**
 * This file is responsible for letting user enter a comment and saving the
@@ -374,9 +374,27 @@ case $LANG01[28]: //Delete
     $display .= deletecomment (strip_tags ($cid), strip_tags ($sid), $type);
     break;
 case 'display':
-    $display .= COM_siteHeader()
-        . COM_userComments($sid,$title,$type,$order,'threaded',$pid)
-        . COM_siteFooter();
+    if (!empty ($sid) && !empty ($type)) {
+        $allowed = 1;
+        if ($type == 'article') {
+            $result = DB_query ("SELECT COUNT(*) AS count FROM {$_TABLES['stories']} WHERE (sid = '$sid') AND (draft_flag = 0) AND (date <= NOW())" . COM_getPermSQL ('AND'));
+            $A = DB_fetchArray ($result);
+            $allowed = $A['count'];
+        } else if ($type == 'poll') {
+            $result = DB_query ("SELECT COUNT(*) AS count FROM {$_TABLES['pollquestions']} WHERE (qid = '$sid')" . COM_getPermSQL ('AND'));
+            $A = DB_fetchArray ($result);
+            $allowed = $A['count'];
+        }
+        if ($allowed == 1) {
+            $display .= COM_siteHeader()
+                     . COM_userComments($sid,$title,$type,$order,'threaded',$pid)
+                     . COM_siteFooter();
+        } else {
+            $display .= COM_refresh($_CONF['site_url'] . '/index.php');
+        }
+    } else {
+        $display .= COM_refresh($_CONF['site_url'] . '/index.php');
+    }
     break;
 default:
     if (!empty($sid)) {

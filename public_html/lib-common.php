@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.196 2003/01/09 09:41:50 dhaun Exp $
+// $Id: lib-common.php,v 1.196.4.1 2003/10/12 12:19:19 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting(E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR);
@@ -162,6 +162,12 @@ require_once( $_CONF['path_system'] . 'lib-plugins.php' );
 */
 
 require_once( $_CONF['path_system'] . 'lib-sessions.php' );
+
+/**
+* Ulf Harnhammar's kses class
+*
+*/
+require_once( $_CONF['path_system'] . 'classes/kses.class.php' );
 
 // Set theme
 // Need to modify this code to check if theme was cached in user cookie.  That
@@ -2724,16 +2730,24 @@ function COM_checkHTML( $str )
     // strip_tags() gets confused by HTML comments ...
     $str = preg_replace( '/<!--.+?-->/', '', $str );
 
-    if( !SEC_hasRights( 'story.edit' ) || empty ( $_CONF['adminhtml'] ))
+    $filter = new kses;
+    $filter->Protocols( array( "http:", "https:", "ftp:" ));
+
+    if( !SEC_hasRights( 'story.edit' ) || empty ( $_CONF['admin_html'] ))
     {
-        $str = strip_tags( $str, $_CONF['allowablehtml'] );
+        $html = $_CONF['user_html'];
     }
     else
     {
-        $str = strip_tags( $str, $_CONF['adminhtml'] );
+        $html = array_merge( $_CONF['user_html'], $_CONF['admin_html'] );
     }
 
-    return COM_killJS( $str );
+    foreach( $html as $tag => $attr )
+    {
+        $filter->AddHTML( $tag, $attr );
+    }
+
+    return $filter->Parse( $str );
 }
 
 /** undo function for htmlspecialchars()
@@ -3235,27 +3249,40 @@ function COM_rdfImport( $bid, $rdfurl )
 * Returns what HTML is allows in content
 *
 * Returns what HTML tags the system allows to be used inside content
-* you can modify this by changing $_CONF['allowablehtml'] in
-* config.php
+* you can modify this by changing $_CONF['user_html'] in config.php
+* (for admins, see also $_CONF['admin_html']).
 *
 * @return   string  HTML <span> enclosed string
 */
 
-function COM_allowedhtml()
+function COM_allowedHTML()
 {
     global $_CONF, $LANG01;
 
     $retval = '<span class="warningsmall">' . $LANG01[31];
 
-    if( !SEC_hasRights( 'story.edit' ) || empty( $_CONF['adminhtml'] ))
+    if( !SEC_hasRights( 'story.edit' ) || empty( $_CONF['admin_html'] ))
     {
-        $retval .= htmlspecialchars( $_CONF['allowablehtml'] );
+        $html = $_CONF['user_html'];
     }
     else
     {
-        $retval .= htmlspecialchars( $_CONF['adminhtml'] );
+        $html = array_merge( $_CONF['user_html'], $_CONF['admin_html'] );
     }
 
+    $br = 0;
+    foreach( $html as $tag => $attr )
+    {
+        $br++;
+        $retval .= '&lt;' . $tag . '&gt;,';
+        if( $br == 10 )
+        {
+            $retval .= ' ';
+            $br = 0;
+        }
+    }
+
+    $retval .= '[code]';
     $retval .= '</span>';
 
     return $retval;

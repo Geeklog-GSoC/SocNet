@@ -32,7 +32,7 @@
 // | on configuration                                                          |
 // +---------------------------------------------------------------------------+
 //
-// $Id: config.php,v 1.69.2.2 2003/05/26 12:51:58 dhaun Exp $
+// $Id: config.php,v 1.69.2.2.2.1 2003/10/12 12:19:19 dhaun Exp $
 
 // To get Geeklog up and running, you need to make sure the settings in the
 // following sections are correct:
@@ -353,14 +353,53 @@ $_CONF['polladdresstime']   = 604800;
 $_CONF['linkcols']     =  3; // categories per column
 $_CONF['linksperpage'] = 10; // links per page
 
-// Parameters for checking words and HTML tags
+// Parameters for checking HTML tags
 
-// *** Warning: Adding the following tags to the list of allowable HTML can
+// *** Warning: Adding the following tags to the list of allowable HTML can     
 // *** make your site vulnerable to scripting attacks!
-// *** Use with care: <img> <span> <marquee> <script> <embed> <object> <iframe>
-$_CONF['allowablehtml'] = '<p>,<b>,<i>,<a>,<em>,<br>,<tt>,<hr>,<li>,<ol>,<ul>,<code>,<pre>';
-$_CONF['adminhtml'] = $_CONF['allowablehtml'] . ', <div>,<table>,<tr>,<td>,<th>';
+// *** Use with care: <img> <span> <marquee> <script> <embed> <object> <iframe> 
 
+/* This is a list of HTML tags that users are allowed to use in their posts.    
+ * Each tag can have a list of allowed attributes (see 'a' for an example).     
+ * Any attributes not listed will be filtered, i.e. removed.
+ */
+
+$_CONF['user_html'] = array (
+    'p'    => array(),
+    'b'    => array(),
+    'i'    => array(),
+    'a'    => array('href' => 1, 'title' => 1),
+    'em'   => array(),
+    'br'   => array(),
+    'tt'   => array(),
+    'hr'   => array(),
+    'li'   => array(),
+    'ol'   => array(),
+    'ul'   => array(),
+    'code' => array(),
+    'pre'  => array()
+);
+
+/* This is a list of HTML tags that Admins (site admin and story admins) can
+ * use in their posts. It will be merged with the above list of user-allowable
+ * tags ($_CONF['user_html']). You can also add tags that have already been
+ * listed for the user-allowed HTML, so as to allow admins to use more
+ * attributes (see 'p' for an example).
+ */
+$_CONF['admin_html'] = array (
+    'p'     => array('class' => 1, 'id' => 1, 'align' => 1),
+    'div'   => array('class' => 1, 'id' => 1),
+    'span'  => array('class' => 1, 'id' => 1),
+    'table' => array('class' => 1, 'id' => 1, 'width' => 1, 'border' => 1,
+                     'cellspacing' => 1, 'cellpadding' => 1),
+    'tr'    => array('class' => 1, 'id' => 1, 'align' => 1, 'valign' => 1),
+    'th'    => array('class' => 1, 'id' => 1, 'align' => 1, 'valign' => 1,
+                     'colspan' => 1, 'rowspan' => 1),
+    'td'    => array('class' => 1, 'id' => 1, 'align' => 1, 'valign' => 1,
+                     'colspan' => 1, 'rowspan' => 1)
+);
+
+// Parameters for checking for "bad" words
 $_CONF['censormode']    = 1;
 $_CONF['censorreplace'] = '*censored*';
 $_CONF['censorlist']    = array('fuck','cunt','fucker','fucking','pussy','cock','c0ck',' cum ','twat','clit','bitch','fuk','fuking','motherfucker');
@@ -378,7 +417,7 @@ if (!defined ('LB')) {
     define('LB',"\n");
 }
 if (!defined ('VERSION')) {
-    define('VERSION', '1.3.7sr2');
+    define('VERSION', '1.3.7sr3');
 }
 
 $_STATES = array(

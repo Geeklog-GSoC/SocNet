@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: calendar.php,v 1.31 2003/08/02 17:04:50 dhaun Exp $
+// $Id: calendar.php,v 1.31.2.1 2004/01/23 12:39:04 dhaun Exp $
 
 include('lib-common.php');
 include($_CONF['path_system'] . 'classes/calendar.class.php');
@@ -289,6 +289,10 @@ function getPriorSunday($month, $day, $year)
 
 $display .= COM_siteHeader('');
 
+if ($mode != 'personal') {
+    $mode = '';
+}
+
 // Set mode back to master if user refreshes screen after their session expires
 if (empty($_USER['uid']) AND $mode == 'personal') {
     $mode = '';
@@ -303,8 +307,28 @@ if ($mode == 'personal' AND $_CONF['personalcalendars'] == 0) {
     exit;
 }
 
+if (!empty ($msg)) {
+    if (is_numeric ($msg) && ($msg > 0)) {
+        $display .= COM_showMessage ($msg);
+    }
+}
+
+if (!in_array ($view, array ('month', 'week', 'day'))) {
+    $view = '';
+}
+
 // Create new calendar object
 $cal = new Calendar();
+
+if (!empty ($month) && !is_numeric ($month)) {
+    $month = '';
+}
+if (!empty ($week) && !is_numeric ($week)) {
+    $week = '';
+}
+if (!empty ($day) && !is_numeric ($day)) {
+    $day = '';
+}
 
 if ($view == 'week' AND (empty($month) AND empty($day) AND empty($year))) {
     list($month, $day, $year) = getPriorSunday(date('m', time()), date("j", time()), date('Y', time()));

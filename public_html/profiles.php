@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: profiles.php,v 1.24 2003/06/25 08:39:02 dhaun Exp $
+// $Id: profiles.php,v 1.24.2.1 2003/12/05 19:36:36 dhaun Exp $
 
 include('lib-common.php');
 
@@ -50,6 +50,31 @@ include('lib-common.php');
 function contactemail($uid,$author,$authoremail,$subject,$message) 
 {
     global $_TABLES, $_CONF, $_USER, $LANG08, $LANG_CHARSET;
+
+    // check for correct $_CONF permission
+    if (empty ($_USER['username']) && (($_CONF['loginrequired'] == 1) ||
+            ($_CONF['emailuserloginrequired'] == 1)) && ($uid != 2)) {
+        return COM_refresh ($_CONF['site_url'] . '/index.php');
+    }
+
+    // check for correct 'to' user preferences
+    $result = DB_query ("SELECT emailfromadmin,emailfromuser FROM {$_TABLES['userprefs']} WHERE uid = '$uid'");
+    $P = DB_fetchArray ($result);
+    if (SEC_inGroup ('Root') || SEC_hasRights ('user.mail')) {
+        $isAdmin = true;
+    } else {
+        $isAdmin = false;
+    }
+    if ((($P['emailfromadmin'] != 1) && $isAdmin) ||
+            (($P['emailfromuser'] != 1) && !$isAdmin)) {
+        return COM_refresh ($_CONF['site_url'] . '/index.php');
+    }
+
+    // check mail speedlimit
+    COM_clearSpeedlimit ($_CONF['speedlimit'], 'mail');
+    if (COM_checkSpeedlimit ('mail') > 0) {
+        return COM_refresh ($_CONF['site_url'] . '/index.php');
+    }
 
     if (!empty($author) && !empty($subject) && !empty($message)) {
         if (COM_isemail($authoremail)) {
@@ -82,6 +107,7 @@ function contactemail($uid,$author,$authoremail,$subject,$message)
                 "Return-Path: <$authoremail>\r\n" .
                 "X-Mailer: GeekLog " . VERSION . "\r\n" .
                 "Content-Type: text/plain; charset=$charset");
+            COM_updateSpeedlimit ('mail');
             $retval .= COM_refresh($_CONF['site_url'] . '/index.php?msg=27');
 		} else {
 			$retval .= COM_siteHeader("menu")
@@ -186,8 +212,20 @@ function contactform($uid, $subject='', $message='')
 
 function mailstory($sid,$to,$toemail,$from,$fromemail,$sid, $shortmsg) 
 {
- 	global $_TABLES, $_CONF, $LANG01, $LANG08, $A;
-	
+ 	global $_CONF, $_TABLES, $_USER, $LANG01, $LANG08, $A;
+
+    // check for correct $_CONF permission
+    if (empty ($_USER['username']) && (($_CONF['loginrequired'] == 1) ||
+            ($_CONF['emailstoryloginrequired'] == 1))) {
+        return COM_refresh ($_CONF['site_url'] . '/article.php?story=' . $sid);
+    }
+
+    // check mail speedlimit
+    COM_clearSpeedlimit ($_CONF['speedlimit'], 'mail');
+    if (COM_checkSpeedlimit ('mail') > 0) {
+        return COM_refresh ($_CONF['site_url'] . '/article.php?story=' . $sid);
+    }
+
  	$sql = "SELECT uid,title,introtext,bodytext,UNIX_TIMESTAMP(date) AS day FROM {$_TABLES['stories']} WHERE sid = '$sid' ";
  	$result = DB_query($sql);
  	$A = DB_fetchArray($result);
@@ -217,6 +255,7 @@ function mailstory($sid,$to,$toemail,$from,$fromemail,$sid, $shortmsg)
  	$subject = COM_undoSpecialChars(strip_tags(stripslashes('Re: '.$A['title'])));
 	
  	@mail($toemail,$subject,$mailtext,$mailfrom);
+    COM_updateSpeedlimit ('mail');
  	$retval .= COM_refresh("{$_CONF['site_url']}/article.php?story=$sid");
 	// Increment numemails counter for story
 	$result = DB_query("SELECT numemails FROM {$_TABLES['stories']} WHERE sid = '$sid'");

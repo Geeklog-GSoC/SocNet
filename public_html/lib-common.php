@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.79.2.4 2002/07/08 10:06:37 dhaun Exp $
+// $Id: lib-common.php,v 1.79.2.5 2002/07/08 14:18:18 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
@@ -2391,7 +2391,7 @@ function COM_showMessage($msg)
     $retval = '';
 	
     if ($msg > 0) {
-        $timestamp = strftime("%c");
+        $timestamp = strftime($_CONF['daytime']);
         $retval .= COM_startBlock($MESSAGE[40] . ' - ' . $timestamp)
             . '<img src="' . $_CONF['layout_url'] . '/images/sysmessage.gif" border="0" align="top" alt="">'
             . $MESSAGE[$msg] . '<BR><BR>' . COM_endBlock();

@@ -23,13 +23,15 @@ This release addresses the following security issues:
 
 Non-security related fixes:
 
-- Fixed an SQL error in COM_showTopics if users excluded topics (in their
-  preferences) [Dirk]
+- Fixed an SQL error in COM_showTopics if users excluded topics in their
+  preferences (reported by Rob Young) [Dirk]
 - Fixed sporadic "Duplicate entry '...' for key 1." messages in error.log
   (caused by the handling of pseudo-session ids for anonymous users) [Dirk]
 - Fixed incorrect author names in Daily Digest (bug #207) [Dirk]
 - The plugin_profileblocksedit_<plugin-name> Plugin API function wasn't working
   due to a missing piece of code in usersettings.php [Dirk]
+- COM_extractLinks will now ignore anchor tags that do not contain "href"
+  (bug #183) [Vinny]
 
 
 Mar 14, 2004 (1.3.9)

@@ -1,5 +1,13 @@
 GeekLog History/Changes:
 
+October 14, 2003 (1.3.8-1sr2)
+----------------
+
+Jouko Pynnonen found a way to trick the new "forgot password" feature,
+introduced in 1.3.8, into letting an attacker change the password for _any_
+account. This release addresses this issue - there were no other changes.
+
+
 October 12, 2003 (1.3.8-1sr1)
 ----------------
 

@@ -12,7 +12,7 @@
 // | Copyright (C) 2000,2001 by the following authors:                         |
 // |                                                                           |
 // | Authors: Tony Bibbs       - tony@tonybibbs.com                            |
-// |          Mark Limburg     - mlimburg@dingoblue.net.au                     |
+// |          Mark Limburg     - mlimburg@users.sourceforge.net                |
 // |          Jason Wittenburg - jwhitten@securitygeeks.com                    |
 // +---------------------------------------------------------------------------+
 // |                                                                           |
@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: profiles.php,v 1.10 2002/04/14 16:47:47 dhaun Exp $
+// $Id: profiles.php,v 1.10.2.1 2002/07/06 14:36:41 dhaun Exp $
 
 include('lib-common.php');
 
@@ -54,9 +54,10 @@ function contactemail($uid,$author,$authoremail,$subject,$message)
 		if (COM_isemail($authoremail)) {
 			$result = DB_query("SELECT * FROM {$_TABLES['users']} WHERE uid = $uid");
 			$A = DB_fetchArray($result);
-			$tmp = urlencode($LANG08[1]);
+			$subject = strip_tags (stripslashes ($subject));
+			$subject = substr ($subject, 0, strcspn ($subject, "\r\n"));
 			$RET = @mail($A['username'].' <'.$A['email'].'>'
-				,strip_tags(stripslashes($subject))
+				,$subject
 				,strip_tags(stripslashes($message))
 				,"From: $author <$authoremail>\n"
 				."Return-Path: <$authoremail>\n"

@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.243.2.2 2003/10/12 12:18:31 dhaun Exp $
+// $Id: lib-common.php,v 1.243.2.3 2003/10/13 07:33:30 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting(E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR);
@@ -3644,7 +3644,7 @@ function COM_rdfImport( $bid, $rdfurl )
 * @return   string  HTML <span> enclosed string
 */
 
-function COM_COM_allowedHTML()
+function COM_allowedHTML()
 {
     global $_CONF, $LANG01;
 

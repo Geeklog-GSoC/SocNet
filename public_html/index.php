@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: index.php,v 1.40 2002/12/31 10:58:55 dhaun Exp $
+// $Id: index.php,v 1.40.2.1 2003/05/15 15:41:07 dhaun Exp $
 
 if (isset ($HTTP_GET_VARS['topic'])) {
     $topic = strip_tags ($HTTP_GET_VARS['topic']);
@@ -168,7 +168,7 @@ COM_rdfUpToDateCheck();
 // solely
 COM_featuredCheck();
 
-$sql = "SELECT *,unix_timestamp(date) AS day FROM {$_TABLES['stories']} WHERE (date <= NOW()) AND (draft_flag = 0)";
+$sql = "FROM {$_TABLES['stories']} WHERE (date <= NOW()) AND (draft_flag = 0)";
 
 // if a topic was provided only select those stories.
 if (!empty($topic)) {
@@ -177,18 +177,16 @@ if (!empty($topic)) {
     $sql .= " AND frontpage = 1 ";
 }
 
-$sql .= " AND (";
+$groupsql = " (";
 if (!empty ($_USER['uid'])) {
-    $groupList = '';
-    foreach ($_GROUPS as $grp) {
-        $groupList .= $grp . ',';
-    }
-    $groupList = substr ($groupList, 0, -1);
-    $sql .= "(owner_id = {$_USER['uid']} AND perm_owner >= 2) OR ";
-    $sql .= "(group_id IN ($groupList) AND perm_group >= 2) OR ";
-    $sql .= "(perm_members >= 2) OR ";
+    $groupsql .= "(owner_id = {$_USER['uid']} AND perm_owner >= 2) OR ";
+    $groupsql .= "(group_id IN (" . implode (',', $_GROUPS) . ") AND perm_group >= 2) OR ";
+    $groupsql .= "(perm_members >= 2)) ";
+} else {
+    $groupsql .= "perm_anon >= 2) ";
 }
-$sql .= "(perm_anon >= 2))";
+
+$sql .= " AND" . $groupsql;
 
 if (!empty($U['aids'])) {
     $AIDS = explode(' ',$U['aids']);
@@ -204,54 +202,49 @@ if (!empty($U['tids'])) {
     }
 }
 
+$tresult = DB_query ("SELECT tid FROM {$_TABLES['topics']} WHERE" . $groupsql);
+$trows = DB_numRows ($tresult);
+$topicsql = '';
+if ($trows > 0) {
+    $tids = array ();
+    for ($i = 0; $i < $trows; $i++) {
+        $T = DB_fetchArray ($tresult);   
+        $tids[] = $T['tid'];
+    }
+    if (sizeof ($tids) > 0) {
+        $topicsql = "AND (tid IN ('" . implode ("','", $tids) . "')) ";
+    }
+}
+
+$sql .= $topicsql;
+
 if ($newstories) {
-    $sql .= "AND (date >= (NOW() - INTERVAL {$_CONF['newstoriesinterval']} SECOND))";
+    $sql .= "AND (date >= (NOW() - INTERVAL {$_CONF['newstoriesinterval']} SECOND)) ";
 }
 
 $offset = ($page - 1) * $limit;
-$sql .= "ORDER BY featured DESC, date DESC LIMIT $offset, $limit";
+$sql .= "ORDER BY featured DESC, date DESC";
 
-$result = DB_query($sql);
+$result = DB_query ("SELECT *,unix_timestamp(date) AS day " . $sql
+        . " LIMIT $offset, $limit");
 $nrows = DB_numRows($result);
 
-$countsql = "SELECT count(*) AS count FROM {$_TABLES['stories']} WHERE (date <= NOW()) AND (draft_flag = 0)";
-if (!empty($topic)) {
-    $countsql = $countsql . " AND tid='$topic'";
-} elseif (!$newstories) {
-    $countsql = $countsql . ' AND frontpage = 1';
-}
-
-$countsql .= " AND (";
-if (!empty ($_USER['uid'])) {
-    // Note: $groupList re-used from above
-    $countsql .= "(owner_id = {$_USER['uid']} AND perm_owner >= 2) OR ";
-    $countsql .= "(group_id IN ($groupList) AND perm_group >= 2) OR ";
-    $countsql .= "(perm_members >= 2) OR ";
-}
-$countsql .= "(perm_anon >= 2))";
-
-if ($newstories) {
-    $countsql .= " AND (date >= (NOW() - INTERVAL {$_CONF['newstoriesinterval']} SECOND))";
-}
-
-$data = DB_query($countsql);
+$data = DB_query("SELECT count(*) AS count " . $sql);
 $D = DB_fetchArray($data);
 $num_pages = ceil($D['count'] / $limit);
 
 if ($nrows > 0) {
     for ($x = 1; $x <= $nrows; $x++) {
         $A = DB_fetchArray($result);
-        if (SEC_hasAccess($A['owner_id'],$A['group_id'],$A['perm_owner'],$A['perm_group'],$A['perm_members'],$A['perm_anon']) > 0) {
-            if ($A['featured'] == 1) {
-                $feature = 'true';
-            } elseif (($x == 1) && ($_CONF['showfirstasfeatured'] == 1)) {
-                $feature = 'true';
-                $A['featured'] = 1;
-            }
-            $display .= COM_article($A,'y');
+        if ($A['featured'] == 1) {
+            $feature = 'true';
+        } elseif (($x == 1) && ($_CONF['showfirstasfeatured'] == 1)) {
+            $feature = 'true';
+            $A['featured'] = 1;
         }
+        $display .= COM_article($A,'y');
     }
-    
+
     // Print Google-like paging navigation
     if (empty($topic)) {
         $base_url = $_CONF['site_url'] . '/index.php';
@@ -265,12 +258,8 @@ if ($nrows > 0) {
 } else {
     $display .= COM_startBlock($LANG05[1]) . $LANG05[2];
     if (!empty($topic)) {
-        $result = DB_query ("SELECT topic FROM {$_TABLES['topics']} WHERE tid='$topic'");
-        $A = DB_fetchArray ($result);
-        if (!empty ($A['topic'])) {
-            $topic = $A['topic'];
-        }
-        $display .= $LANG05[3];
+        $topicname = DB_getItem ($_TABLES['topics'], 'topic', "tid='{$topic}'");
+        $display .= sprintf ($LANG05[3], $topicname);
     }
     $display .= COM_endBlock();
 }

@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: comment.php,v 1.44.2.5 2004/05/31 12:49:51 dhaun Exp $
+// $Id: comment.php,v 1.44.2.6 2004/10/07 20:14:52 dhaun Exp $
 
 /**
 * This file is responsible for letting user enter a comment and saving the
@@ -253,6 +253,18 @@ function savecomment($uid,$title,$comment,$sid,$pid,$type,$postmode)
                 . $LANG03[8]
                 . COM_endBlock (COM_getBlockTemplate ('_msg_block', 'footer'));
         return $retval;
+    }
+
+    $commentcode = 0;
+    if ($type == 'article') {
+        $commentcode = DB_getItem ($_TABLES['stories'], 'commentcode',
+                                   "sid = '$sid'");
+    } else if ($type == 'poll') {
+        $commentcode = DB_getItem ($_TABLES['pollquestions'], 'commentcode',
+                                   "qid = '$sid'");
+    }
+    if ($commentcode < 0) {
+        return COM_refresh ($_CONF['site_url'] . '/index.php');
     }
 
     // Clean 'em up a bit!

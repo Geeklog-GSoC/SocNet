@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.79.2.3 2002/07/08 07:53:57 dhaun Exp $
+// $Id: lib-common.php,v 1.79.2.4 2002/07/08 10:06:37 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
@@ -2140,7 +2140,7 @@ function COM_printUpcomingEvents($help='',$title='')
                 if ($z == 2) {
                     $retval .= 'mode=personal&amp;';
                 }
-                $retval .= eid=' . $theEvent['eid'] . '">'
+                $retval .= 'eid=' . $theEvent['eid'] . '">'
                         . stripslashes($theEvent['title']) . '</a></li>';
             }
             $theRow ++ ;

@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: users.php,v 1.67 2003/07/25 08:11:28 dhaun Exp $
+// $Id: users.php,v 1.67.2.1 2003/10/14 18:37:01 dhaun Exp $
 
 /**
 * This file handles user authentication
@@ -692,7 +692,7 @@ case 'logout':
     break;
 case 'profile':
     $uid = strip_tags ($HTTP_GET_VARS['uid']);
-    if (is_numeric ($uid)) {
+    if (is_numeric ($uid) && ($uid > 0)) {
         $display .= COM_siteHeader('menu');
         // Call custom registration and account record create function if
         // enabled and exists
@@ -730,8 +730,10 @@ case 'getpassword':
 case 'newpwd':
     $uid = $HTTP_GET_VARS['uid'];
     $reqid = $HTTP_GET_VARS['rid'];
-    if (!empty ($uid) && is_numeric ($uid) && !empty ($reqid)) {
-        $valid = DB_count ($_TABLES['users'], array ('uid', 'pwrequestid'), array ($uid, $reqid));
+    if (!empty ($uid) && is_numeric ($uid) && ($uid > 0) && !empty ($reqid) &&
+            (strlen ($reqid) == 16)) {
+        $valid = DB_count ($_TABLES['users'], array ('uid', 'pwrequestid'),
+            array (addslashes ($uid), addslashes ($reqid)));
         if ($valid == 1) {
             $display .= COM_siteHeader ('menu');
             $display .= newpasswordform ($uid, $reqid);
@@ -755,9 +757,10 @@ case 'setnewpwd':
     } else {
         $uid = $HTTP_POST_VARS['uid'];
         $reqid = $HTTP_POST_VARS['rid'];
-        if (!empty ($uid) && is_numeric ($uid) && !empty ($reqid)) {
+        if (!empty ($uid) && is_numeric ($uid) && ($uid > 0) &&
+                !empty ($reqid) && (strlen ($reqid) == 16)) {
             $valid = DB_count ($_TABLES['users'], array ('uid', 'pwrequestid'),
-                               array ($uid, $reqid));
+                               array (addslashes ($uid), addslashes ($reqid)));
             if ($valid == 1) {
                 $passwd = md5 ($HTTP_POST_VARS['passwd']);
                 DB_change ($_TABLES['users'], 'passwd', "$passwd",
@@ -797,7 +800,12 @@ case 'emailpasswd':
             $username = DB_getItem ($_TABLES['users'], 'username',
                                     "email = '{$HTTP_POST_VARS['email']}'");
         }
-        $display .= requestpassword ($username, 55);
+        if (!empty ($username)) {
+            $display .= requestpassword ($username, 55);
+        } else {
+            $display = COM_refresh ($_CONF['site_url']
+                                    . '/users.php?mode=getpassword');
+        }
     }
     break;
 case 'new':

@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: usersettings.php,v 1.49.2.1.2.1 2004/01/23 22:00:01 dhaun Exp $
+// $Id: usersettings.php,v 1.49.2.1.2.2 2004/01/24 14:40:37 dhaun Exp $
 
 include_once('lib-common.php');
 
@@ -67,7 +67,7 @@ function edituser()
     $retval .= '<table border="0" cellspacing="0" cellpadding="3">' . LB
         . '<tr valign="top">' . LB
         . '<td align="right"><b>' . $LANG04[3] . ':</b><br><small>' . $LANG04[34] . '</small></td>' . LB
-        . '<td><input type="text" name="fullname" size="60" maxlength="80" value="' . $A['fullname'] . '"></td>' . LB
+        . '<td><input type="text" name="fullname" size="60" maxlength="80" value="' . htmlspecialchars ($A['fullname']) . '"></td>' . LB
         . '</tr>' . LB
         . '<tr valign="top">' . LB
         . '<td align="right"><b>' . $LANG04[4] . ':</b><br><small>' . $LANG04[35] . '</small></td>' . LB
@@ -81,15 +81,15 @@ function edituser()
         . '</tr>' . LB
         . '<tr valign="top">' . LB
         . '<td align="right"><b>' . $LANG04[5] . ':</b><br><small>' . $LANG04[33] . '</small></td>' . LB
-        . '<td><input type="text" name="email" size="60" maxlength="96" value="' . $A['email'] . '"></td>' . LB
+        . '<td><input type="text" name="email" size="60" maxlength="96" value="' . htmlspecialchars ($A['email']) . '"></td>' . LB
         . '</tr>' . LB
         . '<tr valign="top">' . LB
         . '<td align="right"><b>' . $LANG04[6] . ':</b><br><small>' . $LANG04[36] . '</small></td>' . LB
-        . '<td><input type="text" name="homepage" size="60" maxlength="96" value="' . COM_killJS ($A['homepage']) . '"></td>' . LB
+        . '<td><input type="text" name="homepage" size="60" maxlength="96" value="' . htmlspecialchars (COM_killJS ($A['homepage'])) . '"></td>' . LB
         . '</tr>' . LB
         . '<tr valign="top">' . LB
         . '<td align="right"><b>' . $LANG04[32] . ':</b><br><small>' . $LANG04[37] . '</small></td>' . LB
-        . '<td><textarea name="sig" cols="60" rows="4" wrap="virtual">' . $A['sig'] . '</textarea></td>' . LB
+        . '<td><textarea name="sig" cols="60" rows="4" wrap="virtual">' . htmlspecialchars ($A['sig']) . '</textarea></td>' . LB
         . '</tr>' . LB;
     if ($_CONF['allow_user_photo'] == 1) {
         $retval .= '<tr valign="top">' . LB
@@ -124,11 +124,11 @@ function edituser()
 
     $retval .= '<tr valign="top">' . LB
         . '<td align="right"><b>' . $LANG04[7] . ':</b><br><small>' . $LANG04[38] . '</small></td>'
-        . '<td><textarea name="about" cols="60" rows="6" wrap="virtual">' . $A['about'] . '</textarea></td>'
+        . '<td><textarea name="about" cols="60" rows="6" wrap="virtual">' . htmlspecialchars ($A['about']) . '</textarea></td>'
         . '</tr>' . LB
         . '<tr valign="top">' . LB
         . '<td align="right"><b>' . $LANG04[8] . ':</b><br><small>' . $LANG04[39] . '</small></td>' . LB
-        . '<td><textarea name="pgpkey" cols="60" rows="6" wrap="virtual">' . $A['pgpkey'] . '</textarea></td>' . LB
+        . '<td><textarea name="pgpkey" cols="60" rows="6" wrap="virtual">' . htmlspecialchars ($A['pgpkey']) . '</textarea></td>' . LB
         . '</tr>' . LB
         . '<tr valign="top">' . LB
         . '<td align="center" colspan="2"><input type="hidden" name="uid" value="' . $reqid . '">'

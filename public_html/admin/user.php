@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: user.php,v 1.59.2.1 2004/01/18 19:57:26 dhaun Exp $
+// $Id: user.php,v 1.59.2.2 2004/01/19 20:14:00 dhaun Exp $
 
 // Set this to true to get various debug messages from this script
 $_USER_VERBOSE = false;
@@ -574,7 +574,7 @@ function display_form()
 
 function deleteUser ($uid)
 {
-    global $_CONF, $_TABLES;
+    global $_CONF, $_TABLES, $_USER;
 
     if (!SEC_inGroup ('Root')) {
         if (SEC_inGroup ('Root', $uid)) {

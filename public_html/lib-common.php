@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.301 2004/03/13 11:54:48 dhaun Exp $
+// $Id: lib-common.php,v 1.301.2.1 2004/05/31 10:50:38 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting( E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR );
@@ -298,10 +298,10 @@ if( empty( $_USER['uid'] ) OR $_USER['uid'] == 1 )
         $curtime = time();
 
         // Insert anonymous user session
-        DB_query( "INSERT INTO {$_TABLES['sessions']} (sess_id, start_time, remote_ip, uid) VALUES ($sess_id,$curtime,'$REMOTE_ADDR',1)", 1 );
+        $result = DB_query( "INSERT INTO {$_TABLES['sessions']} (sess_id, start_time, remote_ip, uid) VALUES ($sess_id,$curtime,'$REMOTE_ADDR',1)", 1 );
         $tries++;
     }
-    while( DB_error() && ( $tries < 5 ));
+    while(( $result === false ) && ( $tries < 5 ));
 }
 
 // Clear out any expired sessions
@@ -1905,14 +1905,22 @@ function COM_showTopics( $topic='' )
     global $_CONF, $_TABLES, $_USER, $_GROUPS, $LANG01, $HTTP_SERVER_VARS,
            $page, $newstories;
 
-    $sql = "SELECT tid,topic,owner_id,group_id,perm_owner,perm_group,perm_members,perm_anon FROM {$_TABLES['topics']}" . COM_getPermSQL();
+    $sql = "SELECT tid,topic,imageurl FROM {$_TABLES['topics']}";
     if( $_USER['uid'] > 1 ) {
         $tids = DB_getItem( $_TABLES['userindex'], 'tids',
                             "uid = '{$_USER['uid']}'" );
         if (!empty ($tids)) {
-            $sql .= " AND (tid NOT IN ('" . str_replace( ' ', "','", $tids )
-                 . "'))";
+            $sql .= " WHERE (tid NOT IN ('" . str_replace( ' ', "','", $tids )
+                 . "'))" . COM_getPermSQL( 'AND' );
         }
+        else
+        {
+            $sql .= COM_getPermSQL();
+        }
+    }
+    else
+    {
+        $sql .= COM_getPermSQL();
     }
     if( $_CONF['sortmethod'] == 'alpha' )
     {
@@ -4044,31 +4052,33 @@ function COM_emailUserTopics()
             . "FROM {$_TABLES['stories']} "
             . "WHERE draft_flag = 0 AND date <= NOW() AND date >= '{$lastrun}'";
 
+        $topicsql = "SELECT tid FROM {$_TABLES['topics']}"
+                  . COM_getPermSQL( 'WHERE', $U['uuid'] );
+        $tresult = DB_query( $topicsql );
+        $trows = DB_numRows( $tresult );
+
+        if( $trows == 0 )
+        {
+            // this user doesn't seem to have access to any topics ...
+            continue;
+        }
+
+        $TIDS = array();
+        for( $i = 1; $i <= $trows; $i++ )
+        {
+            $T = DB_fetchArray( $tresult );
+            $TIDS[] = $T['tid'];
+        }
+
         if( !empty( $U['etids'] ))
         {
             $ETIDS = explode( ' ', $U['etids'] );
-            $storysql .= " AND (tid='" . implode( "' OR tid='", $ETIDS ) . "')";
+            $TIDS = array_intersect( $TIDS, $ETIDS );
         }
-        else // get all topics this user has access to
+
+        if( sizeof( $TIDS ) > 0)
         {
-            $topicsql = "SELECT tid FROM {$_TABLES['topics']}"
-                      . COM_getPermSQL( 'WHERE', $U['uuid'] );
-            $tresult = DB_query( $topicsql );
-            $trows = DB_numRows( $tresult );
-            if( $trows > 0 )
-            {
-                $storysql .= " AND (";
-                for( $i = 1; $i <= $trows; $i++ )
-                {
-                    $T = DB_fetchArray ($tresult);
-                    if ($i > 1)
-                    {
-                        $storysql .= " OR ";
-                    }
-                    $storysql .= "tid = '{$T['tid']}'";
-                }
-                $storysql .= ")";
-            }
+            $storysql .= " AND (tid IN ('" . implode( "','", $TIDS ) . "'))";
         }
 
         $storysql .= COM_getPermSQL( 'AND', $U['uuid'] );
@@ -4099,6 +4109,10 @@ function COM_emailUserTopics()
                 {
                     $storyauthor = DB_getItem( $_TABLES['users'], 'username', "uid = '{$S['uid']}'" );
                     $authors[$S['uid']] = $storyauthor;
+                }
+                else
+                {
+                    $storyauthor = $authors[$S['uid']];
                 }
                 $mailtext .= "$LANG24[7]: " . $storyauthor . "\n";
             }
@@ -5233,6 +5247,71 @@ function COM_getPermSQL( $type = 'WHERE', $u_id = 0, $access = 2, $table = '' )
     return $sql;   
 }
 
+/**
+* Return SQL expression to check for allowed topics.
+*
+* Creates part of an SQL expression that can be used to only request stories
+* from topics to which the user has access to.
+*
+* @param        string      $type     part of the SQL expr. e.g. 'WHERE', 'AND'
+* @param        int         $u_id     user id or 0 = current user              
+* @param        string      $table    table name if ambiguous (e.g. in JOINs)  
+* @return       string      SQL expression string (may be empty)               
+*
+*/ 
+function COM_getTopicSQL( $type = 'WHERE', $u_id = 0, $table = '' )            
+{
+    global $_TABLES, $_USER, $_GROUPS;
+
+    $topicsql = ' ' . $type . ' ';
+
+    if( !empty( $table ))
+    {                                                                          
+        $table .= '.';
+    }
+
+    if(( $u_id <= 0 ) || ( $u_id == $_USER['uid'] ))
+    {
+        $uid = $_USER['uid'];
+        $GROUPS = $_GROUPS;
+    }
+    else
+    {
+        $uid = $u_id;
+        $GROUPS = SEC_getUserGroups( $uid );
+    }
+
+    if( empty( $_GROUPS ))
+    {
+        // this shouldn't really happen, but if it does, handle user
+        // like an anonymous user
+        $uid = 1;
+    }
+
+    if( SEC_inGroup( 'Root', $uid ))
+    {
+        return '';
+    }
+
+    $result = DB_query( "SELECT tid FROM {$_TABLES['topics']}"
+                        . COM_getPermSQL( 'WHERE', $uid ));
+    $tids = array();
+    while( $T = DB_fetchArray( $result ))
+    {
+        $tids[] = $T['tid'];
+    }
+
+    if( sizeof( $tids ) > 0 )
+    {
+        $topicsql .= "({$table}tid IN ('" . implode( "','", $tids ) . "'))";
+    }
+    else
+    {
+        $topicsql .= '0';
+    }
+
+    return $topicsql;
+}
 
 /**
 * Strip slashes from a string only when magic_quotes_gpc = on.

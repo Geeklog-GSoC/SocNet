@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-plugins.php,v 1.27 2004/02/14 19:19:13 dhaun Exp $
+// $Id: lib-plugins.php,v 1.27.2.1 2004/07/17 12:19:55 dhaun Exp $
 
 /**
 * This is the plugin library for Geeklog.  This is the API that plugins can
@@ -416,9 +416,9 @@ function PLG_getUserOptions()
 
     $result = DB_query("SELECT pi_name FROM {$_TABLES['plugins']} WHERE pi_enabled = 1");
     $nrows = DB_numRows($result);
-    $plugin = new Plugin();
     $counter = 0;
     for ($i = 1; $i <= $nrows; $i++) {
+        $plugin = new Plugin();
         $A = DB_fetchArray($result);
         $function = 'plugin_getuseroption_' . $A['pi_name'];
         if (function_exists($function)) {
@@ -428,7 +428,6 @@ function PLG_getUserOptions()
                 $counter++;
                 $plgresults[$counter] = $plugin;
             }
-            $plugin->reset();
         }
     }
 
@@ -450,9 +449,9 @@ function PLG_getAdminOptions()
 
     $result = DB_query("SELECT pi_name FROM {$_TABLES['plugins']} WHERE pi_enabled = 1");
     $nrows = DB_numRows($result);
-    $plugin = new Plugin();
     $counter = 0;
     for ($i = 1; $i <= $nrows; $i++) {
+        $plugin = new Plugin();
         $A = DB_fetchArray($result);
         $function = 'plugin_getadminoption_' . $A['pi_name'];
         if (function_exists($function)) {
@@ -461,7 +460,6 @@ function PLG_getAdminOptions()
                 $counter++;
                 $plgresults[$counter] = $plugin;
             }
-            $plugin->reset();
         }
     }
     return $plgresults;
@@ -528,13 +526,12 @@ function PLG_getCCOptions()
     $result = DB_query("SELECT pi_name FROM {$_TABLES['plugins']} WHERE pi_enabled = 1");
     $nrows = DB_numRows($result);
     require_once($_CONF['path_system'] . 'classes/plugin.class.php');
-    $cur_plugin = new Plugin();
     $plugins = array();
     for ($i = 1; $i <= $nrows; $i++) {
+        $cur_plugin = new Plugin();
         $A = DB_fetchArray($result);
         $function = 'plugin_cclabel_' . $A['pi_name'];
         if (function_exists($function)) {
-            $cur_plugin->reset();
             $cclabel = $function ();
             if ($cclabel !== false) {
 	        list($cur_plugin->adminlabel, $cur_plugin->adminurl, $cur_plugin->plugin_image) = $cclabel;

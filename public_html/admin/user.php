@@ -8,11 +8,11 @@
 // | Geeklog user administration page.                                         |
 // |                                                                           |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000,2001 by the following authors:                         |
+// | Copyright (C) 2000-2004 by the following authors:                         |
 // |                                                                           |
-// | Authors: Tony Bibbs       - tony@tonybibbs.com                            |
-// |          Mark Limburg     - mlimburg@users.sourceforge.net                |
-// |          Jason Wittenburg - jwhitten@securitygeeks.com                    |
+// | Authors: Tony Bibbs        - tony@tonybibbs.com                           |
+// |          Mark Limburg      - mlimburg@users.sourceforge.net               |
+// |          Jason Whittenburg - jwhitten@securitygeeks.com                   |
 // +---------------------------------------------------------------------------+
 // |                                                                           |
 // | This program is free software; you can redistribute it and/or             |
@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: user.php,v 1.46 2002/12/30 13:28:53 dhaun Exp $
+// $Id: user.php,v 1.46.4.1 2004/01/19 20:07:59 dhaun Exp $
 
 // Set this to true to get various debug messages from this script
 $_USER_VERBOSE = false;
@@ -150,7 +150,13 @@ function edituser($uid = '', $msg = '')
             $selected = DB_getItem($_TABLES['groups'],'grp_id',"grp_name='All Users'") . ' ';
             $selected .= DB_getItem($_TABLES['groups'],'grp_id',"grp_name='Logged-in Users'");
         }
-		$user_templates->set_var('group_options', COM_checkList($_TABLES['groups'],'grp_id,grp_name','',$selected));
+        $where = '';
+        if (!SEC_inGroup ('Root')) {
+            $where .= "grp_name <> 'Root'";
+        }
+		$user_templates->set_var ('group_options',
+                COM_checkList ($_TABLES['groups'], 'grp_id,grp_name',
+                               $where, $selected));
         $user_templates->parse('group_edit', 'groupedit', true);
 	} else {
 		// user doesn't have the rights to edit a user's groups so set to -1 so we know not to
@@ -235,7 +241,16 @@ function saveusers($uid,$username,$fullname,$passwd,$email,$regdate,$homepage,$g
         }
 		
 		// if groups is -1 then this user isn't allowed to change any groups so ignore
-		if (is_array($groups)) {
+		if (is_array ($groups) && SEC_inGroup ('Group Admin')) {
+            if (!SEC_inGroup ('Root')) {
+                $rootgrp = DB_getItem ($_TABLES['groups'], 'grp_id',
+                                       "grp_name = 'Root'");
+                if (in_array ($rootgrp, $groups)) {
+                    COM_accessLog ("User {$_USER['username']} just tried to give Root permissions to user $username.");
+                    echo COM_refresh ($_CONF['site_admin_url'] . '/index.php');
+                    exit;
+                }
+            }
 			if ($_USER_VERBOSE) COM_errorLog("deleting all group_assignments for user $uid/$username",1);
 			DB_query("DELETE FROM {$_TABLES['group_assignments']} WHERE ug_uid = $uid");
 			if (!empty($groups)) {
@@ -519,25 +534,45 @@ function display_form()
     return $retval;
 }
 
+function deleteUser ($uid)
+{
+    global $_CONF, $_TABLES, $_USER;
+
+    if (!SEC_inGroup ('Root')) {
+        if (SEC_inGroup ('Root', $uid)) {
+            COM_accessLog ("User {$_USER['username']} just tried to delete Root user $uid.");
+            return COM_refresh ($_CONF['site_admin_url'] . '/user.php');
+        }
+    }
+
+    // Ok, delete everything related to this user
+
+    // first, remove from all security groups
+    DB_delete ($_TABLES['group_assignments'], 'ug_uid', $uid);
+
+    // remove user information and preferences
+    DB_delete ($_TABLES['userprefs'], 'uid', $uid);
+    DB_delete ($_TABLES['userindex'], 'uid', $uid);
+    DB_delete ($_TABLES['usercomment'], 'uid', $uid);
+    DB_delete ($_TABLES['userinfo'], 'uid', $uid);
+
+    // avoid having orphand stories/comments by making them anonymous posts
+    DB_query ("UPDATE {$_TABLES['comments']} SET uid = 1 WHERE uid = $uid");
+    DB_query ("UPDATE {$_TABLES['stories']} SET uid = 1 WHERE uid = $uid");
+
+    // now delete the user itself
+    DB_delete ($_TABLES['users'], 'uid', $uid);
+
+    return COM_refresh ($_CONF['site_admin_url'] . '/user.php?msg=22');
+}
+
 // MAIN
 if (($mode == $LANG28[19]) && !empty ($LANG28[19])) { // delete
     if (!isset ($uid) || empty ($uid) || ($uid == 0)) {
         COM_errorLog ('Attempted to delete user uid=' . $uid);
         $display .= COM_refresh ($_CONF['site_admin_url'] . '/user.php');
     } else {
-        // Ok, delete everything related to this user
-
-        // first, remove from all security groups
-        DB_delete($_TABLES['group_assignments'],'ug_uid',$uid);
-        DB_delete($_TABLES['userprefs'],'uid',$uid);
-        DB_delete($_TABLES['userindex'],'uid',$uid);
-        DB_delete($_TABLES['usercomment'],'uid',$uid);
-        DB_delete($_TABLES['userinfo'],'uid',$uid);
-
-        // what to do with orphan stories/comments?
-
-        // now move delete the user itself
-        DB_delete($_TABLES['users'],'uid',$uid,$_CONF['site_admin_url'] . '/user.php?msg=22');
+        $display .= deleteUser ($uid);
     }
 } else if (($mode == $LANG28[20]) && !empty ($LANG28[20])) { // save
     $display = saveusers ($HTTP_POST_VARS['uid'], $HTTP_POST_VARS['username'],

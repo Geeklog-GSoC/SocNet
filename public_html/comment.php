@@ -8,11 +8,11 @@
 // | Geeklog common library.                                                   |
 // |                                                                           |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000,2001 by the following authors:                         |
+// | Copyright (C) 2000-2004 by the following authors:                         |
 // |                                                                           |
-// | Authors: Tony Bibbs       - tony@tonybibbs.com                            |
-// |          Mark Limburg     - mlimburg@users.sourceforge.net                |
-// |          Jason Wittenburg - jwhitten@securitygeeks.com                    |
+// | Authors: Tony Bibbs        - tony@tonybibbs.com                           |
+// |          Mark Limburg      - mlimburg@users.sourceforge.net               |
+// |          Jason Whittenburg - jwhitten@securitygeeks.com                   |
 // +---------------------------------------------------------------------------+
 // |                                                                           |
 // | This program is free software; you can redistribute it and/or             |
@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: comment.php,v 1.38.4.2 2003/12/07 10:03:58 dhaun Exp $
+// $Id: comment.php,v 1.38.4.3 2004/01/19 20:10:30 dhaun Exp $
 
 /**
 * This file is responsible for letting user enter a comment and saving the
@@ -331,6 +331,59 @@ function deletecomment($cid,$sid,$type)
     return $retval;
 }
 
+// a quick import from Geeklog 1.3.8 ...
+function Comment_getPermSQL($type = 'WHERE', $u_id = 0, $access = 2, $table = '')
+{
+    global $_USER, $_GROUPS;
+
+    if( !empty( $table ))
+    {
+        $table .= '.';
+    }
+
+    if( $u_id <= 0 )
+    {
+        $uid = $_USER['uid'];
+        $GROUPS = $_GROUPS;
+    }
+    else
+    {
+        $uid = $u_id;
+        $GROUPS = SEC_getUserGroups( $uid );
+    }
+
+    if( empty( $_GROUPS ))
+    {
+        // this shouldn't really happen, but if it does, handle user
+        // like an anonymous user
+        $uid = 1;
+    }
+
+    if( SEC_inGroup( 'Root', $uid ))
+    {
+        return '';
+    }
+
+    $sql = ' ' . $type . ' (';
+
+    if( $uid > 1 )
+    {
+        $sql .= "(({$table}owner_id = '{$uid}') AND ({$table}perm_owner >= $access)) OR ";
+
+        $sql .= "(({$table}group_id IN (" . implode (',', $_GROUPS)
+             . ")) AND ({$table}perm_group >= $access)) OR ";
+        $sql .= "({$table}perm_members >= $access)";
+    }
+    else
+    {
+        $sql .= "{$table}perm_anon >= $access";
+    }
+
+    $sql .= ')';
+
+    return $sql;
+}
+
 // MAIN
 $title = strip_tags ($title);
 switch ($mode) {
@@ -345,10 +398,28 @@ case $LANG03[11]: //Submit Comment
 case $LANG01[28]: //Delete
     $display .= deletecomment (strip_tags ($cid), strip_tags ($sid), $type);
     break;
-case display:
-    $display .= COM_siteHeader()
-        . COM_userComments($sid,$title,$type,$order,'threaded',$pid)
-        . COM_siteFooter();
+case 'display':
+    if (!empty ($sid) && !empty ($type)) {
+        $allowed = 1;
+        if ($type == 'article') {
+            $result = DB_query ("SELECT COUNT(*) AS count FROM {$_TABLES['stories']} WHERE (sid = '$sid') AND (draft_flag = 0) AND (date <= NOW())" . Comment_getPermSQL ('AND'));
+            $A = DB_fetchArray ($result);
+            $allowed = $A['count'];
+        } else if ($type == 'poll') {
+            $result = DB_query ("SELECT COUNT(*) AS count FROM {$_TABLES['pollquestions']} WHERE (qid = '$sid')" . Comment_getPermSQL ('AND'));
+            $A = DB_fetchArray ($result);
+            $allowed = $A['count'];
+        }
+        if ($allowed == 1) {
+            $display .= COM_siteHeader()
+                     . COM_userComments($sid,$title,$type,$order,'threaded',$pid)
+                     . COM_siteFooter();
+        } else {
+            $display .= COM_refresh($_CONF['site_url'] . '/index.php');
+        }
+    } else {
+        $display .= COM_refresh($_CONF['site_url'] . '/index.php');
+    }
     break;
 default:
     if (!empty($sid)) {

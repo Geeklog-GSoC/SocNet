@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: comment.php,v 1.14.2.4 2002/07/06 16:53:16 dhaun Exp $
+// $Id: comment.php,v 1.14.2.5 2002/07/06 18:17:41 dhaun Exp $
 
 require_once('lib-common.php');
 
@@ -278,7 +278,7 @@ case display:
 default:
     if (!empty($sid)) {
         if (empty ($title)) {
-            $result = DB_query ("SELECT title FROM {$_TABLES['stories']} WHERE sid = $sid");
+            $result = DB_query ("SELECT title FROM {$_TABLES['stories']} WHERE sid = '$sid'");
             $A = DB_fetchArray ($result);
             $title = $A['title'];
         }

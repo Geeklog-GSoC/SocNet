@@ -5,6 +5,7 @@ July ??, 2002 (1.3.5sr2)
 - New installation instructions (now back in docs/install.html).
   Please note that some of the other documentation may be out of date ...
 - Display of stories in older stories block was off by one day.
+- Number of guest users in Who's online block should now be reset properly.
 - Added some scripts in admin/install to help with the installation:
   + info.php just does a phpinfo()
   + check.php will check the file and directory permissions
@@ -12,7 +13,7 @@ July ??, 2002 (1.3.5sr2)
   Note: It is now even more important that you remove the install directory
   after the installation went through (or at least block read access to this
   directory).
-- Disable all onXXX Javascript events in HTML user postings.
+- Disable all onXXX Javascript events in HTML postings (stories and comments).
 - Fill in user name and email address when writing an email to a user (via
   the 'send email' form from the user profile).
 - Make sure that the first comment to a story has the 'title' field filled in

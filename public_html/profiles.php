@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: profiles.php,v 1.10.2.1 2002/07/06 14:36:41 dhaun Exp $
+// $Id: profiles.php,v 1.10.2.2 2002/07/06 21:58:47 dhaun Exp $
 
 include('lib-common.php');
 
@@ -88,7 +88,7 @@ function contactemail($uid,$author,$authoremail,$subject,$message)
 */
 function contactform($uid, $subject='', $message='') 
 {
-	global $_TABLES, $HTTP_COOKIE_VARS, $_CONF, $LANG08;
+	global $_TABLES, $HTTP_COOKIE_VARS, $_CONF, $LANG08, $_USER;
 
     $retval = '';
 	
@@ -99,8 +99,8 @@ function contactform($uid, $subject='', $message='')
     .'<form action="'.$_CONF['site_url'].'/profiles.php" method="POST" name="contact">'.LB
 		.'<table cellspacing="0" cellpadding="0" border="0" width="100%">'.LB
 		.'<tr><td colspan="2">'.$LANG08[26].'</td></tr>'.LB
-		.'<tr><td>'.$LANG08[11].'</td><td><input type="text" name="author" size="32" value="'.$_USER[0].'" maxlength="32"></td></tr>'.LB
-		.'<tr><td>'.$LANG08[12].'</td><td><input type="text" name="authoremail" size="32" value="'.$_USER[1].'" maxlength="96"></td></tr>'.LB
+		.'<tr><td>'.$LANG08[11].'</td><td><input type="text" name="author" size="32" value="'.$_USER['username'].'" maxlength="32"></td></tr>'.LB
+		.'<tr><td>'.$LANG08[12].'</td><td><input type="text" name="authoremail" size="32" value="'.$_USER['email'].'" maxlength="96"></td></tr>'.LB
 		.'<tr><td>'.$LANG08[13].'</td><td><input type="text" name="subject" size="32" maxlength="96" value="'.$subject.'"></td></tr>'.LB
 		.'<tr><td>'.$LANG08[14].'</td><td><textarea name="message" wrap="physical" rows="10" cols="50">'.$message.'</textarea></td></tr>'.LB
 		.'<tr><td colspan="2" class="warning">'.$LANG08[15].'<br><input type="hidden" name="what" value="contact">'

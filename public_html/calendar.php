@@ -8,7 +8,7 @@
 // |                                                                           |
 // | Geeklog calendar.                                                         |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000-2003 by the following authors:                         |
+// | Copyright (C) 2000-2004 by the following authors:                         |
 // |                                                                           |
 // | Authors: Tony Bibbs        - tony@tonybibbs.com                           |
 // |          Mark Limburg      - mlimburg@users.sourceforge.net               |
@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: calendar.php,v 1.31.2.1 2004/01/23 12:39:04 dhaun Exp $
+// $Id: calendar.php,v 1.31.2.2 2004/01/23 21:16:16 dhaun Exp $
 
 include('lib-common.php');
 include($_CONF['path_system'] . 'classes/calendar.class.php');
@@ -294,7 +294,7 @@ if ($mode != 'personal') {
 }
 
 // Set mode back to master if user refreshes screen after their session expires
-if (empty($_USER['uid']) AND $mode == 'personal') {
+if (($_USER['uid'] <= 1) AND $mode == 'personal') {
     $mode = '';
 }
 

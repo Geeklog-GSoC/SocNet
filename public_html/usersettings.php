@@ -5,14 +5,14 @@
 // | Geeklog 1.3                                                               |
 // +---------------------------------------------------------------------------+
 // | usersettings.php                                                          |
+// |                                                                           |
 // | Geeklog user settings page.                                               |
-// |                                                                           |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000,2001 by the following authors:                         |
+// | Copyright (C) 2000-2004 by the following authors:                         |
 // |                                                                           |
-// | Authors: Tony Bibbs       - tony@tonybibbs.com                            |
-// |          Mark Limburg     - mlimburg@users.sourceforge.net                |
-// |          Jason Wittenburg - jwhitten@securitygeeks.com                    |
+// | Authors: Tony Bibbs        - tony@tonybibbs.com                           |
+// |          Mark Limburg      - mlimburg@users.sourceforge.net               |
+// |          Jason Whittenburg - jwhitten@securitygeeks.com                   |
 // +---------------------------------------------------------------------------+
 // |                                                                           |
 // | This program is free software; you can redistribute it and/or             |
@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: usersettings.php,v 1.49.2.1 2003/05/23 11:43:47 dhaun Exp $
+// $Id: usersettings.php,v 1.49.2.1.2.1 2004/01/23 22:00:01 dhaun Exp $
 
 include_once('lib-common.php');
 
@@ -116,6 +116,12 @@ function edituser()
     $result = DB_query("SELECT about,pgpkey FROM {$_TABLES['userinfo']} WHERE uid = {$_USER['uid']}");
     $A = DB_fetchArray($result);
 
+    $reqid = substr (md5 (uniqid (rand (), 1)), 1, 16);
+    // the 'pwrequestid' field was only introduced in 1.3.8, so we have
+    // to use this (otherwise unused) field instead ...
+    DB_change ($_TABLES['userinfo'], 'userspace', "$reqid",
+                                     'uid', $_USER['uid']);
+
     $retval .= '<tr valign="top">' . LB
         . '<td align="right"><b>' . $LANG04[7] . ':</b><br><small>' . $LANG04[38] . '</small></td>'
         . '<td><textarea name="about" cols="60" rows="6" wrap="virtual">' . $A['about'] . '</textarea></td>'
@@ -125,7 +131,7 @@ function edituser()
         . '<td><textarea name="pgpkey" cols="60" rows="6" wrap="virtual">' . $A['pgpkey'] . '</textarea></td>' . LB
         . '</tr>' . LB
         . '<tr valign="top">' . LB
-        . '<td align="center" colspan="2"><input type="hidden" name="uid" value="' . $user . '">'
+        . '<td align="center" colspan="2"><input type="hidden" name="uid" value="' . $reqid . '">'
         . '<input type="hidden" name="mode" value="saveuser">'
         . '<input type="hidden" name="username" value="' . $_USER['username'] . '">'
         . '<input type="submit" value="' . $LANG04[9] . '"></td>' . LB
@@ -442,6 +448,15 @@ function saveuser($A)
         COM_errorLog('**** Inside saveuser in usersettings.php ****', 1);
     } 
 
+    $reqid = DB_getItem ($_TABLES['userinfo'], 'userspace',
+                         "uid = {$_USER['uid']}");
+    if ($reqid != $A['uid']) {
+        DB_change ($_TABLES['userinfo'], 'userspace', '',
+                                         'uid', $_USER['uid']);
+        COM_accessLog ("An attempt was made to illegally change the account information of user {$_USER['uid']}.");
+        return COM_refresh ($_CONF['site_url'] . '/index.php');
+    }
+
     if (!empty($A["passwd"])) {
         $passwd = md5($A["passwd"]);
         DB_change($_TABLES['users'],'passwd',"$passwd","uid",$_USER['uid']);
@@ -552,7 +567,7 @@ function saveuser($A)
 
         DB_query("UPDATE {$_TABLES['users']} SET fullname='{$A["fullname"]}',email='{$A["email"]}',homepage='{$A["homepage"]}',sig='{$A["sig"]}',cookietimeout={$A["cooktime"]},photo='$filename' WHERE uid={$_USER['uid']}");
         DB_query("UPDATE {$_TABLES['userprefs']} SET emailstories='{$A["emailstories"]}' WHERE uid={$_USER['uid']}");
-        DB_query("UPDATE {$_TABLES['userinfo']} SET pgpkey='" . $A["pgpkey"] . "',about='{$A["about"]}' WHERE uid={$_USER['uid']}");
+        DB_query("UPDATE {$_TABLES['userinfo']} SET pgpkey='" . $A["pgpkey"] . "',about='{$A["about"]}',userspace='' WHERE uid={$_USER['uid']}");
 
         if ($_US_VERBOSE) {
             COM_errorLog('**** Leaving saveuser in usersettings.php ****', 1);
@@ -688,7 +703,7 @@ if (!empty($_USER['username']) && !empty($mode)) {
         $display .= COM_startBlock($LANG04[70] . '!');
         $display .= '<br>' . $LANG04[71] . '<br><br>';
         $display .= COM_endBlock();
-    $display .= COM_siteFooter();
+        $display .= COM_siteFooter();
     } else {
         $display .= COM_refresh($_CONF['site_url'] . '/index.php');
     }

@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.408 2004/12/29 08:43:37 dhaun Exp $
+// $Id: lib-common.php,v 1.408.2.1 2005/07/02 16:23:00 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting( E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR );
@@ -3022,7 +3022,7 @@ function COM_userComments( $sid, $title, $type='article', $order='', $mode='', $
         $limit = $U['commentlimit'];
     }
 
-    if( empty( $order ))
+    if( $order != 'ASC' && $order != 'DESC' )
     {
         $order = 'ASC';
     }
@@ -5758,6 +5758,7 @@ function COM_applyFilter( $parameter, $isnumeric = false )
         $pa = explode( '"', $pa[0] );
         $pa = explode( '`', $pa[0] );
         $pa = explode( ';', $pa[0] );
+        $pa = explode( ',', $pa[0] );
         $pa = explode( '\\', $pa[0] );
         $p = $pa[0];
     }

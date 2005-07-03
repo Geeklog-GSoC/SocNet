@@ -1,5 +1,14 @@
 GeekLog History/Changes:
 
+Jul 3, 2005 (1.3.11sr1)
+-----------
+
+This release addresses the following security issue:
+
+Stefan Esser found an SQL injection that can, under certain circumstances,
+be exploited to extract user data such as the user's password hash.
+
+
 Dec 31, 2004 (1.3.11)
 ------------
 
@@ -560,6 +569,15 @@ Static Pages Plugin 1.4.1
   static page ID, while installs upgraded from an earlier version allowed up
   to 40 characters [Dirk]
 - New Portuguese (Brazil) language file, provided by Alcides Soares Filho.
+
+
+Jul 3, 2005 (1.3.9sr4)
+-----------
+
+This release addresses the following security issue:
+
+Stefan Esser found an SQL injection that can, under certain circumstances,
+be exploited to extract user data such as the user's password hash.
 
 
 Dec 31, 2004 (1.3.9sr3)

@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-user.php,v 1.7 2004/10/05 19:52:45 dhaun Exp $
+// $Id: lib-user.php,v 1.7.2.1 2005/09/23 14:34:20 dhaun Exp $
 
 if (eregi ('lib-user.php', $HTTP_SERVER_VARS['PHP_SELF'])) {
     die ('This file can not be used on its own.');
@@ -220,11 +220,6 @@ function USER_createAccount ($username, $email, $passwd = '', $fullname = '', $h
     $fields = 'username,email,regdate,cookietimeout';
     $values = "'$username','$email','$regdate','{$_CONF['default_perm_cookie_timeout']}'";
 
-    if (!empty ($passwd)) {
-        $passwd = addslashes ($passwd);
-        $fields .= ',passwd';
-        $values .= ",'$passwd'";
-    }
     if (!empty ($fullname)) {
         $fullname = addslashes ($fullname);
         $fields .= ',fullname';
@@ -236,9 +231,40 @@ function USER_createAccount ($username, $email, $passwd = '', $fullname = '', $h
         $values .= ",'$homepage'";
     }
 
+    // if user submission queue is active and the current user is not a
+    // User Admin, then we may have to add the new user to the submission queue
+    if (($_CONF['usersubmission'] == 1) && !SEC_hasRights ('user.edit')) {
+        $queueUser = true;
+        if (!empty ($_CONF['allow_domains'])) {
+            $allowed = explode (',', $_CONF['allow_domains']);
+            // Note: We already made sure $email is a valid address
+            $domain = substr ($email, strpos ($email, '@') + 1);
+            if (in_array ($domain, $allowed)) {
+                $queueUser = false;
+            }
+        }
+        if ($queueUser) {
+            $passwd = md5 ('');
+        }
+    }
+    if (!empty ($passwd)) {
+        $passwd = addslashes ($passwd);
+        $fields .= ',passwd';
+        $values .= ",'$passwd'";
+    }
+
     DB_query ("INSERT INTO {$_TABLES['users']} ($fields) VALUES ($values)");
 
     $uid = DB_getItem ($_TABLES['users'], 'uid', "username = '$username'");
+
+    if (empty ($uid) || ($uid <= 1)) {
+        $retval = COM_siteHeader ('menu')
+                . COM_errorLog ("Fatal error: Account creation for user '$username' failed. Please contact the site admin.")
+                . COM_siteFooter ();
+        COM_errorLog ("User: '$username', email: '$email', full name: '$fullname', password (md5): '$passwd', regdate: '$regdate', homepage: '$homepage'", 1);
+        echo $retval;
+        exit;
+    }
 
     // Add user to Logged-in group (i.e. members) and the All Users group
     $normal_grp = DB_getItem ($_TABLES['groups'], 'grp_id',
@@ -257,24 +283,6 @@ function USER_createAccount ($username, $email, $passwd = '', $fullname = '', $h
 
     DB_query ("INSERT INTO {$_TABLES['usercomment']} (uid,commentmode,commentlimit) VALUES ($uid,'{$_CONF['comment_mode']}','{$_CONF['comment_limit']}')");
     DB_query ("INSERT INTO {$_TABLES['userinfo']} (uid) VALUES ($uid)");
-
-    // if user submission queue is active and the current user is not a
-    // User Admin, then we may have to add the new user to the submission queue
-    if (($_CONF['usersubmission'] == 1) && !SEC_hasRights ('user.edit')) {
-        $queueUser = true;
-        if (!empty ($_CONF['allow_domains'])) {
-            $allowed = explode (',', $_CONF['allow_domains']);
-            // Note: We already made sure $email is a valid address
-            $domain = substr ($email, strpos ($email, '@') + 1);
-            if (in_array ($domain, $allowed)) {
-                $queueUser = false;
-            }
-        }
-        if ($queueUser) {
-            $passwd = addslashes (md5 (''));
-            DB_change ($_TABLES['users'], 'passwd', "$passwd", 'uid', $uid);
-        }
-    }
 
     // call custom registration function and plugins
     if ($_CONF['custom_registration'] && (function_exists ('custom_usercreate'))) {

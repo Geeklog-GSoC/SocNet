@@ -1,8 +1,9 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-  <title>Geeklog Documentation - SpamX Plugin</title>
+  <title>Geeklog Documentation - Geeklog Spam-X Plugin</title>
   <link rel="stylesheet" type="text/css" href="docstyle.css" title="Dev Stylesheet">
+  <meta name="robots" content="noindex">
 </head>
 
 <body>
@@ -11,22 +12,24 @@
   <td valign="top"><img src="images/newlogo.gif" alt="Geeklog Documentation" width="243" height="90" border="0"></td>
 </tr>
 <tr>
-  <td valign="top" class="menu"><a href="index.html">Geeklog Documentation</a> - SpamX Plugin</td>
+  <td valign="top" class="menu"><a href="index.html">Geeklog Documentation</a> - Geeklog Spam-X Plugin</td>
 </tr>
 </table>
 
-<h1>SpamX Plugin</h1>
+<h1>Geeklog Spam-X Plugin</h1>
+
+<p><small>(If you came here looking for Hendrickson Software Components' email spam filter of the same name, please <a href="http://www.hendricom.com/spamcontrol.htm" rel="nofollow">click here</a>.)</small></p>
 
 <h2>Introduction</h2>
 
-<p>The Geeklog SpamX plugin was created to fight the problem of comment spam
+<p>The Geeklog Spam-X plugin was created to fight the problem of comment spam
 for Geeklog systems. If you are unfamiliar with comment spam you might see the
 <a href="http://kalsey.com/2003/11/comment_spam_manifesto/">Comment Spam
 Manifesto</a>.</p>
 
 <h2>MT-Blacklist</h2>
 
-<p>The main mechanism SpamX uses to fight comment spam is to use the blacklist 
+<p>The main mechanism Spam-X uses to fight comment spam is to use the blacklist 
 created by Jay Allen and Movable Type users - MT-Blacklist.  You can find out
 info about this project at <a href="http://www.jayallen.org/comment_spam/">http://www.jayallen.org/comment_spam/</a>. Jay has taken
 it upon himself not only to write and support the plugin for Movable Type but
@@ -41,8 +44,8 @@ therefore only filters on urls.</p>
 
 <h2>Other options</h2>
 
-<p>The MT-Blacklist is only one part of the Geeklog SpamX plugin however.  The
-SpamX plugin has its own personal blacklist that you can add to. You can
+<p>The MT-Blacklist is only one part of the Geeklog Spam-X plugin however.  The
+Spam-X plugin has its own personal blacklist that you can add to. You can
 use it to filter anything from comments.  One option is to import the Geeklog
 <a href="config.html#desc_censorlist">censor list</a> and ban all comments
 which contain one of those words.  This or an expanded list might be usefull
@@ -51,7 +54,7 @@ language could be posted.</p>
 
 <h2>Module types</h2>
 
-<p>The SpamX plugin was built to be expandable to easily adapt to changes the
+<p>The Spam-X plugin was built to be expandable to easily adapt to changes the
 comment spammers might make.  There are three types of modules: <b>admin</b>,
 <b>examine</b> and <b>action</b>.  A new module is contained in a file and can
 simply be dropped in and it will be added to the plugin.  The modules with
@@ -60,16 +63,19 @@ which the plugin ships are:</p>
 <ul>
   <li>Admin
     <ul>
-      <li>View SpamX log</li>
+      <li>View Spam-X log</li>
       <li>Update MT-Blacklist</li>
       <li>Edit Personal Blacklist</li>
-      <li>View/Import Other Personal Blacklists</li>
+      <li>Edit IP Of Spammer Blacklist</li>
+      <li>Edit IP Of Link Blacklist</li>
       <li>Mass Delete Comments</li>
     </ul></li>
   <li>Examine
     <ul>
       <li>MT-Blacklist</li>
       <li>Personal Blacklist</li>
+      <li>IP of Spammer</li>
+      <li>IP of Link</li>
     </ul></li>
   <li>Action
     <ul>
@@ -78,13 +84,16 @@ which the plugin ships are:</p>
     </ul></li>
 </ul>
 
-<p>Other modules can be just dropped into place.  Planned modules include:</p>
+<p>Other modules can be just dropped into place and they will become
+available to the plugin.  To remove a module just
+delete it from the spamx directory or rename it.  Planned modules include:</p>
 
 <ul>
   <li>Admin
     <ul>
       <li>Comparing MT-Blacklist and personal blacklist to eliminate
           duplications</li>
+      <li>Parsing comments and automatic adding spam links</li>
     </ul></li>
   <li>Examine
     <ul>
@@ -96,20 +105,15 @@ which the plugin ships are:</p>
     </ul></li>
 </ul>
 
-<h2>Sharing blacklists</h2>
-
-<p>One feature of the SpamX plugin is the ability to share your blacklist and to
-view and import the Blacklists of other SpamX plugin users.  Your participation
-in this will help give early warning to other SpamX plugin users.  This
-facility will also make it possible to create special blacklists for different
-classes of users such as k-12 schools. The sharing of blacklists uses rss feeds 
-to distibute the blacklists.  If anyone wants to create a special blacklist I 
-will make the server and interface scripts to facilitate this.</p>
+<p>Action modules are each assigned a number and the actions taken when a
+spam comment is found can be designated by a configuration variable.  Note:
+the spamx interface has been generalized and can be called by other modules
+and plugins.  See the developer docs for details.</p>
 
 <h2>Plugin Homepage</h2>
 
-<p>Further information as well as a support forum for the SpamX plugin can be
-found on the <a href="http://www.pigstye.net/gplugs/staticpages/index.php/spamx">SpamX Plugin's Homepage</a>.</p>
+<p>Further information as well as a support forum for the Spam-X plugin can be
+found on the <a href="http://www.pigstye.net/gplugs/staticpages/index.php/spamx" rel="nofollow">Spam-X Plugin's Homepage</a>.</p>
 
 <table border="0" width="100%" class="footer">
 <tr valign="top">

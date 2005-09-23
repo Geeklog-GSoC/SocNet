@@ -181,7 +181,7 @@ function install_spamx_plugin ()
                 . ") TYPE=MyISAM";
 
     // SpamX plugin information, 'spamx.admin' feature, SpamX Admin group
-    $_SPX_PLUGIN = "INSERT INTO {$_TABLES['plugins']} (pi_name, pi_version, pi_gl_version, pi_enabled, pi_homepage) VALUES ('spamx', '1.0.1','1.3.10',1,'http://www.pigstye.net/gplugs/staticpages/index.php/spamx') ";
+    $_SPX_PLUGIN = "INSERT INTO {$_TABLES['plugins']} (pi_name, pi_version, pi_gl_version, pi_enabled, pi_homepage) VALUES ('spamx', '1.0.2','1.3.10',1,'http://www.pigstye.net/gplugs/staticpages/index.php/spamx') ";
     $_SPX_FEAT = "INSERT INTO {$_TABLES['features']} (ft_name, ft_descr, ft_gl_core) VALUES ('spamx.admin', 'spamx Admin', 0) ";
     $_SPX_ADMIN = "INSERT INTO {$_TABLES['groups']} (grp_name, grp_descr, grp_gl_core) VALUES ('spamx Admin', 'Users in this group can administer the spamx plugin',0) ";
 

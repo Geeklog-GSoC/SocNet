@@ -1,15 +1,17 @@
 <?php
 
 /**
- * File: english.php
- * This is the English language page for the Geeklog Spam-X Plug-in!
+ * File: farsi.php
+ * This is the Farsi (Persian) language page for the Geeklog Spam-X Plug-in!
  * 
  * Copyright (C) 2004-2005 by the following authors:
  * Author        Tom Willett        tomw AT pigstye DOT net
- * 
+ *
+ * Farsi (Persian) translation provided by 4shir.
+ *
  * Licensed under GNU General Public License
  *
- * $Id: english.php,v 1.8.2.1 2005/09/23 15:12:30 dhaun Exp $
+ * $Id: farsi_utf-8.php,v 1.1.2.2 2005/09/23 15:12:31 dhaun Exp $
  */
 
 $LANG_SX00 = array (
@@ -120,7 +122,7 @@ $LANG_SX00 = array (
     'stats_header' => 'HTTP headers',
     'stats_deleted' => 'Posts deleted as spam',
 
-    'plugin_name' => 'Spam-X'
+    'plugin_name' => 'شناسايي هرز نامه ها'
 );
 
 

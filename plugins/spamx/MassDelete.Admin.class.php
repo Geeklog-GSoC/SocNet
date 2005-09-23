@@ -1,14 +1,16 @@
 <?php
+
 /**
 * file:  MassDelete.Admin.class.php
 * Mass delete comment spam
 *
-* Copyright (C) 2004 by the following authors:
+* Copyright (C) 2004-2005 by the following authors:
 *
-* @ Author		Tom Willett		tomw@pigstye.net
+* @ Author		Tom Willett		tomw AT pigstye DOT net
 *
 * Licensed under GNU General Public License
 *
+* $Id: MassDelete.Admin.class.php,v 1.2.2.1 2005/09/23 15:12:30 dhaun Exp $
 */
 
 require_once($_CONF['path'] . 'plugins/spamx/BaseAdmin.class.php');
@@ -29,12 +31,18 @@ class MassDelete extends BaseAdmin {
 
 		if (($act == $LANG_SX00['deletespam']) && ($lmt>0)) {
 			$numc = 0;
-		    $result=DB_query("SELECT * FROM {$_TABLES['spamx']} WHERE name='Examine'");
-		    $nrows = DB_numRows($result);
-		    for ($i=1;$i<=$nrows;$i++) {
-		    	$A=DB_fetchArray($result);
-		        $Spamx_Examine[]=$A['value'];
-			}   
+			if ($dir = @opendir($_CONF['path'] . 'plugins/spamx/')) {
+				while(($file = readdir($dir)) !== false) {
+					if (is_file($_CONF['path'] . 'plugins/spamx/' . $file)) 
+					{ 
+						if (substr($file,-18) == '.Examine.class.php') {
+				        	$tmp = str_replace(".Examine.class.php","",$file);
+							$Spamx_Examine[]=$tmp; 
+						}
+					}
+				}
+				closedir($dir);
+			}
 			$result = DB_query("SELECT * from {$_TABLES['comments']} ORDER by Date DESC LIMIT $lmt");
 			$nrows = DB_numRows($result);
 			for($i=1;$i<=$nrows;$i++) {

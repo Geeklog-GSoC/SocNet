@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 // 
-// $Id: lib-story.php,v 1.15 2004/12/31 10:31:35 dhaun Exp $
+// $Id: lib-story.php,v 1.15.2.1 2005/09/26 09:16:06 dhaun Exp $
 
 if (eregi ('lib-story.php', $HTTP_SERVER_VARS['PHP_SELF'])) {
     die ('This file can not be used on its own.');
@@ -262,7 +262,10 @@ function STORY_renderArticle( $A, $index='', $storytpl='storytext.thtml' )
             $article->set_var( 'end_post_comment_anchortag', '</a>' );
         }
 
-        if( $_CONF['hideemailicon'] == 1 )
+        if(( $_CONF['hideemailicon'] == 1 ) ||
+           ( empty( $_USER['username'] ) &&
+                (( $_CONF['loginrequired'] == 1 ) ||
+                 ( $_CONF['emailstoryloginrequired'] == 1 ))))
         {
             $article->set_var( 'email_icon', '' );
         }

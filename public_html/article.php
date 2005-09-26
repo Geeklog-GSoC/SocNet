@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: article.php,v 1.56 2004/10/02 13:28:31 dhaun Exp $
+// $Id: article.php,v 1.56.2.1 2005/09/26 09:16:06 dhaun Exp $
 
 /**
 * This page is responsible for showing a single article in different modes which
@@ -174,7 +174,9 @@ if ($A['count'] > 0) {
             $story_template->set_var('site_url', $_CONF['site_url']);
             $story_template->set_var('layout_url', $_CONF['layout_url']);
             $story_options = array ();
-            if ($_CONF['hideemailicon'] == 0) {
+            if (($_CONF['hideemailicon'] == 0) && (!empty ($_USER['username']) ||
+                (($_CONF['loginrequired'] == 0) &&
+                 ($_CONF['emailstoryloginrequired'] == 0)))) {
                 $emailUrl = $_CONF['site_url'] . '/profiles.php?sid=' . $story
                           . '&amp;what=emailstory';
                 $story_options[] = '<a href="' . $emailUrl . '">' . $LANG11[2]

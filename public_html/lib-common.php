@@ -8,7 +8,7 @@
 // |                                                                           |
 // | Geeklog common library.                                                   |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000-2004 by the following authors:                         |
+// | Copyright (C) 2000-2005 by the following authors:                         |
 // |                                                                           |
 // | Authors: Tony Bibbs        - tony@tonybibbs.com                           |
 // |          Mark Limburg      - mlimburg@users.sourceforge.net               |
@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.408.2.1 2005/07/02 16:23:00 dhaun Exp $
+// $Id: lib-common.php,v 1.408.2.2 2005/09/26 08:33:13 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting( E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR );
@@ -3399,6 +3399,7 @@ function COM_isEmail( $email )
     return( $rfc822->isValidInetAddress( $email ) ? true : false );
 }
 
+
 /**
 * Takes a name and an email address and returns a string that vaguely
 * resembles an email address specification conforming to RFC(2)822 ...
@@ -3412,12 +3413,9 @@ function COM_formatEmailAddress( $name, $address )
 {
     $formatted_name = $name;
 
-    $formatted_name = str_replace( ':', '', $formatted_name );
-    $formatted_name = str_replace( '"', '\\"', $formatted_name );
-
-    if(( $name != $formatted_name ) ||
-        ( strpos( $formatted_name, '.' ) !== false ))
+    if( eregi( '[^0-9a-z ]', $formatted_name ))
     {
+        $formatted_name = str_replace( '"', '\\"', $formatted_name );
         $formatted_name = '"' . $formatted_name . '"';
     }
 
@@ -3443,6 +3441,15 @@ function COM_mail( $to, $subject, $message, $from = '', $html = false, $priority
     global $_CONF, $LANG_CHARSET;
 
     static $mailobj;
+
+    if( empty( $from ))
+    {
+        $from = COM_formatEmailAddress( $_CONF['site_name'], $_CONF['site_mail']);
+    }
+
+    $to = substr( $to, 0, strcspn( $to, "\r\n" ));
+    $from = substr( $from, 0, strcspn( $from, "\r\n" ));
+    $subject = substr( $subject, 0, strcspn( $subject, "\r\n" ));
 
     if( function_exists( 'CUSTOM_mail' ))
     {
@@ -3478,11 +3485,6 @@ function COM_mail( $to, $subject, $message, $from = '', $html = false, $priority
     else
     {
         $charset = $LANG_CHARSET;
-    }    
-
-    if( empty( $from ))
-    {
-        $from = COM_formatEmailAddress( $_CONF['site_name'], $_CONF['site_mail']);
     }
 
     $headers = array();
@@ -3510,7 +3512,7 @@ function COM_mail( $to, $subject, $message, $from = '', $html = false, $priority
         $headers['Content-Type'] = 'text/plain; charset=' . $charset;
     }
     $headers['Subject'] = $subject;
-    if( $priority > 0 )    
+    if( $priority > 0 )
     {
         $headers['X-Priority'] = $priority;
     }
@@ -3524,7 +3526,6 @@ function COM_mail( $to, $subject, $message, $from = '', $html = false, $priority
 
     return( $retval === true ? true : false );
 }
-
 
 /**
 * Creates older stuff block

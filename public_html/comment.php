@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: comment.php,v 1.85 2004/12/16 11:09:51 dhaun Exp $
+// $Id: comment.php,v 1.85.2.1 2005/09/26 08:49:45 dhaun Exp $
 
 /**
 * This file is responsible for letting user enter a comment and saving the
@@ -285,11 +285,15 @@ function savecomment ($uid, $title, $comment, $sid, $pid, $type, $postmode)
 
     // Let plugins have a chance to check for SPAM
     $result = PLG_checkforSpam($comment, $_CONF['spamx']);
-    // Now check the result and redirect to index.php if spam action was taken
+    // Now check the result and display message if spam action was taken
     if ($result > 0) {
-        echo COM_refresh($_CONF['site_url'] . '/index.php?msg='.$result.'&amp;plugin=spamx');
-        exit;
+        // update speed limit nonetheless
+        COM_updateSpeedlimit ('comment');
+
+        // then tell them to get lost ...
+        COM_displayMessageAndAbort ($result, 'spamx', 403, 'Forbidden');
     }
+
     // Let plugins have a chance to decide what to do before saving the comment.
     $someError = PLG_commentPreSave($uid, $title, $comment, $sid, $pid, $type, $postmode);
     

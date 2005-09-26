@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: profiles.php,v 1.38 2004/10/19 10:53:18 dhaun Exp $
+// $Id: profiles.php,v 1.38.2.1 2005/09/26 08:49:46 dhaun Exp $
 
 require_once ('lib-common.php');
 
@@ -248,6 +248,14 @@ function mailstory ($sid, $to, $toemail, $from, $fromemail, $shortmsg)
 	if (strlen ($shortmsg) > 0) {
 		$mailtext .= LB . sprintf ($LANG08[28], $from) . $shortmsg . LB;
 	}
+
+    // just to make sure this isn't an attempt at spamming users ...
+    $result = PLG_checkforSpam ($mailtext, $_CONF['spamx']);
+    if ($result > 0) {
+        COM_updateSpeedlimit ('mail');
+        COM_displayMessageAndAbort ($result, 'spamx', 403, 'Forbidden');
+    }
+
     $mailtext .= '------------------------------------------------------------'
               . LB . LB
               . COM_undoSpecialChars (stripslashes ($A['title'])) . LB

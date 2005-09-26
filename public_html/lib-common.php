@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.408.2.2 2005/09/26 08:33:13 dhaun Exp $
+// $Id: lib-common.php,v 1.408.2.3 2005/09/26 08:49:45 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting( E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR );
@@ -6100,6 +6100,32 @@ function COM_convertDate2Timestamp( $date, $time = '' )
     }
 
     return $timestamp;
+}
+
+/**
+* Display a message and abort
+*
+* @param    int     $msg            message number
+* @param    string  $plugin         plugin name, if applicable
+* @param    int     $http_status    HTTP status code to send with the message
+* @param    string  $http_text      Textual version of the HTTP status code
+*
+* @note Displays the message and aborts the script.
+*
+*/
+function COM_displayMessageAndAbort( $msg, $plugin = '', $http_status = 200, $http_text = 'OK')
+{
+    $display = COM_siteHeader( 'menu' )
+             . COM_showMessage( $msg, $plugin )
+             . COM_siteFooter( true );
+
+    if( $http_status != 200 )
+    {
+        header( "HTTP/1.1 $http_status $http_text" );
+        header( "Status: $http_status $http_text" );
+    }
+    echo $display;
+    exit;
 }
 
 // Now include all plugin functions

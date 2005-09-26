@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: usersettings.php,v 1.109 2004/12/15 15:08:21 dhaun Exp $
+// $Id: usersettings.php,v 1.109.2.1 2005/09/26 08:49:46 dhaun Exp $
 
 require_once ('lib-common.php');
 require_once ($_CONF['path_system'] . 'lib-user.php');
@@ -841,6 +841,16 @@ function saveuser($A)
         setcookie ($_CONF['cookie_password'], $passwd, time() + $cooktime,
                    $_CONF['cookie_path'], $_CONF['cookiedomain'],
                    $_CONF['cookiesecure']);
+    }
+
+    // a quick spam check with the unfiltered field contents
+    $profile = '<h1>' . $LANG04[1] . ' ' . $_USER['username'] . '</h1>'
+             . '<p><a href="' . $A['homepage'] . '">' . $A['homepage']
+             . '</a><br>' . $A['location'] . '<br>' . $A['sig'] . '<br>'
+             . $A['about'] . '<br>' . $A['pgpkey'] . '</p>';
+    $result = PLG_checkforSpam ($profile, $_CONF['spamx']);
+    if ($result > 0) {
+        COM_displayMessageAndAbort ($result, 'spamx', 403, 'Forbidden');
     }
 
     $A['email'] = COM_applyFilter ($A['email']);

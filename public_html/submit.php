@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: submit.php,v 1.80.2.1 2005/09/23 15:12:32 dhaun Exp $
+// $Id: submit.php,v 1.80.2.2 2005/09/26 08:49:46 dhaun Exp $
 
 require_once ('lib-common.php');
 require_once ($_CONF['path_system'] . 'lib-story.php');
@@ -492,10 +492,8 @@ function savestory ($A)
     $spamcheck = '<h1>' . $A['title'] . '</h1><p>' . $A['introtext'] . '</p>';
     $result = PLG_checkforSpam ($spamcheck, $_CONF['spamx']);
     if ($result > 0) {
-        $retval = COM_refresh ($_CONF['site_url'] . '/index.php?msg=' . $result
-                               . '&amp;plugin=spamx');
-
-        return $retval;
+        COM_updateSpeedlimit ('submit');
+        COM_displayMessageAndAbort ($result, 'spamx', 403, 'Forbidden');
     }
 
     $A['title'] = strip_tags (COM_checkWords ($A['title']));
@@ -591,10 +589,8 @@ function savelink ($A)
                . $A['description'] . '</p>';
     $result = PLG_checkforSpam ($spamcheck, $_CONF['spamx']);
     if ($result > 0) {
-        $retval = COM_refresh ($_CONF['site_url'] . '/index.php?msg=' . $result
-                               . '&amp;plugin=spamx');
-
-        return $retval;
+        COM_updateSpeedlimit ('submit');
+        COM_displayMessageAndAbort ($result, 'spamx', 403, 'Forbidden');
     }
 
     $A['category'] = addslashes ($A['category']);
@@ -698,10 +694,8 @@ function saveevent ($A)
                . '<br>' . $A['description'] . '</p>';
     $result = PLG_checkforSpam ($spamcheck, $_CONF['spamx']);
     if ($result > 0) {
-        $retval = COM_refresh ($_CONF['site_url'] . '/index.php?msg=' . $result
-                               . '&amp;plugin=spamx');
-
-        return $retval;
+        COM_updateSpeedlimit ('submit');
+        COM_displayMessageAndAbort ($result, 'spamx', 403, 'Forbidden');
     }
 
     $A['description'] = addslashes (htmlspecialchars (COM_checkWords ($A['description'])));

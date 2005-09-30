@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.408.2.3 2005/09/26 08:49:45 dhaun Exp $
+// $Id: lib-common.php,v 1.408.2.4 2005/09/30 19:23:58 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting( E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR );
@@ -2614,7 +2614,8 @@ function COM_commentBar( $sid, $title, $type, $order, $mode )
 {
     global $_CONF, $_TABLES, $_USER, $LANG01, $_REQUEST, $HTTP_SERVER_VARS;
 
-    $page = array_pop( explode( '/', $HTTP_SERVER_VARS['PHP_SELF'] ));
+    $parts = explode( '/', $_SERVER['PHP_SELF'] );
+    $page = array_pop( $parts );
     $nrows = DB_count( $_TABLES['comments'], 'sid', $sid );
 
     $commentbar = new Template( $_CONF['path_layout'] . 'comment' );

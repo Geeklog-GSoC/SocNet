@@ -32,24 +32,24 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: index.php,v 1.69 2004/11/06 17:16:56 blaine Exp $
+// $Id: index.php,v 1.69.2.1 2005/10/03 09:39:18 dhaun Exp $
 
 require_once ('lib-common.php');
 require_once ($_CONF['path_system'] . 'lib-story.php');
 
 $newstories = false;
 $displayall = false;
-if (isset ($HTTP_GET_VARS['display']) && empty ($topic)) {
-    if ($HTTP_GET_VARS['display'] == 'new') {
+if (isset ($_GET['display']) && empty ($topic)) {
+    if ($_GET['display'] == 'new') {
         $newstories = true;
-    } else if ($HTTP_GET_VARS['display'] == 'all') {
+    } else if ($_GET['display'] == 'all') {
         $displayall = true;
     }
 }
 
 $page = 1;
-if (isset ($HTTP_GET_VARS['page'])) {
-    $page = COM_applyFilter ($HTTP_GET_VARS['page'], true);
+if (isset ($_GET['page'])) {
+    $page = COM_applyFilter ($_GET['page'], true);
     if ($page == 0) {
         $page = 1;
     }
@@ -67,8 +67,8 @@ if (!$newstories && !$displayall) {
 }
 
 $display .= COM_siteHeader();
-if (isset ($HTTP_GET_VARS['msg'])) {
-    $display .= COM_showMessage (COM_applyFilter ($HTTP_GET_VARS['msg'], true),COM_applyFilter ($HTTP_GET_VARS['plugin']));
+if (isset ($_GET['msg'])) {
+    $display .= COM_showMessage (COM_applyFilter ($_GET['msg'], true),COM_applyFilter ($_GET['plugin']));
 }
 
 
@@ -123,23 +123,26 @@ COM_rdfUpToDateCheck();
 // solely
 COM_featuredCheck();
 
-$archivetid = ' '; // this would be invalid as a topic id
+// Retrieve the archive topic - currently only one supported
+$archivetid = DB_getItem ($_TABLES['topics'], 'tid', "archive_flag='1'");
 
 // Scan for any stories that have expired and should be archived or deleted
-$expiresql = DB_query ("SELECT sid,tid,title,expire,statuscode FROM {$_TABLES['stories']} WHERE (expire <= NOW()) AND (statuscode = " . STORY_ARCHIVE_ON_EXPIRE . " OR statuscode = " . STORY_DELETE_ON_EXPIRE . ")");
+$asql = "SELECT sid,tid,title,expire,statuscode FROM {$_TABLES['stories']} ";
+$asql .= 'WHERE (expire <= NOW()) AND (statuscode = ' . STORY_DELETE_ON_EXPIRE;
+if (empty ($archivetid)) {
+    $asql .= ')';
+} else {
+    $asql .= ' OR statuscode = ' . STORY_ARCHIVE_ON_EXPIRE . ") AND tid != '$archivetid'";
+}
+$expiresql = DB_query ($asql);
 while (list ($sid, $expiretopic, $title, $expire, $statuscode) = DB_fetchArray ($expiresql)) {
     if ($statuscode == STORY_ARCHIVE_ON_EXPIRE) {
-        if ($archivetid == ' ') {
-            // Retrieve the archive topic - currently only one supported
-            $archivetid = DB_getItem ($_TABLES['topics'], 'tid',
-                                      "archive_flag='1'");
-        }
-        if (!empty ($archivetid)) {
-            COM_errorLOG("Archive Story: $sid, Topic:$archivetid, Title: $title. Expired :$expire");
+        if (!empty ($archivetid) ) {
+            COM_errorLOG("Archive Story: $sid, Topic: $archivetid, Title: $title, Expired: $expire");
             DB_query ("UPDATE {$_TABLES['stories']} SET tid = '$archivetid', frontpage = '0', featured = '0' WHERE sid='{$sid}'");
         }
     } else if ($statuscode == STORY_DELETE_ON_EXPIRE) {
-        COM_errorLOG("Delete Story and comments: $sid, Topic:$expiretopic, Title: $title. Expired :$expire");
+        COM_errorLOG("Delete Story and comments: $sid, Topic: $expiretopic, Title: $titler, Expired: $expire");
         STORY_deleteImages ($sid);
         DB_query("DELETE FROM {$_TABLES['comments']} WHERE sid='{$sid}' AND type = 'article'");
         DB_query("DELETE FROM {$_TABLES['stories']} WHERE sid='{$sid}'");

@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.408.2.6 2005/10/03 08:47:36 dhaun Exp $
+// $Id: lib-common.php,v 1.408.2.7 2005/10/03 10:29:55 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting( E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR );
@@ -817,8 +817,8 @@ function COM_siteHeader( $what = 'menu', $pagetitle = '' )
         }
         else
         {
-            $pagetitle = DB_getItem( $_TABLES['topics'], 'topic',
-                                     "tid = '$topic'" );
+            $pagetitle = stripslashes( DB_getItem( $_TABLES['topics'], 'topic',
+                                                   "tid = '$topic'" ));
         }
     }
     if( !empty( $pagetitle ))
@@ -3308,14 +3308,14 @@ function COM_checkHTML( $str, $permissions = 'story.edit' )
     // strip_tags() gets confused by HTML comments ...
     $str = preg_replace( '/<!--.+?-->/', '', $str );
 
-    $filter = new kses;
+    $filter = new kses4;
     if( isset( $_CONF['allowed_protocols'] ) && is_array( $_CONF['allowed_protocols'] ) && ( sizeof( $_CONF['allowed_protocols'] ) > 0 ))
     {
-        $filter->Protocols( $_CONF['allowed_protocols'] );
+        $filter->SetProtocols( $_CONF['allowed_protocols'] );
     }
     else
     {
-        $filter->Protocols( array( 'http:', 'https:', 'ftp:' ));
+        $filter->SetProtocols( array( 'http:', 'https:', 'ftp:' ));
     }
 
     if( empty( $permissions) || !SEC_hasRights( $permissions ) ||
@@ -5758,7 +5758,7 @@ function COM_applyFilter( $parameter, $isnumeric = false )
     if( $isnumeric )
     {
         // Note: PHP's is_numeric() accepts values like 4e4 as numeric
-        if( !is_numeric( $p ) || ( preg_match( '/^([0-9]+)$/', $p ) == 0 ))
+        if( !is_numeric( $p ) || ( preg_match( '/^-?\d+$/', $p ) == 0 ))
         {
             $p = 0;
         }

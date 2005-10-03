@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: users.php,v 1.93 2004/10/23 10:23:01 dhaun Exp $
+// $Id: users.php,v 1.93.2.1 2005/10/03 08:45:14 dhaun Exp $
 
 /**
 * This file handles user authentication
@@ -796,6 +796,28 @@ case 'new':
     break;
 
 default:
+    // prevent dictionary attacks on passwords
+    if (!isset ($_CONF['login_speedlimit'])) {
+        $_CONF['login_speedlimit'] = 300;
+    }
+    if (!isset ($_CONF['login_attempts'])) {
+        $_CONF['login_attempts'] = 3;
+    }
+    COM_clearSpeedlimit ($_CONF['login_speedlimit'], 'login');
+    if (COM_checkSpeedlimit ('login', $_CONF['login_attempts']) > 0) {
+        if (empty ($LANG04[112])) {
+            $LANG04[112] = 'You have exceeded the number of allowed login attempts. Please try again later.';
+        }
+        $retval .= COM_siteHeader ()
+                . COM_startBlock ($LANG12[26], '',
+                                  COM_getBlockTemplate ('_msg_block', 'header'))
+                . $LANG04[112]
+                . COM_endBlock (COM_getBlockTemplate ('_msg_block', 'footer'))
+                . COM_siteFooter ();
+        echo $retval; 
+        exit();
+    }
+
     if (isset ($HTTP_POST_VARS['loginname'])) {
         $loginname = COM_applyFilter ($HTTP_POST_VARS['loginname']);
     } else {
@@ -899,8 +921,25 @@ default:
             }
             break;
         default:
-            // Show login form
-            $display .= loginform();
+            // check to see if this was the last allowed attempt
+            if (!isset ($_CONF['login_attempts'])) {
+                $_CONF['login_attempts'] = 3;
+            }
+            if (COM_checkSpeedlimit ('login', $_CONF['login_attempts']) > 0) {
+                if (empty ($LANG04[112])) {
+                    $LANG04[112] = 'You have exceeded the number of allowed login attempts. Please try again later.';
+                }
+                $retval .= COM_siteHeader ()
+                        . COM_startBlock ($LANG12[26], '',
+                                COM_getBlockTemplate ('_msg_block', 'header'))
+                        . $LANG04[112]
+                        . COM_endBlock (COM_getBlockTemplate ('_msg_block', 'footer'))
+                        . COM_siteFooter ();
+                echo $retval;
+                exit ();
+            } else { // Show login form
+                $display .= loginform();
+            }
             break;
         }
 

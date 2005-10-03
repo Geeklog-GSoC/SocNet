@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: users.php,v 1.93.2.1 2005/10/03 08:45:14 dhaun Exp $
+// $Id: users.php,v 1.93.2.2 2005/10/03 08:56:31 dhaun Exp $
 
 /**
 * This file handles user authentication
@@ -897,6 +897,9 @@ default:
             $display .= COM_refresh ($_CONF['site_url'] . '/index.php');
         }
     } else {
+        // On failed login attempt, update speed limit
+        COM_updateSpeedlimit ('login');
+
         $display .= COM_siteHeader('menu');
 
         if (isset ($HTTP_POST_VARS['msg'])) {

@@ -319,7 +319,8 @@ $LANG04 = array(
     104 => 'Show Online Status',
     105 => 'Show up in Who\'s Online block',
     106 => 'Location',
-    107 => 'Shown in your public profile'
+    107 => 'Shown in your public profile',
+    112 => 'You have exceeded the number of allowed login attempts.  Please try again later.'
 );
 
 ###############################################################################
@@ -758,7 +759,7 @@ $LANG24 = array(
     48 => 'obrázek',
     49 => 'vpravo',
     50 => 'vlevo',
-    51 => 'k pøidání obrázkù (max. velikost 200x200px) do èlánku musíte vlo¾it speciálnì formátovaný text.<br>Tento text vypadá takto: [obrázekX](systém umístí sám), [obrázekX_vpravo](systém umístí vpravo od textu) nebo [obrázekX_vlevo](systém umístí vlevo od textu) - kde X je èíslo obrázku je¾ je pøidáván.<br>PAMATUJTE: musíte pou¾ít obrázky je¾ jsou pøidávány.  V opaèném pøípadì nebude mo¾no publikovat èlánek.<BR><P><B>NÁHLED</B>: Pro náhled èlánku s obrázky je nejlépe pou¾ít náhled Verze pro tiskárnu.  Tlaèítko <i>náhled</i> prosím pou¾ívejte jen pro prohlí¾ení èlánkù bez obrázkù.',
+    51 => 'k pøidání obrázkù (max. velikost 200x200px) do èlánku musíte vlo¾it speciálnì formátovaný text.<br>Tento text vypadá takto: [imageX](systém umístí sám), [imageX_right](systém umístí vpravo od textu) nebo [imageX_left](systém umístí vlevo od textu) - kde X je èíslo obrázku je¾ je pøidáván.<br>PAMATUJTE: musíte pou¾ít obrázky je¾ jsou pøidávány.  V opaèném pøípadì nebude mo¾no publikovat èlánek.<BR><P><B>NÁHLED</B>: Pro náhled èlánku s obrázky je nejlépe pou¾ít náhled Verze pro tiskárnu.  Tlaèítko <i>náhled</i> prosím pou¾ívejte jen pro prohlí¾ení èlánkù bez obrázkù.',
     52 => 'Smazat',
     53 => ' nepou¾ito.  Pøed ulo¾ením zmìn musíte vlo¾it obrázek do Intro textu nebo textu.',
     54 => 'Pøidaný obrázek nepou¾it',

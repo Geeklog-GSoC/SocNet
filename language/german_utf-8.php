@@ -325,7 +325,8 @@ $LANG04 = array(
     104 => 'Online-Status zeigen',
     105 => 'Unter "Wer ist online?"',
     106 => 'Wohnort',
-    107 => 'Erscheint im öffentlichen Profil'
+    107 => 'Erscheint im öffentlichen Profil',
+    112 => 'You have exceeded the number of allowed login attempts.  Please try again later.'
 );
 
 ###############################################################################

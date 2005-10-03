@@ -322,7 +322,8 @@ $LANG04 = array(
     104 => 'Aktifliðinizin Görüntülenmesi',
     105 => 'Aktif Kullanýcýlar Bloðunda görüntülenme',
     106 => 'Location',
-    107 => 'Shown in your public profile'
+    107 => 'Shown in your public profile',
+    112 => 'You have exceeded the number of allowed login attempts.  Please try again later.'
 );
 
 ###############################################################################

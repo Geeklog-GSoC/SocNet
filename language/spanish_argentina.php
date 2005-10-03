@@ -318,7 +318,8 @@ $LANG04 = array(
     104 => 'Show Online Status',
     105 => 'Show up in Who\'s Online block',
     106 => 'Location',
-    107 => 'Shown in your public profile'
+    107 => 'Shown in your public profile',
+    112 => 'You have exceeded the number of allowed login attempts.  Please try again later.'
 );
 
 ###############################################################################
@@ -757,7 +758,7 @@ $LANG24 = array(
     48 => 'imagen',
     49 => 'der',
     50 => 'izq',
-    51 => 'Para insertar una imagen en la Nota debe incluir un texto con el formato [imagenX], [imagenX_der] o [imageX_izq], donde X es el número de imagen dentro de la lista. NOTA: sólo puede utilizar las imágenes de la lista, sino la Nota no podrá ser grabada',
+    51 => 'Para insertar una imagen en la Nota debe incluir un texto con el formato [imageX], [imageX_right] o [imageX_left], donde X es el número de imagen dentro de la lista. NOTA: sólo puede utilizar las imágenes de la lista, sino la Nota no podrá ser grabada',
     52 => 'Borrar',
     53 => 'no fue usada.  Debe incluir esta imagen en la Introducción o el Texto para poder grabar los cambios',
     54 => 'Imágenes no utilizadas',

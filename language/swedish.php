@@ -324,7 +324,8 @@ $LANG04 = array(
     104 => 'Visa online-status',
     105 => 'Jag vill synas i \'Vem är här\'-blocket',
     106 => 'Plats',
-    107 => 'Visas i din publika profil'
+    107 => 'Visas i din publika profil',
+    112 => 'You have exceeded the number of allowed login attempts.  Please try again later.'
 );
 
 ###############################################################################

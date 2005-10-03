@@ -326,7 +326,8 @@ $LANG04 = array(
     104 => 'Prikaži Online Status',
     105 => 'Dovoli prikaz v bloku Na liniji so',
     106 => 'Lokacija',
-    107 => 'Prikazano v vašem javnem profilu'
+    107 => 'Prikazano v vašem javnem profilu',
+    112 => 'You have exceeded the number of allowed login attempts.  Please try again later.'
 );
 
 ###############################################################################

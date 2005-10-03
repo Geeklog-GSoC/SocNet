@@ -323,7 +323,8 @@ $LANG04 = array(
     104 => 'Affichez votre pr&eacute;sence en ligne',
     105 => 'Affichez ma pr&eacute;sence dans le bloc &laquo;En ligne&raquo;',
     106 => 'Location',
-    107 => 'Shown in your public profile'
+    107 => 'Shown in your public profile',
+    112 => 'You have exceeded the number of allowed login attempts.  Please try again later.'
 );
 
 ###############################################################################

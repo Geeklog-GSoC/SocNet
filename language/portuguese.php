@@ -319,7 +319,8 @@ $LANG04 = array(
     104 => 'Show Online Status',
     105 => 'Show up in Who\'s Online block',
     106 => 'Location',
-    107 => 'Shown in your public profile'
+    107 => 'Shown in your public profile',
+    112 => 'You have exceeded the number of allowed login attempts.  Please try again later.'
 );
 
 ###############################################################################
@@ -758,7 +759,7 @@ $LANG24 = array(
     48 => 'imagem',
     49 => 'direita',
     50 => 'esquerda',
-    51 => 'Para adicionar uma das imagens que está a anexar a esta notícia precisa de introduzir texto com formato especial.  O formato especial do texto é [imagemX], [imagemX_direita] ou [imagemX_esquerda] onde X é o número da imagem que anexou.  NOTA: Deve utilizar as imagens que anexou.  Caso contrário não poderá guardar a sua notícia.<BR><P><B>PREVISUALIZAR</B>: Previsualizar uma notícia que contenha imagens deve ser efectuado guardando a notícia como rascunho EM VEZ DE seleccionar o botão de previsualização.  Utilize o botão de previsualização apenas quando não tiver imagens anexadas.',
+    51 => 'Para adicionar uma das imagens que está a anexar a esta notícia precisa de introduzir texto com formato especial.  O formato especial do texto é [imageX], [imageX_right] ou [imageX_left] onde X é o número da imagem que anexou.  NOTA: Deve utilizar as imagens que anexou.  Caso contrário não poderá guardar a sua notícia.<BR><P><B>PREVISUALIZAR</B>: Previsualizar uma notícia que contenha imagens deve ser efectuado guardando a notícia como rascunho EM VEZ DE seleccionar o botão de previsualização.  Utilize o botão de previsualização apenas quando não tiver imagens anexadas.',
     52 => 'Apagar',
     53 => 'não foi utilizada.  Deve incluir esta imagem na introdução ou no corpo da notícia antes de guardar as alterações',
     54 => 'Imagens associadas e não utilizadas',

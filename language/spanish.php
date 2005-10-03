@@ -318,7 +318,8 @@ $LANG04 = array(
     104 => 'Muestra el estado de quien está conectado(a)',
     105 => 'Muestra en el bloque Who\'s Online (usuarios conectados)',
     106 => 'Ubicación',
-    107 => 'Mostrado en tu perfil público'
+    107 => 'Mostrado en tu perfil público',
+    112 => 'You have exceeded the number of allowed login attempts.  Please try again later.'
 );
 
 ###############################################################################
@@ -757,7 +758,7 @@ $LANG24 = array(
     48 => 'imagen',
     49 => 'der',
     50 => 'izq',
-    51 => 'Para insertar una imagen en la Noticia tienes que incluir un texto con el formato [imagenX], [imagenX_der] o [imagenX_izq], donde X es el número de imagen dentro de la lista. NOTA: sólo puedes utilizar las imágenes de la lista, si no la Noticia no se podrá guardar',
+    51 => 'Para insertar una imagen en la Noticia tienes que incluir un texto con el formato [imageX], [imageX_right] o [imageX_left], donde X es el número de imagen dentro de la lista. NOTA: sólo puedes utilizar las imágenes de la lista, si no la Noticia no se podrá guardar',
     52 => 'Borrar',
     53 => 'no se ha utilizado.  Tienes que incluir esta imagen en la Introducción o el Texto para poder guardar los cambios',
     54 => 'Imágenes no utilizadas',

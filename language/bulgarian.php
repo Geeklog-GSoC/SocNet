@@ -320,7 +320,8 @@ $LANG04 = array(
     104 => 'Показвай потребителското ми име когато съм онлайн',
     105 => 'Показвай потребителското ми име в "Кой е онлайн"',
     106 => 'Location',
-    107 => 'Shown in your public profile'
+    107 => 'Shown in your public profile',
+    112 => 'You have exceeded the number of allowed login attempts.  Please try again later.'
 );
 
 ###############################################################################

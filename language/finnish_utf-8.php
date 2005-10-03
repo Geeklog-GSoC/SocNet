@@ -323,7 +323,8 @@ $LANG04 = array(
     104 => 'Näytä linjalla -tila',
     105 => 'Näy Ketä on linjalla -lohkossa',
     106 => 'Location',
-    107 => 'Shown in your public profile'
+    107 => 'Shown in your public profile',
+    112 => 'You have exceeded the number of allowed login attempts.  Please try again later.'
 );
 
 ###############################################################################

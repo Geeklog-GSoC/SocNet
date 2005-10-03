@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.408.2.5 2005/10/03 08:45:14 dhaun Exp $
+// $Id: lib-common.php,v 1.408.2.6 2005/10/03 08:47:36 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting( E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR );
@@ -5409,7 +5409,7 @@ function COM_checkSpeedlimit( $type = 'submit', $max = 1 )
     // (ie. didn't hit limit)
     if( DB_numRows( $res ) < $max )
     {
-        $return $last;
+        return $last;
     }
 
     list( $date ) = DB_fetchArray( $res );

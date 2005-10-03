@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.408.2.7 2005/10/03 10:29:55 dhaun Exp $
+// $Id: lib-common.php,v 1.408.2.8 2005/10/03 11:49:11 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting( E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR );
@@ -508,6 +508,7 @@ function COM_renderMenu( &$header, $plugin_menu )
     }
 
     $anon = ( empty( $_USER['uid'] ) || ( $_USER['uid'] <= 1 )) ? true : false;
+    $menuCounter = 0;
     $allowedCounter = 0;
     $counter = 0;
 
@@ -596,6 +597,7 @@ function COM_renderMenu( &$header, $plugin_menu )
                     {
                         $header->parse( 'menu_elements', 'menuitem', true );
                     }
+                    $menuCounter++;
                 }
                 $url = '';
                 $label = '';
@@ -631,6 +633,7 @@ function COM_renderMenu( &$header, $plugin_menu )
                     {
                         $header->parse( 'menu_elements', 'menuitem', true );
                     }
+                    $menuCounter++;
 
                     next( $plugin_menu );
                 }
@@ -686,6 +689,7 @@ function COM_renderMenu( &$header, $plugin_menu )
             {
                 $header->parse( 'menu_elements', 'menuitem', true );
             }
+            $menuCounter++;
 
             if( $allowed )
             {
@@ -703,6 +707,10 @@ function COM_renderMenu( &$header, $plugin_menu )
         }
     }
 
+    if( $menuCounter == 0 )
+    {
+        $header->parse( 'menu_elements', 'menuitem_none', true );
+    }
     if( $allowedCounter == 0 )
     {
         $header->parse( 'allowed_menu_elements', 'menuitem_none', true );
@@ -794,6 +802,11 @@ function COM_siteHeader( $what = 'menu', $pagetitle = '' )
         elseif( isset( $HTTP_POST_VARS['story'] ))
         {
             $sid = COM_applyFilter( $HTTP_POST_VARS['story'] );
+        }
+        if( empty( $sid ) && $_CONF['url_rewrite'] )
+        {
+            COM_setArgNames( array( 'story' ));
+            $sid = COM_applyFilter( COM_getArgument( 'story' ));
         }
         if( !empty( $sid ))
         {

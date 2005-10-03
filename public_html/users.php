@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: users.php,v 1.93.2.3 2005/10/03 09:13:15 dhaun Exp $
+// $Id: users.php,v 1.93.2.4 2005/10/03 09:24:36 dhaun Exp $
 
 /**
 * This file handles user authentication
@@ -455,6 +455,22 @@ function createuser($username,$email)
         $ecount = DB_count ($_TABLES['users'], 'email', addslashes ($email));
 
         if ($ucount == 0 AND $ecount == 0) {
+
+            // For Geeklog, it would be okay to create this user now. But check
+            // with a custom userform first, if one exists.
+            if ($_CONF['custom_registration'] &&
+                    function_exists ('custom_usercheck')) {
+                $msg = custom_usercheck ($username, $email);
+                if (!empty ($msg)) {
+                    // no, it's not okay with the custom userform
+                    $retval = COM_siteHeader ('menu')
+                            . custom_userform ($msg)
+                            . COM_siteFooter ();
+
+                    return $retval;
+                }
+            }
+
             $uid = USER_createAccount ($username, $email);
 
             $queueUser = USER_isQueued ($uid);

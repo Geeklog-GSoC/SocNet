@@ -600,6 +600,16 @@ options:</p>
   <td valign="top">300</td>
   <td valign="top">Minimum delay between two requests for a new password, in seconds.</td></tr>
 <tr>
+  <td valign="top"><a name="desc_login_attempts">login_attempts</a></td>
+  <td valign="top">3</td>
+  <td valign="top">Max. number of login attempts allowed before the speedlimit
+    (see below) kicks in.</td></tr>
+<tr>
+  <td valign="top"><a name="desc_login_speedlimit">login_speedlimit</a></td>
+  <td valign="top">300</td>
+  <td valign="top">Number of seconds a user has to wait after exceeding the
+    number of login attempts (see above).</td></tr>
+<tr>
   <td valign="top"><a name="desc_ip_lookup">ip_lookup</a></td>
   <td valign="top"><i>not set</i></td>
   <td valign="top">The IP addresses of comment posters are logged and displayed for admin users. When this variable is set to point to a service that can do IP address lookups, it's possible to lookup the owner of an IP address by clicking on it, making it easier to report missuse to ISPs, etc.<br>

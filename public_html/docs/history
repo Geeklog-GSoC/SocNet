@@ -1,5 +1,114 @@
 GeekLog History/Changes:
 
+Oct 9, 2005 (1.3.11sr2)
+-----------
+
+This release provides security enhancements and better spam protection
+originally developed for Geeklog 1.3.12. It also addresses a few bugs where
+the bugfix could be integrated with a reasonable amount of work (other bugfixes
+will have to wait for the 1.3.12 release).
+
+Security and Spam protection:
+
+- Added speedlimit to login attempts, defaults to allowing three tries in a
+  five minute period.  [Vinny]
+  See new config options $_CONF['login_attempts'] and $_CONF['login_speedlimit']
+- Changed the spam handling to update the speed limit when spam is detected
+  (i.e. handle spam posts as if they were successful posts and make the
+  submitter wait for the speed limit to expire). Also send a 403 "Forbidden"
+  HTTP response code when displaying the "spam detected" message [Dirk]
+  To quote RFC2616: "403 Forbidden: The server understood the request, but is
+  refusing to fulfill it. Authorization will not help and the request SHOULD
+  NOT be repeated."
+- Filter linefeeds in the To:, From:, and Subject: fields of an email in
+  COM_mail [Dirk]
+- When a new user account is created and the user submission queue is enabled
+  in config.php, ensure that the user is properly "queued" even in the
+  unlikely event that the account creation fails halfway through (reported by
+  LWC) [Dirk]
+- When $_CONF['emailstoryloginrequired'] = 1, hide the links to the "email
+  story" form from anonymous users [Dirk]
+- When emailing a story, check the user's message that is sent with the story
+  for spam [Dirk]
+- Added a robots.txt file to the distribution. By default, it excludes
+  comment.php, submit.php, and the docs directory from being spidered [Dirk]
+- Added a spam check to the user profile [Dirk]
+- Story, event, and link submissions are now also checked for spam [Dirk]
+- This release also includes the Spam-X plugin version 1.0.2
+
+Please note that MT-Blacklist (used by Spam-X) has recently been discontinued.
+For the time being, we provide the last version of the blacklist for download
+from geeklog.net (the Spam-X plugin as included in this release is configured
+to get it from there for the initial import). There will, however, be no
+updates the blacklist. For details, please see
+http://www.geeklog.net/article.php/mt-blacklist-discontinued
+
+Bugfixes:
+
+- Fixed an error message thrown up by PHP 5.0.5 or later when viewing the
+  article page (bug #483) [Dirk]
+- Fixed bug with topic-specific blocks not showing up on the article page when
+  URL rewriting was enabled (bug #401) [Dirk]
+- Fixed missing site header when trying to submit an event without required
+  fields. Also fixed that it would redirect you to the story submission form
+  then (bug #409) [Dirk]
+- Make sure {menu_elements} is rendered using the menuitem_none.thtml template
+  when no menu elements are to be displayed (bug #378) [Dirk]
+- Quote names in email addresses as soon as they contain any non-alphanumeric
+  characters (apart from the blank). This also addresses bug #368 [Dirk]
+- Allow single quotes in passwords (bug #396, also previously reported as
+  bug #349 / #996354) [Dirk]
+- When $_CONF['profileloginrequired'] was set to 1, the actual message that
+  you have to log in before being able to see a user profile was not wrapped
+  in the Geeklog framework (reported by Sean C) [Dirk]
+- Fix: Made a story's archive/expire date work with the timezone hack [Dirk]
+- COM_applyFilter will now accept negative numbers if the isnumeric parameter
+  is true. Needed to fix problems with pollbooth.php (and others) [Vinny]
+- Upgraded included kses class to version 0.2.2 which fixes problems with
+  Japanese and Thai characters (among other things), thus addressing bugs #94
+  and #119 [Dirk]
+- Fixed SQL error when using the [staticpage:] autotag (bug #373) [Dirk]
+- Added a missing stripslashes call to remove backslashes when a topic's name
+  was displayed in the index page's title (bug #369) [Dirk]
+- Link tags are now translated in printer friendly mode (Bug #411) [Mike]
+- Removed the <meta name="ROBOTS"> entry from the Professional theme's
+  header.thtml as "INDEX,FOLLOW" is the default anyway. For finer control,
+  we now ship a robots.txt [Dirk]
+
+Improvements:
+
+- Don't check for auto-archived stories when no archive topic has been
+  defined yet [Dirk]
+- Added support for a custom_usercheck function. Custom registration code that
+  requires certain information can now abort the creation of a new account if
+  that information is missing. The function is called after Geeklog has checked
+  that the username and email address of the new user are okay (valid and not
+  in the database yet), but before the user has been added to the database
+  [Dirk]
+- Saved one SQL request for a story's printable view [Dirk]
+
+Language files:
+
+- Made sure all language files refer to Geeklog's [image] tags as [imageX],
+  [imageX_right], and [imageX_left] (bug #381) [Dirk]
+
+- New Catalan language file, provided by an anonymous user
+- New Russian (UTF-8) language file, provided by Konstantin Boyandin
+- Updated Hebrew language file, provided by LWC
+- Updated Hellenic (Greek) language file, provided by MzOzD
+- Updated Italian language file, provided by Marcello Teodori
+- Updated Japanese (UTF-8) language file, provided by Yusuke Sakata
+- Updated Portuguese (Brazil) language file, provided by Alcides Soares Filho
+- Updated Russian language file, provided by Konstantin Boyandin
+
+- New Japanese (UTF-8) language file for the Static Pages plugin, provided by
+  Yusuke Sakata
+- Updated Italian language file for the Static Pages plugin, provided by
+  Marcello Teodori
+- Updated Japanese language file for the Static Pages plugin, provided by
+  Yusuke Sakata
+
+
 Aug 21, 2005 (Spam-X plugin 1.0.2)
 ------------ 
 

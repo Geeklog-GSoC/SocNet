@@ -15,7 +15,7 @@
  * Based on MT-Blacklist Updater by
  * Cheah Chu Yeow (http://blog.codefront.net/)
  *
- * $I$
+ * $Id: Import.Admin.class.php,v 1.6.2.2 2005/10/08 14:58:41 dhaun Exp $
  */
 
 require_once ($_CONF['path'] . 'plugins/spamx/BaseAdmin.class.php');
@@ -61,6 +61,14 @@ class Import extends BaseAdmin {
         require_once($_CONF['path'] . 'plugins/spamx/magpierss/rss_utils.inc');
 
         $rss = fetch_rss($_SPX_CONF['rss_url']); 
+        if ($rss === false) {
+            if (strpos ($_SPX_CONF['rss_url'], 'jayallen.org') === false) {
+                return '<p>An error occured when updating MT Blacklist</p>';
+            } else {
+                return '<p>Please note that MT-Blacklist has been <a href="http://www.geeklog.net/article.php/mt-blacklist-discontinued">discontinued</a> and will not be updated any more.</p>';
+            }
+        }
+
         // entries to add and delete, according to the blacklist changes feed
         $to_add = array();
         $to_delete = array();

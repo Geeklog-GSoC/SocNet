@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: index.php,v 1.38 2004/09/25 18:38:17 dhaun Exp $
+// $Id: index.php,v 1.38.2.1 2005/10/12 19:09:03 dhaun Exp $
 
 require_once ('../../../lib-common.php');
 require_once ('../../auth.inc.php');
@@ -561,14 +561,8 @@ function submitstaticpage ($sp_id, $sp_uid, $sp_title, $sp_content, $unixdate, $
 
 // MAIN
 
-if (isset ($HTTP_POST_VARS['mode'])) {
-    $mode = COM_applyFilter ($HTTP_POST_VARS['mode']);
-    $sp_id = COM_applyFilter ($HTTP_POST_VARS['sp_id']);
-} else {
-    COM_setArgNames (array ('mode', 'sp_id'));    
-    $mode = COM_applyFilter (COM_getArgument ('mode'));
-    $sp_id = COM_applyFilter (COM_getArgument ('sp_id'));
-}
+$mode = COM_applyFilter ($_REQUEST['mode']);
+$sp_id = COM_applyFilter ($_REQUEST['sp_id']);
 
 if (($mode == $LANG_STATIC['delete']) && !empty ($LANG_STATIC['delete'])) {
     if (empty ($sp_id) || (is_numeric ($sp_id) && ($sp_id == 0))) {

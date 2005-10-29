@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: index.php,v 1.23 2004/09/28 15:26:45 dhaun Exp $
+// $Id: index.php,v 1.23.2.1 2005/10/29 11:54:14 dhaun Exp $
 
 require_once ('../lib-common.php');
 
@@ -115,9 +115,9 @@ function display_page ($page, $A, $noboxes)
         if ((SEC_hasAccess ($A['owner_id'], $A['group_id'], $A['perm_owner'],
                 $A['perm_group'], $A['perm_members'], $A['perm_anon']) == 3) &&
                 SEC_hasRights ('staticpages.edit')) {
-            $retval .= '<br><a href="' . COM_buildURL ($_CONF['site_admin_url']
+            $retval .= '<br><a href="' . $_CONF['site_admin_url']
                     . '/plugins/staticpages/index.php?mode=edit&amp;sp_id='
-                    . $page) . '">';
+                    . $page . '">';
             $retval .= $LANG_STATIC['edit'] . '</a>';
         }
         $retval .= '</p>';

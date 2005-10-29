@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.408.2.8 2005/10/03 11:49:11 dhaun Exp $
+// $Id: lib-common.php,v 1.408.2.9 2005/10/29 14:08:44 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting( E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR );
@@ -2644,6 +2644,7 @@ function COM_commentBar( $sid, $title, $type, $order, $mode )
     $commentbar->set_var( 'story_title', stripslashes( $title ));
     $commentbar->set_var( 'num_comments', $nrows );
     $commentbar->set_var( 'comment_type', $type );
+    $commentbar->set_var( 'sid', $sid );
 
     if( $type == 'poll' )
     {

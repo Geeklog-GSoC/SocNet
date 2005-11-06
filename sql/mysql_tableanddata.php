@@ -387,7 +387,7 @@ CREATE TABLE {$_TABLES['stories']} (
   show_topic_icon tinyint(1) unsigned NOT NULL default '1',
   commentcode tinyint(4) NOT NULL default '0',
   statuscode tinyint(4) NOT NULL default '0',
-  expire DATETIME NOT NULL,
+  expire DATETIME NOT NULL default '0000-00-00 00:00:00',
   postmode varchar(10) NOT NULL default 'html',
   frontpage tinyint(3) unsigned default '1',
   owner_id mediumint(8) NOT NULL default '1',

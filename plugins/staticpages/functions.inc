@@ -34,7 +34,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: functions.inc,v 1.47.2.1 2005/09/26 09:12:10 dhaun Exp $
+// $Id: functions.inc,v 1.47.2.2 2005/12/04 09:21:16 dhaun Exp $
 
 $langfile = $_CONF['path'] . 'plugins/staticpages/language/'
           . $_CONF['language'] . '.php';
@@ -248,11 +248,13 @@ function plugin_dopluginsearch_staticpages($query, $datestart, $dateend, $topic,
 
     if (!empty ($datestart) && !empty ($dateend)) {
         $delim = substr ($datestart, 4, 1);
-        $DS = explode ($delim, $datestart);
-        $DE = explode ($delim, $dateend);
-        $startdate = mktime (0, 0, 0, $DS[1], $DS[2], $DS[0]);
-        $enddate = mktime (23, 59, 59, $DE[1], $DE[2], $DE[0]);
-        $sql .= " AND (UNIX_TIMESTAMP(sp_date) BETWEEN '$startdate' AND '$enddate')";
+        if (!empty($delim)) {
+            $DS = explode ($delim, $datestart);
+            $DE = explode ($delim, $dateend);
+            $startdate = mktime (0, 0, 0, $DS[1], $DS[2], $DS[0]);
+            $enddate = mktime (23, 59, 59, $DE[1], $DE[2], $DE[0]);
+            $sql .= " AND (UNIX_TIMESTAMP(sp_date) BETWEEN '$startdate' AND '$enddate')";
+        }
     }
 
     if (!empty ($author)) {

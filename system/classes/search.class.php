@@ -30,7 +30,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: search.class.php,v 1.28 2004/08/23 19:36:36 dhaun Exp $
+// $Id: search.class.php,v 1.28.2.1 2005/12/04 09:21:16 dhaun Exp $
 
 if (eregi ('search.class.php', $HTTP_SERVER_VARS['PHP_SELF'])) {
     die ('This file can not be used on its own.');
@@ -266,11 +266,13 @@ class Search {
             }
             if (!empty($this->_dateStart) AND !empty($this->_dateEnd)) {
                 $delim = substr($this->_dateStart, 4, 1);
-                $DS = explode($delim, $this->_dateStart);
-                $DE = explode($delim, $this->_dateEnd);
-                $startdate = mktime(0,0,0,$DS[1],$DS[2],$DS[0]);
-                $enddate = mktime(23,59,59,$DE[1],$DE[2],$DE[0]);
-                $sql .= "AND (UNIX_TIMESTAMP(date) BETWEEN '$startdate' AND '$enddate') ";
+                if (!empty($delim)) {
+                    $DS = explode($delim, $this->_dateStart);
+                    $DE = explode($delim, $this->_dateEnd);
+                    $startdate = mktime(0,0,0,$DS[1],$DS[2],$DS[0]);
+                    $enddate = mktime(23,59,59,$DE[1],$DE[2],$DE[0]);
+                    $sql .= "AND (UNIX_TIMESTAMP(date) BETWEEN '$startdate' AND '$enddate') ";
+                }
             }
             if (!empty($this->_topic)) {
                 $sql .= "AND (tid = '$this->_topic') ";
@@ -381,11 +383,13 @@ class Search {
             $sql .= "OR {$_TABLES['comments']}.title like '%$mysearchterm%') ";
             if (!empty($this->_dateStart) && !empty($this->_dateEnd)) {
                 $delim = substr($this->_dateStart, 4, 1);
-                $DS = explode($delim, $this->_dateStart);
-                $DE = explode($delim, $this->_dateEnd);
-                $startdate = mktime(0,0,0,$DS[1],$DS[2],$DS[0]);
-                $enddate = mktime(23,59,59,$DE[1],$DE[2],$DE[0]);
-                $sql .= "AND (UNIX_TIMESTAMP({$_TABLES['comments']}.date) BETWEEN '$startdate' AND '$enddate') ";
+                if (!empty($delim)) {
+                    $DS = explode($delim, $this->_dateStart);
+                    $DE = explode($delim, $this->_dateEnd);
+                    $startdate = mktime(0,0,0,$DS[1],$DS[2],$DS[0]);
+                    $enddate = mktime(23,59,59,$DE[1],$DE[2],$DE[0]);
+                    $sql .= "AND (UNIX_TIMESTAMP({$_TABLES['comments']}.date) BETWEEN '$startdate' AND '$enddate') ";
+                }
             }
             if (!empty($this->_author)) {
                 $sql .= "AND ({$_TABLES['comments']}.uid = '$this->_author') ";
@@ -484,11 +488,13 @@ class Search {
     
             if (!empty($this->_dateStart) AND !empty($this->_dateEnd)) {
                 $delim = substr($this->_dateStart, 4, 1);
-                $DS = explode($delim, $this->_dateStart);
-                $DE = explode($delim, $this->_dateEnd);
-                $startdate = mktime(0, 0, 0, $DS[1], $DS[2], $DS[0]);
-                $enddate = mktime(23, 59, 59, $DE[1], $DE[2], $DE[0]);
-                $sql .= "AND (UNIX_TIMESTAMP(date) BETWEEN '$startdate' AND '$enddate') ";
+                if (!empty($delim)) {
+                    $DS = explode($delim, $this->_dateStart);
+                    $DE = explode($delim, $this->_dateEnd);
+                    $startdate = mktime(0, 0, 0, $DS[1], $DS[2], $DS[0]);
+                    $enddate = mktime(23, 59, 59, $DE[1], $DE[2], $DE[0]);
+                    $sql .= "AND (UNIX_TIMESTAMP(date) BETWEEN '$startdate' AND '$enddate') ";
+                }
             }
             $sql .= "ORDER BY title ASC";
             $result_links = DB_query($sql);
@@ -587,11 +593,13 @@ class Search {
 
             if (!empty($this->_dateStart) AND !empty($this->_dateEnd)) {
                 $delim = substr($this->_dateStart, 4, 1);
-                $DS = explode($delim, $this->_dateStart);
-                $DE = explode($delim, $this->_dateEnd);
-                $startdate = mktime(0, 0, 0, $DS[1], $DS[2], $DS[0]);
-                $enddate = mktime(23, 59, 59, $DE[1], $DE[2], $DE[0]);
-                $sql .= "AND (UNIX_TIMESTAMP(datestart) BETWEEN '$startdate' AND '$enddate') ";
+                if (!empty($delim)) {
+                    $DS = explode($delim, $this->_dateStart);
+                    $DE = explode($delim, $this->_dateEnd);
+                    $startdate = mktime(0, 0, 0, $DS[1], $DS[2], $DS[0]);
+                    $enddate = mktime(23, 59, 59, $DE[1], $DE[2], $DE[0]);
+                    $sql .= "AND (UNIX_TIMESTAMP(datestart) BETWEEN '$startdate' AND '$enddate') ";
+                }
             }
             $sql .= "ORDER BY datestart desc";
             $result_events = DB_query($sql);

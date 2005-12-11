@@ -8,7 +8,7 @@
 // |                                                                           |
 // | Let user comment on a story, poll, or plugin.                             |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000-2004 by the following authors:                         |
+// | Copyright (C) 2000-2005 by the following authors:                         |
 // |                                                                           |
 // | Authors: Tony Bibbs        - tony@tonybibbs.com                           |
 // |          Mark Limburg      - mlimburg@users.sourceforge.net               |
@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: comment.php,v 1.85.2.1 2005/09/26 08:49:45 dhaun Exp $
+// $Id: comment.php,v 1.85.2.2 2005/12/11 09:46:01 dhaun Exp $
 
 /**
 * This file is responsible for letting user enter a comment and saving the
@@ -305,12 +305,12 @@ function savecomment ($uid, $title, $comment, $sid, $pid, $type, $postmode)
     $commentcode = 0;
     if ($type == 'article') {
         $commentcode = DB_getItem ($_TABLES['stories'], 'commentcode',
-                                   "sid = '$sid'");
+            "sid = '$sid'" . COM_getPermSQL('AND') . COM_getTopicSQL('AND'));
     } else if ($type == 'poll') {
         $commentcode = DB_getItem ($_TABLES['pollquestions'], 'commentcode',
-                                   "qid = '$sid'");
+            "qid = '$sid'" . COM_getPermSQL('AND'));
     }
-    if ($commentcode < 0) {
+    if (!isset ($commentcode) || ($commentcode < 0)) {
         return COM_refresh ($_CONF['site_url'] . '/index.php');
     }
 
@@ -868,20 +868,21 @@ default:
         if (empty ($title)) {
             if ($type == 'article') {
                 $title = DB_getItem ($_TABLES['stories'], 'title',
-                                     "sid = '{$sid}'");
+                            "sid = '{$sid}'" . COM_getPermSQL('AND')
+                            . COM_getTopicSQL('AND'));
             } elseif ($type == 'poll') {
                 $title = DB_getItem ($_TABLES['pollquestions'], 'question',
-                                     "qid = '{$sid}'");
+                                     "qid = '{$sid}'" . COM_getPermSQL('AND'));
             }
             $title = str_replace ('$', '&#36;', $title);
         }
-        if (!empty ($type)) {
+        if (empty ($type) || empty ($title)) {
+            $display .= COM_refresh($_CONF['site_url'] . '/index.php');
+        } else {
             $display .= COM_siteHeader('menu', $LANG03[1])
                 . commentform ($_USER['uid'], $title, '', $sid, $pid, $type,
                                $mode, $postmode)
                 . COM_siteFooter();
-        } else {
-            $display .= COM_refresh($_CONF['site_url'] . '/index.php');
         }
     } else {
         // This could still be a plugin wanting comments

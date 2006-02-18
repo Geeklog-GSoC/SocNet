@@ -8,7 +8,7 @@
 // |                                                                           |
 // | Geeklog common library.                                                   |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000-2005 by the following authors:                         |
+// | Copyright (C) 2000-2006 by the following authors:                         |
 // |                                                                           |
 // | Authors: Tony Bibbs        - tony@tonybibbs.com                           |
 // |          Mark Limburg      - mlimburg@users.sourceforge.net               |
@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.408.2.10 2005/12/04 09:15:40 dhaun Exp $
+// $Id: lib-common.php,v 1.408.2.11 2006/02/18 19:59:14 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting( E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR );
@@ -242,20 +242,29 @@ require_once( $_CONF['path_system'] . 'classes/kses.class.php' );
 // way if user logged in and set theme and then logged out we would still know
 // which theme to show them.
 
-if( !empty( $HTTP_POST_VARS['usetheme'] ) && is_dir( $_CONF['path_themes']
-        . $HTTP_POST_VARS['usetheme'] ))
+$usetheme = '';
+if( isset( $HTTP_POST_VARS['usetheme'] ))
 {
-    $_CONF['theme'] = $HTTP_POST_VARS['usetheme'];
+    $usetheme = preg_replace( '/[^a-zA-Z0-9\-_\.]/', '',
+                              $HTTP_POST_VARS['usetheme'] );
+    $usetheme = str_replace( '..', '', $usetheme );
+}
+if( !empty( $usetheme ) && is_dir( $_CONF['path_themes'] . $usetheme ))
+{
+    $_CONF['theme'] = $usetheme;
     $_CONF['path_layout'] = $_CONF['path_themes'] . $_CONF['theme'] . '/';      
     $_CONF['layout_url'] = $_CONF['site_url'] . '/layout/' . $_CONF['theme'];   
 }
 else if( $_CONF['allow_user_themes'] == 1 )
 {
-    if( isset( $HTTP_COOKIE_VARS[$_CONF['cookie_theme']]) && empty($_USER['theme'] ))
+    if( isset( $HTTP_COOKIE_VARS[$_CONF['cookie_theme']] ) && empty( $_USER['theme'] ))
     {
-        if( is_dir( $_CONF['path_themes'] . $HTTP_COOKIE_VARS[$_CONF['cookie_theme']] ))
+        $theme = preg_replace( '/[^a-zA-Z0-9\-_\.]/', '',
+                               $HTTP_COOKIE_VARS[$_CONF['cookie_theme']] );
+        $theme = str_replace( '..', '', $theme );
+        if( is_dir( $_CONF['path_themes'] . $theme ))
         {
-            $_USER['theme'] = $HTTP_COOKIE_VARS[$_CONF['cookie_theme']];
+            $_USER['theme'] = $theme;
         }
     }
 
@@ -287,12 +296,14 @@ if( file_exists( $_CONF['path_layout'] . 'functions.php' ))
 
 // Similarly set language
 
-if( isset( $HTTP_COOKIE_VARS[$_CONF['cookie_language']]) && empty( $_USER['language'] ))
+if( isset( $HTTP_COOKIE_VARS[$_CONF['cookie_language']] ) && empty( $_USER['language'] ))
 {
-    if( is_file( $_CONF['path_language'] . $HTTP_COOKIE_VARS[$_CONF['cookie_language']] . '.php' ))
+    $language = preg_replace( '/[^a-z0-9\-_]/', '',
+                              $HTTP_COOKIE_VARS[$_CONF['cookie_language']] );
+    if( is_file( $_CONF['path_language'] . $language . '.php' ))
     {
-        $_USER['language'] = $HTTP_COOKIE_VARS[$_CONF['cookie_language']];
-        $_CONF['language'] = $HTTP_COOKIE_VARS[$_CONF['cookie_language']];
+        $_USER['language'] = $language;
+        $_CONF['language'] = $language;
     }
 }
 else if( !empty( $_USER['language'] ))
@@ -3835,6 +3846,7 @@ function COM_formatBlock( $A, $noboxes = false )
     if( !empty( $A['content'] ) && !$_USER['noboxes'] )
     {
         $blockcontent = stripslashes( $A['content'] );
+        $blockcontent = str_replace( array( '<?', '?>' ), '', $blockcontent );
 
         // Hack: If the block content starts with a '<' assume it
         // contains HTML and do not call nl2br() which would only add

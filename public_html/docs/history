@@ -1,5 +1,14 @@
 GeekLog History/Changes:
 
+Mar 5, 2006 (1.3.11sr5)
+-----------
+
+Security issue:
+
+- Konstantin Dyakoff found an old bug in the session handling that would allow
+  anyone to log in as any user.
+
+
 Feb 19, 2006 (1.3.11sr4)
 ------------
 

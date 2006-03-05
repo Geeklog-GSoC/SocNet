@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: users.php,v 1.77.2.1 2004/05/31 10:43:43 dhaun Exp $
+// $Id: users.php,v 1.77.2.2 2006/03/05 09:04:20 dhaun Exp $
 
 /**
 * This file handles user authentication
@@ -687,8 +687,12 @@ case 'logout':
     setcookie ($_CONF['cookie_session'], '', time() - 10000,
                $_CONF['cookie_path'], $_CONF['cookiedomain'],
                $_CONF['cookiesecure']);
-    setcookie ($_CONF['cookie_name'], '', time() - 10000, $_CONF['cookie_path'],
-               $_CONF['cookiedomain'], $_CONF['cookiesecure']);
+    setcookie ($_CONF['cookie_password'], '', time() - 10000,
+               $_CONF['cookie_path'], $_CONF['cookiedomain'],
+               $_CONF['cookiesecure']);
+    setcookie ($_CONF['cookie_name'], '', time() - 10000,
+               $_CONF['cookie_path'], $_CONF['cookiedomain'],
+               $_CONF['cookiesecure']);
     $display = COM_refresh($_CONF['site_url'] . '/index.php?msg=8');
     break;
 
@@ -873,12 +877,12 @@ default:
             if (empty ($userid) || ($userid == 'deleted')) {
                 unset ($userid);
             } else {
-                if ($VERBOSE) {
-                    COM_errorLog('NOW trying to set permanent cookie',1);
-                    COM_errorLog('Got '.$userid.' from perm cookie in users.php',1);
-                }
-                if ($userid) {
-                    $user_logged_in = 1;
+                $userid = COM_applyFilter ($userid, true);
+                if ($userid > 1) {
+                    if ($VERBOSE) {
+                        COM_errorLog('NOW trying to set permanent cookie',1);
+                        COM_errorLog('Got '.$userid.' from perm cookie in users.php',1);
+                    }
                     // Create new session
                     $userdata = SESS_getUserDataFromId($userid);
                     $_USER = $userdata;

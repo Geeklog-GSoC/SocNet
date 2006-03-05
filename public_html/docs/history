@@ -1,5 +1,43 @@
 GeekLog History/Changes:
 
+Mar 5, 2006 (1.3.9sr5)
+-----------
+
+This release addresses the following security issues:
+
+- Konstantin Dyakoff found an old bug in the session handling that would allow
+  anyone to log in as any user.
+- James Bercegay of GulfTech Security Research reported several issues with
+  Geeklog's cookie handling that made it vulnerable to SQL injections, arbitrary
+  file access, and even injection and execution of arbitrary code.
+- Prevent execution of PHP code in "normal" blocks
+
+Please note that Geeklog 1.3.9 is not officially supported any more. We are
+only releasing this update due to the severity of these security issues.
+
+
+Jul 3, 2005 (1.3.9sr4)
+-----------
+
+This release addresses the following security issue:
+
+Stefan Esser found an SQL injection that can, under certain circumstances,
+be exploited to extract user data such as the user's password hash.
+
+
+Dec 31, 2004 (1.3.9sr3)
+------------
+
+This release addresses 2 security issues:
+
+1. It was possible to submit stories anonymously even if anonymous submissions
+   were turned off in config.php (reported by Barry Wong).
+   These stories still ended up in the submission queue, though, unless you
+   disabled it in config.php.
+2. Some of the parameters in link and event submissions weren't filtered,
+   leaving them open to potential SQL injections.
+
+
 Oct 8, 2004 (1.3.9sr2)
 -----------
 

@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.301.2.3 2005/07/02 16:20:04 dhaun Exp $
+// $Id: lib-common.php,v 1.301.2.4 2006/03/05 09:04:20 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting( E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR );
@@ -223,20 +223,28 @@ if( !$_CONF['have_pear'] )
 // way if user logged in and set theme and then logged out we would still know
 // which theme to show them.
 
-if( !empty( $HTTP_POST_VARS['usetheme'] ) && is_dir( $_CONF['path_themes']
-        . $HTTP_POST_VARS['usetheme'] ))
+$usetheme = '';
+if( isset( $HTTP_POST_VARS['usetheme'] ))
 {
-    $_CONF['theme'] = $HTTP_POST_VARS['usetheme'];
+    $usetheme = preg_replace( '/[^a-zA-Z0-9\-_\.]/', '', $HTTP_POST_VARS['usetheme'] );
+    $usetheme = str_replace( '..', '', $usetheme );
+}
+if( !empty( $usetheme ) && is_dir( $_CONF['path_themes'] . $usetheme ))
+{
+    $_CONF['theme'] = $usetheme;
     $_CONF['path_layout'] = $_CONF['path_themes'] . $_CONF['theme'] . '/';      
     $_CONF['layout_url'] = $_CONF['site_url'] . '/layout/' . $_CONF['theme'];   
 }
 else if( $_CONF['allow_user_themes'] == 1 )
 {
-    if( isset( $HTTP_COOKIE_VARS[$_CONF['cookie_theme']]) && empty($_USER['theme'] ))
+    if( isset( $HTTP_COOKIE_VARS[$_CONF['cookie_theme']] ) && empty( $_USER['theme'] ))
     {
-        if( is_dir( $_CONF['path_themes'] . $HTTP_COOKIE_VARS[$_CONF['cookie_theme']] ))
+        $theme = preg_replace( '/[^a-zA-Z0-9\-_\.]/', '',
+                               $HTTP_COOKIE_VARS[$_CONF['cookie_theme']] );
+        $theme = str_replace( '..', '', $theme );
+        if( is_dir( $_CONF['path_themes'] . $theme ))
         {
-            $_USER['theme'] = $HTTP_COOKIE_VARS[$_CONF['cookie_theme']];
+            $_USER['theme'] = $theme;
         }
     }
 
@@ -268,12 +276,14 @@ if( file_exists( $_CONF['path_layout'] . 'functions.php' ))
 
 // Similarly set language
 
-if( isset( $HTTP_COOKIE_VARS[$_CONF['cookie_language']]) && empty( $_USER['language'] ))
+if( isset( $HTTP_COOKIE_VARS[$_CONF['cookie_language']] ) && empty( $_USER['language'] ))
 {
-    if( is_file( $_CONF['path_language'] . $HTTP_COOKIE_VARS[$_CONF['cookie_language']] . '.php' ))
+    $language = preg_replace( '/[^a-z0-9\-_]/', '',
+                              $HTTP_COOKIE_VARS[$_CONF['cookie_language']] );
+    if( is_file( $_CONF['path_language'] . $language . '.php' ))
     {
-        $_USER['language'] = $HTTP_COOKIE_VARS[$_CONF['cookie_language']];
-        $_CONF['language'] = $HTTP_COOKIE_VARS[$_CONF['cookie_language']];
+        $_USER['language'] = $language;
+        $_CONF['language'] = $language;
     }
 }
 else if( !empty( $_USER['language'] ))
@@ -3536,6 +3546,7 @@ function COM_showBlocks( $side, $topic='', $name='all' )
             if( !empty( $A['content'] ) && !$U['noboxes'] )
             {
                 $blockcontent = stripslashes( $A['content'] );
+                $blockcontent = str_replace( array( '<?', '?>' ), '', $blockcontent );
 
                 // Hack: If the block content starts with a '<' assume it
                 // contains HTML and do not call nl2br() which would only add
@@ -5353,7 +5364,7 @@ function COM_applyFilter( $parameter, $isnumeric = false )
     if( $isnumeric )
     {
         // Note: PHP's is_numeric() accepts values like 4e4 as numeric
-        if( !is_numeric( $p ) || ( preg_match( '/^([0-9]+)$/', $p ) == 0 ))
+        if( !is_numeric( $p ) || ( preg_match( '/^-?\d+$/', $p ) == 0 ))
         {
             $p = 0;
         }

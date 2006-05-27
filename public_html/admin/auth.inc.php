@@ -8,7 +8,7 @@
 // |                                                                           |
 // | Geeklog admin authentication module                                       |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000-2004 by the following authors:                         |
+// | Copyright (C) 2000-2006 by the following authors:                         |
 // |                                                                           |
 // | Authors: Tony Bibbs        - tony@tonybibbs.com                           |
 // |          Mark Limburg      - mlimburg@users.sourceforge.net               |
@@ -31,18 +31,18 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: auth.inc.php,v 1.21 2004/08/15 12:06:10 dhaun Exp $
+// $Id: auth.inc.php,v 1.21.2.1 2006/05/27 15:39:16 dhaun Exp $
 
 // this file can't be used on its own
-if (eregi ('auth.inc.php', $HTTP_SERVER_VARS['PHP_SELF']))
+if (strpos ($_SERVER['PHP_SELF'], 'auth.inc.php') !== false)
 {
     die ('This file can not be used on its own.');
 }
 
 // MAIN
 
-if (!empty($loginname) && !empty($passwd)) {
-    $mypasswd = COM_getPassword($loginname);
+if (!empty ($_POST['loginname']) && !empty ($_POST['passwd'])) {
+    $mypasswd = COM_getPassword (COM_applyFilter ($_POST['loginname']));
 } else {
     srand((double)microtime()*1000000);
     $mypasswd = rand();
@@ -50,9 +50,10 @@ if (!empty($loginname) && !empty($passwd)) {
 
 $display = '';
 
-if (!empty ($passwd) && !empty ($mypasswd) && ($mypasswd == md5 ($passwd))) {
-    $_USER = SESS_getUserData ($loginname);
-    $sessid = SESS_newSession ($_USER['uid'], $HTTP_SERVER_VARS['REMOTE_ADDR'],
+if (!empty ($_POST['passwd']) && !empty ($mypasswd) &&
+        ($mypasswd == md5 ($_POST['passwd']))) {
+    $_USER = SESS_getUserData (COM_applyFilter ($_POST['loginname']));
+    $sessid = SESS_newSession ($_USER['uid'], $_SERVER['REMOTE_ADDR'],
             $_CONF['session_cookie_timeout'], $_CONF['cookie_ip']);
     SESS_setSessionCookie ($sessid, $_CONF['session_cookie_timeout'],
             $_CONF['cookie_session'], $_CONF['cookie_path'],
@@ -60,7 +61,7 @@ if (!empty ($passwd) && !empty ($mypasswd) && ($mypasswd == md5 ($passwd))) {
 
     // Now that we handled session cookies, handle longterm cookie
 
-    if (!isset ($HTTP_COOKIE_VARS[$_CONF['cookie_name']])) {
+    if (!isset ($_COOKIE[$_CONF['cookie_name']])) {
 
         // Either their cookie expired or they are new
 
@@ -88,10 +89,10 @@ if (!empty ($passwd) && !empty ($mypasswd) && ($mypasswd == md5 ($passwd))) {
     if (!empty($warn)) {
         $display .= $LANG20[02]
         .'<br><br>'
-        .COM_accessLog($LANG20[03] . ' ' . $loginname);
+        .COM_accessLog($LANG20[03] . ' ' . $_POST['loginname']);
     }
 	
-    $display .= '<form action="' . $HTTP_SERVER_VARS['PHP_SELF']
+    $display .= '<form action="' . $_SERVER['PHP_SELF']
              . '" method="POST">'
         .'<table cellspacing="0" cellpadding="0" border="0" width="100%">'.LB
         .'<tr><td align="right">'.$LANG20[04].'&nbsp;</td>'.LB

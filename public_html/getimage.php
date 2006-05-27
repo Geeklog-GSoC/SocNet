@@ -29,7 +29,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: getimage.php,v 1.5 2004/01/11 19:15:13 dhaun Exp $
+// $Id: getimage.php,v 1.5.4.1 2006/05/27 15:39:16 dhaun Exp $
 
 /**
 * For really strict webhosts, this file an be used to show images in pages that
@@ -58,12 +58,12 @@ $downloader->setAllowedExtensions(array('gif' => 'image/gif',
                                  );
                                  
 $mode = '';
-if (isset($HTTP_GET_VARS['mode'])) {
-    $mode = $HTTP_GET_VARS['mode'];
+if (isset($_GET['mode'])) {
+    $mode = $_GET['mode'];
 }
 $image = '';
-if (isset($HTTP_GET_VARS['image'])) {
-    $image = $HTTP_GET_VARS['image'];
+if (isset($_GET['image'])) {
+    $image = COM_applyFilter ($_GET['image']);
 }
 if (strstr($image, '..')) {
     // Can you believe this, some jackass tried to relative pathing to access files they
@@ -94,7 +94,7 @@ if (is_file($downloader->getPath() . $image)) {
         $downloader->downloadFile($image);
     }
 } else {
-    $display = COM_errorLog('File, ' . $downloader->getPath() . $image . ', was not found in getimage.php');
+    $display = COM_errorLog('File, ' . $image . ', was not found in getimage.php');
 
     if ($mode == 'show') {
         echo COM_siteHeader ('menu') . $display . COM_siteFooter ();

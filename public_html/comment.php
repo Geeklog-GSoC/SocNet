@@ -8,7 +8,7 @@
 // |                                                                           |
 // | Let user comment on a story, poll, or plugin.                             |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000-2005 by the following authors:                         |
+// | Copyright (C) 2000-2006 by the following authors:                         |
 // |                                                                           |
 // | Authors: Tony Bibbs        - tony@tonybibbs.com                           |
 // |          Mark Limburg      - mlimburg@users.sourceforge.net               |
@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: comment.php,v 1.85.2.2 2005/12/11 09:46:01 dhaun Exp $
+// $Id: comment.php,v 1.85.2.3 2006/07/15 19:41:04 dhaun Exp $
 
 /**
 * This file is responsible for letting user enter a comment and saving the
@@ -164,12 +164,22 @@ function commentform($uid,$title,$comment,$sid,$pid='0',$type,$mode,$postmode)
                 $start->set_var( 'site_url', $_CONF['site_url'] );
                 $start->set_var( 'layout_url', $_CONF['layout_url'] );
 
-                if (empty ($_POST['username'])) {
-                    $_POST['username'] = DB_getItem ($_TABLES['users'],
-                            'username', "uid = $uid");
+                // Clean up all the vars
+                $A = array();
+                foreach ($_POST as $key => $value) {
+                    if (($key == 'pid') || ($key == 'cid')) {
+                        $A[$key] = COM_applyFilter ($_POST[$key], true);
+                    } else {
+                        $A[$key] = COM_applyFilter ($_POST[$key]);
+                    }
                 }
-                $thecomments = COM_getComment ($_POST, 'flat', $type,
-                                               'ASC', false, true );
+
+                if (empty ($A['username'])) {
+                    $A['username'] = DB_getItem ($_TABLES['users'], 'username',
+                                                 "uid = $uid");
+                }
+                $thecomments = COM_getComment ($A, 'flat', $type, 'ASC', false,
+                                               true );
 
                 $start->set_var( 'comments', $thecomments );
                 $retval .= COM_startBlock ($LANG03[14])

@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: comment.php,v 1.85.2.3 2006/07/15 19:41:04 dhaun Exp $
+// $Id: comment.php,v 1.85.2.4 2006/07/22 18:58:50 dhaun Exp $
 
 /**
 * This file is responsible for letting user enter a comment and saving the
@@ -169,6 +169,9 @@ function commentform($uid,$title,$comment,$sid,$pid='0',$type,$mode,$postmode)
                 foreach ($_POST as $key => $value) {
                     if (($key == 'pid') || ($key == 'cid')) {
                         $A[$key] = COM_applyFilter ($_POST[$key], true);
+                    } else if (($key == 'title') || ($key == 'comment')) {
+                        // these have already been filtered above
+                        $A[$key] = $_POST[$key];
                     } else {
                         $A[$key] = COM_applyFilter ($_POST[$key]);
                     }

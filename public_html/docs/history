@@ -3,6 +3,8 @@ GeekLog History/Changes:
 ??? ??, ???? (1.4.1-1)
 ------------
 
+- The static pages editor was looking for the advanced editor template in the
+  wrong place, due to an uninitialized variable (reported by k74) [Dirk]
 - Fixed COM_getLangSQL() to escape the underscore character '_' which happens
   to be a wildcard character when used with LIKE. In a multi-language setup,
   this may accidentally display unwanted items (reported by Kenji Ito) [Dirk]

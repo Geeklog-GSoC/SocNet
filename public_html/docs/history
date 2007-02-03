@@ -3,6 +3,7 @@ GeekLog History/Changes:
 ??? ??, ???? (1.4.1-1)
 ------------
 
+- Fixed search by date in Calendar (reported and patch provided by Jeffrey Hare)
 - Only allow autotags in normal blocks (bug #653) [Dirk]
 - Only use the multibyte functions when both multibyte support and multibyte
   regular expressions are enabled [Oliver]

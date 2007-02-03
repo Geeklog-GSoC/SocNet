@@ -8,7 +8,7 @@
 // |                                                                           |
 // | Geeklog main administration page.                                         |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000-2006 by the following authors:                         |
+// | Copyright (C) 2000-2007 by the following authors:                         |
 // |                                                                           |
 // | Authors: Tony Bibbs        - tony AT tonybibbs DOT com                    |
 // |          Mark Limburg      - mlimburg AT users DOT sourceforge DOT net    |
@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: moderation.php,v 1.101 2006/12/09 17:41:56 dhaun Exp $
+// $Id: moderation.php,v 1.101.2.1 2007/02/03 20:55:02 dhaun Exp $
 
 require_once ('../lib-common.php');
 require_once ('auth.inc.php');
@@ -599,7 +599,7 @@ function moderateusers ($uid, $action, $count)
         foreach($_POST['delitem'] as $del_uid) {
             $del_uid = COM_applyFilter($del_uid,true);
             if ($del_uid > 1) {
-                USER_deleteAccount ($uid[$i]);
+                USER_deleteAccount ($del_uid);
             }
         }
     }

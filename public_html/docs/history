@@ -3,8 +3,9 @@ GeekLog History/Changes:
 ??? ??, ???? (1.4.1-1)
 ------------
 
-- The static pages editor was looking for the advanced editor template in the
-  wrong place, due to an uninitialized variable (reported by k74) [Dirk]
+- Only allow autotags in normal blocks (bug #653) [Dirk]
+- Only use the multibyte functions when both multibyte support and multibyte
+  regular expressions are enabled [Oliver]
 - Fixed COM_getLangSQL() to escape the underscore character '_' which happens
   to be a wildcard character when used with LIKE. In a multi-language setup,
   this may accidentally display unwanted items (reported by Kenji Ito) [Dirk]
@@ -14,6 +15,11 @@ GeekLog History/Changes:
   Again") now asked for a "new password" (reported by Laugh) [Dirk]
 - Remove the "Are you secure?" (getBent) block from the database as its
   functionality has been moved to admin/sectest.php (reported by LWC) [Dirk]
+
+Static Pages plugin
+-------------------
+- The static pages editor was looking for the advanced editor template in the
+  wrong place, due to an uninitialized variable (reported by k74) [Dirk]
 
 
 Dec 31, 2006 (1.4.1)

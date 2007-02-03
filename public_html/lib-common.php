@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.611.2.1 2007/01/13 17:42:58 dhaun Exp $
+// $Id: lib-common.php,v 1.611.2.2 2007/02/03 17:07:28 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting( E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR );
@@ -3375,7 +3375,9 @@ function COM_formatBlock( $A, $noboxes = false )
             $blockcontent = nl2br( $blockcontent );
         }
 
-        if ($A['allow_autotags'] == 1) {
+        // autotags are only(!) allowed in normal blocks
+        if(( $A['allow_autotags'] == 1 ) && ( $A['type'] == 'normal' ))
+        {
             $blockcontent = PLG_replaceTags( $blockcontent );
         }
         $blockcontent = str_replace( array( '<?', '?>' ), '', $blockcontent );

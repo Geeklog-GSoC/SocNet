@@ -3,6 +3,8 @@ GeekLog History/Changes:
 ??? ??, ???? (1.4.1-1)
 ------------
 
+- When sending Pingbacks for a story that had identical link texts for different
+  URLs, only the last of those links was pinged [Dirk]
 - Fixed an error with the Spam-X SLV module when $_CONF['site_url'] was empty
   (reported by AA6QN) [Dirk]
 - Fixed SQL error when using the bulk delete option for the user submission

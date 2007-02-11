@@ -2,13 +2,13 @@
 
 /* Reminder: always indent with 4 spaces (no tabs). */
 // +---------------------------------------------------------------------------+
-// | Geeklog 1.3                                                               |
+// | Geeklog 1.4                                                               |
 // +---------------------------------------------------------------------------+
 // | lib-pingback.php                                                          |
 // |                                                                           |
 // | Functions needed to handle pingbacks.                                     |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2005 by the following authors:                              |
+// | Copyright (C) 2005-2007 by the following authors:                         |
 // |                                                                           |
 // | Author: Dirk Haun - dirk AT haun-online DOT de                            |
 // +---------------------------------------------------------------------------+
@@ -29,7 +29,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-pingback.php,v 1.7 2006/06/15 18:26:45 dhaun Exp $
+// $Id: lib-pingback.php,v 1.7.2.1 2007/02/11 19:58:19 dhaun Exp $
 
 if (strpos ($_SERVER['PHP_SELF'], 'lib-pingback.php') !== false) {
     die ('This file can not be used on its own!');
@@ -94,6 +94,9 @@ function PNB_sendPingback ($sourceURI, $targetURI)
         } else {
             $parts['port'] = 80;
         }
+    }
+    if (!empty ($parts['query'])) {
+        $parts['path'] .= '?' . $parts['query'];
     }
     $client = new XML_RPC_Client ($parts['path'], $parts['host'], $parts['port']);
     //$client->setDebug (1);

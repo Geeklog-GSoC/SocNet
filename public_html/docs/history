@@ -3,6 +3,8 @@ GeekLog History/Changes:
 ??? ??, ???? (1.4.1-1)
 ------------
 
+- Need to include parameters in the URL when sending Pingbacks, e.g. to
+  Serendipity [Dirk]
 - When sending Pingbacks for a story that had identical link texts for different
   URLs, only the last of those links was pinged [Dirk]
 - Fixed an error with the Spam-X SLV module when $_CONF['site_url'] was empty

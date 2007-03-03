@@ -8,7 +8,7 @@
 // |                                                                           |
 // | Let users submit stories and plugin stuff.                                |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000-2006 by the following authors:                         |
+// | Copyright (C) 2000-2007 by the following authors:                         |
 // |                                                                           |
 // | Authors: Tony Bibbs        - tony AT tonybibbs DOT com                    |
 // |          Mark Limburg      - mlimburg AT users DOT sourceforge DOT net    |
@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: submit.php,v 1.113 2006/12/09 21:46:27 dhaun Exp $
+// $Id: submit.php,v 1.113.2.1 2007/03/03 19:09:31 dhaun Exp $
 
 require_once ('lib-common.php');
 require_once ($_CONF['path_system'] . 'lib-story.php');
@@ -170,11 +170,23 @@ function submitstory($topic = '')
         $A['introtext'] = str_replace('{','&#123;',$A['introtext']);
         $A['introtext'] = str_replace('}','&#125;',$A['introtext']);
         $A['hits'] = 0;
+
+        // we've set $A['uid'] above, so this will return something sensible
         $res = DB_query("SELECT username, fullname, photo FROM {$_TABLES['users']} WHERE uid = {$A['uid']}");
         $A += DB_fetchArray($res);
+
+        // $A['tid'], however, may be manipulated
         $A['tid'] = COM_applyFilter($A['tid']);
+        if (empty($A['tid'])) {
+            return '';
+        }
         $res = DB_query("SELECT topic, imageurl FROM {$_TABLES['topics']} WHERE tid = '{$A['tid']}'");
-        $A += DB_fetchArray($res);
+        $resA = DB_fetchArray($res);
+        if (!is_array($resA)) {
+            return '';
+        }
+        $A += $resA;
+
         if ($A['postmode'] == 'plaintext') {
             $A['introtext'] = COM_makeClickableLinks ($A['introtext']);
         }

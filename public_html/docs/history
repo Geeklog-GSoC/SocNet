@@ -3,6 +3,15 @@ GeekLog History/Changes:
 ??? ??, ???? (1.4.1-1)
 ------------
 
+- Avoid a harmless but annoying error message when someone tried to submit a
+  manipulated story submission (Geeklog properly caught the manipulation),
+  reported by Ironmax [Dirk]
+- When someone tried to submit a manipulated story submission form, Geeklog
+  would properly catch the manipulation but throw a harmless but annoying
+  error message. Changed submit.php to avoid that error message now [Dirk]
+- Made admin/sectest.php recognize 403 status codes (reported by THX100) [Dirk]
+- Added a missing blank between the day's name and the date in the Older Stories
+  block (reported by Jeruvy's girlfriend, via IRC) [Dirk]
 - Need to include parameters in the URL when sending Pingbacks, e.g. to
   Serendipity [Dirk]
 - When sending Pingbacks for a story that had identical link texts for different

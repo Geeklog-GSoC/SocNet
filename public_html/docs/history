@@ -4,13 +4,12 @@ GeekLog History/Changes:
 ------------
 
 - Only check Root user accounts for the default password in the Security Check
-  [Dirk]
-- Avoid a harmless but annoying error message when someone tried to submit a
-  manipulated story submission (Geeklog properly caught the manipulation),
-  reported by Ironmax [Dirk]
+  to avoid confusion with normal users who have chosen to use "password" as
+  their password ... [Dirk]
 - When someone tried to submit a manipulated story submission form, Geeklog
   would properly catch the manipulation but throw a harmless but annoying
-  error message. Changed submit.php to avoid that error message now [Dirk]
+  error message (reported by Ironmax). Changed submit.php to avoid that error
+  message now [Dirk]
 - Made admin/sectest.php recognize 403 status codes (reported by THX100) [Dirk]
 - Added a missing blank between the day's name and the date in the Older Stories
   block (reported by Jeruvy's girlfriend, via IRC) [Dirk]

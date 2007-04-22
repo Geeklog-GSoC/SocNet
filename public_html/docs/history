@@ -3,6 +3,8 @@ GeekLog History/Changes:
 ??? ??, ???? (1.4.1-1)
 ------------
 
+- Only check Root user accounts for the default password in the Security Check
+  [Dirk]
 - Avoid a harmless but annoying error message when someone tried to submit a
   manipulated story submission (Geeklog properly caught the manipulation),
   reported by Ironmax [Dirk]

@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-story.php,v 1.73 2006/11/09 09:57:28 dhaun Exp $
+// $Id: lib-story.php,v 1.73.2.1 2007/04/28 14:13:18 dhaun Exp $
 
 if (strpos ($_SERVER['PHP_SELF'], 'lib-story.php') !== false) {
     die ('This file can not be used on its own!');
@@ -323,7 +323,8 @@ function STORY_renderArticle( $A, $index='', $storytpl='storytext.thtml', $query
             $article->set_var( 'start_readmore_anchortag', '<a href="'
                     . $articleUrl . '" class="story-read-more-link">' );
             $article->set_var( 'end_readmore_anchortag', '</a>' );
-            $article->set_var( 'read_more_class', 'class="story-read-more"' );
+            $article->set_var( 'read_more_class',
+                               'class="story-read-more-link"' );
         }
         $article->set_var( 'start_storylink_anchortag', '<a href="'
                 . $articleUrl . '" class="non-ul">' );

@@ -4,14 +4,14 @@
 * File: EditHeader.Admin.class.php
 * This is the Edit HTTP Header Module for the Geeklog Spam-X plugin
 *
-* Copyright (C) 2005-2006 by the following authors:
+* Copyright (C) 2005-2007 by the following authors:
 * Author    Dirk Haun <dirk AT haun-online DOT de>
 *
 * based on the works of Tom Willett <tomw AT pigstye DOT net>
 *
 * Licensed under GNU General Public License
 *
-* $Id: EditHeader.Admin.class.php,v 1.5 2006/08/20 16:42:32 dhaun Exp $
+* $Id: EditHeader.Admin.class.php,v 1.5.2.1 2007/05/06 08:26:36 dhaun Exp $
 */
 
 if (strpos ($_SERVER['PHP_SELF'], 'EditHeader.Admin.class.php') !== false) {
@@ -34,9 +34,9 @@ class EditHeader extends BaseAdmin {
 
         $action = '';
         if (isset ($_GET['action'])) {
-            $action = COM_applyFilter ($_GET['action']);
+            $action = $_GET['action'];
         } else if (isset ($_POST['paction'])) {
-            $action = COM_applyFilter ($_POST['paction']);
+            $action = $_POST['paction'];
         } 
 
         if ($action == 'delete') {

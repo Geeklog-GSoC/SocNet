@@ -4,13 +4,13 @@
 * File: SLVwhitelist.Admin.class.php
 * This is the SLV Whitelist Module for the Geeklog Spam-X plugin
 *
-* Copyright (C) 2004-2006 by the following authors:
+* Copyright (C) 2004-2007 by the following authors:
 * Author   Tom Willett     tomw AT pigstye DOT net
 *          Dirk Haun       dirk AT haun-online DOT de
 *
 * Licensed under GNU General Public License
 *
-* $Id: SLVwhitelist.Admin.class.php,v 1.1 2006/09/02 15:35:46 dhaun Exp $
+* $Id: SLVwhitelist.Admin.class.php,v 1.1.2.1 2007/05/06 08:26:36 dhaun Exp $
 */
 
 if (strpos ($_SERVER['PHP_SELF'], 'SLVwhitelist.Admin.class.php') !== false) {
@@ -33,9 +33,9 @@ class SLVwhitelist extends BaseAdmin {
 
         $action = '';
         if (isset ($_GET['action'])) {
-            $action = COM_applyFilter ($_GET['action']);
+            $action = $_GET['action'];
         } else if (isset ($_POST['paction'])) {
-            $action = COM_applyFilter ($_POST['paction']);
+            $action = $_POST['paction'];
         } 
 
         $entry = '';

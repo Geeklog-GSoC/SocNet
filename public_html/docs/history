@@ -3,6 +3,7 @@ GeekLog History/Changes:
 ??? ??, ???? (1.4.1-1)
 ------------
 
+- Fixed checking for errors when sending Pingbacks or Pings [Mike, Dirk]
 - The {read_more_class} variable now contains class="story-read-more-link" (if
   defined) for consistency with the class name used in {readmore_link} [Dirk]
 - Only check Root user accounts for the default password in the Security Check

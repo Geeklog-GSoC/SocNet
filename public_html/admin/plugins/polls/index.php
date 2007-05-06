@@ -8,7 +8,7 @@
 // |                                                                           |
 // | Geeklog poll administration page                                          |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000-2006 by the following authors:                         |
+// | Copyright (C) 2000-2007 by the following authors:                         |
 // |                                                                           |
 // | Authors: Tony Bibbs        - tony AT tonybibbs DOT com                    |
 // |          Mark Limburg      - mlimburg AT users DOT sourceforge DOT net    |
@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: index.php,v 1.40 2006/12/12 09:50:03 ospiess Exp $
+// $Id: index.php,v 1.40.2.1 2007/05/06 09:48:27 dhaun Exp $
 
 // Set this to true if you want to log debug messages to error.log
 $_POLL_VERBOSE = false;
@@ -139,6 +139,9 @@ function savepoll ($qid, $mainpage, $question, $voters, $statuscode, $commentcod
     $question = COM_stripslashes ($question);
     for ($i = 0; $i < sizeof ($A); $i++) {
         $A[$i] = COM_stripslashes ($A[$i]);
+    }
+    for ($i = 0; $i < sizeof ($R); $i++) {
+        $A[$i] = COM_stripslashes ($R[$i]);
     }
     if (!empty ($question) && (sizeof ($A) > 0) && strlen ($A[0]) > 0) {
 

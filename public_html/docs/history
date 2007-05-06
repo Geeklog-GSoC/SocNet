@@ -36,6 +36,11 @@ GeekLog History/Changes:
 - Remove the "Are you secure?" (getBent) block from the database as its
   functionality has been moved to admin/sectest.php (reported by LWC) [Dirk]
 
+Polls plugin
+------------
+- Fixed extra backslashes appearing in poll remarks when editing polls
+  (reported by darkpaw) [Oliver]
+
 Spam-X plugin
 -------------
 - Fixed the "edit" modules not working with the French language files (reported

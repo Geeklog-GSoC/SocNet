@@ -3,6 +3,8 @@ GeekLog History/Changes:
 ??? ??, ???? (1.4.1-1)
 ------------
 
+- Fixed Calendar feeds: The first parameter to the getFeedContent function is
+  the feed's ID, not the feed limit (bug #659) [Dirk]
 - Fixed checking for errors when sending Pingbacks or Pings [Mike, Dirk]
 - The {read_more_class} variable now contains class="story-read-more-link" (if
   defined) for consistency with the class name used in {readmore_link} [Dirk]

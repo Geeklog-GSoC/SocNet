@@ -34,7 +34,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: functions.inc,v 1.61.2.1 2007/02/03 17:31:40 dhaun Exp $
+// $Id: functions.inc,v 1.61.2.2 2007/05/12 19:56:13 dhaun Exp $
 
 if (strpos ($_SERVER['PHP_SELF'], 'functions.inc') !== false) {
     die ('This file can not be used on its own.');
@@ -927,9 +927,11 @@ function plugin_getfeednames_calendar()
 * @return   array              content of the feed
 *
 */
-function plugin_getfeedcontent_calendar( $limit, &$link, &$update, $feedType, $feedVersion )
+function plugin_getfeedcontent_calendar( $feed, &$link, &$update, $feedType, $feedVersion )
 {
     global $_CONF, $_TABLES;
+
+    $limit = DB_getItem($_TABLES['syndication'], 'limits', "fid = '$feed'");
 
     $where = '';
     if( !empty( $limit )) {

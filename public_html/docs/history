@@ -3,6 +3,8 @@ GeekLog History/Changes:
 ??? ??, ???? (1.4.1-1)
 ------------
 
+- Bugfix: Allow the static pages "page format" setting to override
+  $_CONF['show_right_blocks'] (reported by Simon Lord)
 - Fixed a syntax error and added the missing namespace for the content module
   in the RDF feed class [Dirk]
 - Fixed Calendar feeds: The first parameter to the getFeedContent function is

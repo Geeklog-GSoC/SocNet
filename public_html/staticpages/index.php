@@ -31,7 +31,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: index.php,v 1.33 2006/12/10 12:08:40 dhaun Exp $
+// $Id: index.php,v 1.33.2.1 2007/06/09 17:55:53 dhaun Exp $
 
 require_once ('../lib-common.php');
 
@@ -102,6 +102,8 @@ function display_page ($page, $A, $noboxes)
     if ($A['sp_format'] <> 'blankpage') {
     	if (($A['sp_format'] == 'allblocks') && ($noboxes != 1)) {
             $retval .= COM_siteFooter (true);
+        } else if (($A['sp_format'] == 'leftblocks') || ($A['sp_format'] == 'noblocks')) {
+            $retval .= COM_siteFooter (false);
     	} else {
             $retval .= COM_siteFooter ();
         }

@@ -8,7 +8,7 @@
 // |                                                                           |
 // | Geeklog calendar plugin                                                   |
 // +---------------------------------------------------------------------------+
-// | Copyright (C) 2000-2006 by the following authors:                         |
+// | Copyright (C) 2000-2007 by the following authors:                         |
 // |                                                                           |
 // | Authors: Tony Bibbs        - tony AT tonybibbs DOT com                    |
 // |          Mark Limburg      - mlimburg AT users DOT sourceforge DOT net    |
@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: index.php,v 1.18 2006/09/04 07:40:33 dhaun Exp $
+// $Id: index.php,v 1.18.2.1 2007/06/17 07:38:05 dhaun Exp $
 
 require_once ('../lib-common.php');
 require_once ($_CONF['path_system'] . 'classes/calendar.class.php');
@@ -484,7 +484,7 @@ $cal->setCalendarMatrix ($month, $year);
 
 switch ($view) {
 case 'day':
-    $cal_templates = new Template($_CONF['path'] . '/plugins/calendar/templates/dayview');
+    $cal_templates = new Template($_CONF['path'] . 'plugins/calendar/templates/dayview');
     $cal_templates->set_file(array('column'=>'column.thtml',
                                    'event'=>'singleevent.thtml',
                                    'dayview'=>'dayview.thtml',
@@ -615,7 +615,7 @@ case 'day':
     break;
 
 case 'week':
-    $cal_templates = new Template($_CONF['path'] . '/plugins/calendar/templates');
+    $cal_templates = new Template($_CONF['path'] . 'plugins/calendar/templates');
     $cal_templates->set_file(array('week'=>'weekview/weekview.thtml',
                                    'events'=>'weekview/events.thtml',
                                    'quickadd'=>'dayview/quickaddform.thtml'));
@@ -787,7 +787,7 @@ case 'savepersonal':
 default: // month view
 // Load templates
 
-$cal_templates = new Template($_CONF['path'] . '/plugins/calendar/templates');
+$cal_templates = new Template($_CONF['path'] . 'plugins/calendar/templates');
 $cal_templates->set_file (array (
         'calendar'    => 'calendar.thtml',
         'week'        => 'calendarweek.thtml',

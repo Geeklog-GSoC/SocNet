@@ -3,6 +3,8 @@ GeekLog History/Changes:
 ??? ??, ???? (1.4.1-1)
 ------------
 
+- Avoid division by zero error when $_CONF['limitnews'] == 0
+  (reported by Samuel M. Stone) [Dirk]
 - Bugfix: Atom always assumes 0.3 and doesn't handle article dates. (Reported by
   mystral kk on the forums). [Mike]
 - Fixed a syntax error and added the missing namespace for the content module

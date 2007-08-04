@@ -3,6 +3,8 @@ GeekLog History/Changes:
 ??? ??, ???? (1.4.1-1)
 ------------
 
+- Fixed missing N/A display when no plugin version number was available
+  (reported by machinari) [Dirk]
 - Avoid division by zero error when $_CONF['limitnews'] == 0
   (reported by Samuel M. Stone) [Dirk]
 - Bugfix: Atom always assumes 0.3 and doesn't handle article dates. (Reported by

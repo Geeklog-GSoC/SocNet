@@ -34,7 +34,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: functions.inc,v 1.61.2.2 2007/05/12 19:56:13 dhaun Exp $
+// $Id: functions.inc,v 1.61.2.3 2007/08/05 07:55:40 dhaun Exp $
 
 if (strpos ($_SERVER['PHP_SELF'], 'functions.inc') !== false) {
     die ('This file can not be used on its own.');
@@ -797,7 +797,7 @@ function CALENDAR_listevents()
                       'has_extras'   => true,
                       'title' => $LANG_CAL_ADMIN[11],
                       'instructions' => $LANG_CAL_ADMIN[12],
-                      'icon' => $_CONF['site_url'] . '/calendar/images/calendar.' . $_IMAGE_TYPE,
+                      'icon' => plugin_geticon_calendar(),
                       'form_url' => $_CONF['site_admin_url'] . "/plugins/calendar/index.php");
 
     $sql = "SELECT {$_TABLES['events']}.*, {$_TABLES['users']}.username, {$_TABLES['users']}.fullname "

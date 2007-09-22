@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: submit.php,v 1.113.2.1 2007/03/03 19:09:31 dhaun Exp $
+// $Id: submit.php,v 1.113.2.2 2007/09/22 18:41:17 dhaun Exp $
 
 require_once ('lib-common.php');
 require_once ($_CONF['path_system'] . 'lib-story.php');
@@ -234,9 +234,11 @@ function submitstory($topic = '')
     } else {
         $storyform->set_var('status_url', $_CONF['site_url'] . '/users.php');
         $storyform->set_var('lang_loginout', $LANG12[2]);
-        $storyform->set_var('separator', ' | ');
-        $storyform->set_var('seperator', ' | ');
-        $storyform->set_var('create_account','<a href="' . $_CONF['site_url'] . '/users.php?mode=new" rel="nofollow">' . $LANG12[53] . '</a>');
+        if (!$_CONF['disable_new_user_registration']) {
+            $storyform->set_var('separator', ' | ');
+            $storyform->set_var('seperator', ' | ');
+            $storyform->set_var('create_account','<a href="' . $_CONF['site_url'] . '/users.php?mode=new" rel="nofollow">' . $LANG12[53] . '</a>');
+        }
     }
     
     $storyform->set_var('lang_title', $LANG12[10]);

@@ -3,6 +3,8 @@ GeekLog History/Changes:
 ??? ??, ???? (1.4.1-1)
 ------------
 
+- Hide "Create Account" link in the story submission form when new account
+  registration has been disabled (reported by Markus Wollschläger) [Dirk]
 - Fixed missing N/A display when no plugin version number was available
   (reported by machinari) [Dirk]
 - Avoid division by zero error when $_CONF['limitnews'] == 0

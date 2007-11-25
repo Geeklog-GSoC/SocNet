@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: block.php,v 1.108 2006/10/03 09:02:27 dhaun Exp $
+// $Id: block.php,v 1.108.2.1 2007/11/25 10:45:51 dhaun Exp $
 
 require_once ('../lib-common.php');
 require_once ('auth.inc.php');
@@ -119,6 +119,7 @@ function editdefaultblock ($A, $access)
     } else {
         $block_templates->set_var('is_enabled', '');
     }
+    $block_templates->set_var('max_url_length', 255);
     $block_templates->set_var('block_help', $A['help']);
     $block_templates->set_var('lang_includehttp', $LANG21[51]);
     $block_templates->set_var('lang_explanation', $LANG21[52]);

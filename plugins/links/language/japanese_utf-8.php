@@ -25,14 +25,14 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ###############################################################################
-# $Id: japanese_utf-8.php,v 1.6 2006/12/11 16:58:01 dhaun Exp $
+# $Id: japanese_utf-8.php,v 1.6.2.1 2007/12/15 22:26:50 dhaun Exp $
 # Last Update 2006/12/12 by Ivy (Geeklog Japanese)
 
 ###############################################################################
 # Array Format: 
-# $LANGXX[YY]:	$LANG - variable name
-#		  	XX - file id number
-#			YY - phrase id number
+# $LANGXX[YY]:    $LANG - variable name
+#              XX - file id number
+#            YY - phrase id number
 ###############################################################################
 
 $LANG_LINKS= array(

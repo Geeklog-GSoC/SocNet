@@ -1,10 +1,11 @@
 <?php
 
 ###############################################################################
-# slovenian.php - version 1.4.1
-# This is the slovenian language file for the Geeklog Links Plugin
-# language file for geeklog version 1.4.1 beta by mb
-# gape@gape.org ; za pripombe, predloge ipd ... piši na email
+# spanish_utf-8.php
+# This is the spanish language file for the Geeklog Links Plugin
+#
+# Copyright (C) 2007 JoséR. Valverde
+# jrvalverde AT cnb DOT uam DOT es
 #
 # Copyright (C) 2001 Tony Bibbs
 # tony AT tonybibbs DOT com
@@ -26,7 +27,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ###############################################################################
-# $Id: slovenian_utf-8.php,v 1.1.2.1 2007/12/15 22:26:50 dhaun Exp $
+# $Id: spanish_utf-8.php,v 1.1.2.1 2007/12/15 22:26:50 dhaun Exp $
 
 /** 
  * This is the english language page for the Geeklog links Plug-in! 
@@ -47,9 +48,9 @@
 
 ###############################################################################
 # Array Format:
-# $LANGXX[YY]:    $LANG - variable name
-#              XX - file id number
-#            YY - phrase id number
+# $LANGXX[YY]:	$LANG - variable name
+#		  	XX - file id number
+#			YY - phrase id number
 ###############################################################################
 /**
 * the link plugin's lang array
@@ -57,12 +58,12 @@
 * @global array $LANG_LINKS 
 */
 $LANG_LINKS= array(
-    10 => 'Čakajoča vsebina',
-    14 => 'Povezave',
-    84 => 'POVEZAVE',
-    88 => 'Ni nedavnih novih povezav',
-    114 => 'Povezave',
-    116 => 'Dodaj povezavo'
+    10 => 'Envíos',
+    14 => 'Enlaces',
+    84 => 'ENLACES',
+    88 => 'No hay enlaces recientes',
+    114 => 'Enlaces',
+    116 => 'Añadir un enlace'
 );
 
 ###############################################################################
@@ -73,11 +74,11 @@ $LANG_LINKS= array(
 * @global array $LANG_LINKS_STATS
 */
 $LANG_LINKS_STATS = array(
-    'links' => 'Links (Clicks) in the System',
-    'stats_headline' => 'Top Ten Links',
-    'stats_page_title' => 'Links',
+    'links' => 'Enlaces (Clicks) en el Sistema',
+    'stats_headline' => '10 enlaces mejores',
+    'stats_page_title' => 'Enlaces',
     'stats_hits' => 'Hits',
-    'stats_no_hits' => 'Izgleda, da na tem mestu ni povezav ali pa še nikoli ni nihče kliknil na nobeno.',
+    'stats_no_hits' => 'Parece que no hay enlaces o nadie ha visitado uno antes.',
 );
 
 ###############################################################################
@@ -88,11 +89,11 @@ $LANG_LINKS_STATS = array(
 * @global array $LANG_LINKS_SEARCH 
 */
 $LANG_LINKS_SEARCH = array(
- 'results' => 'Rezultati povezav',
- 'title' => 'Naslov',
- 'date' => 'Dodani datum',
- 'author' => 'Odposlal:',
- 'hits' => 'Kliki'
+ 'results' => 'Resultados de enlaces',
+ 'title' => 'Título',
+ 'date' => 'Fecha de adición',
+ 'author' => 'Enviado por',
+ 'hits' => 'Clicks'
 );
 
 ###############################################################################
@@ -103,26 +104,26 @@ $LANG_LINKS_SEARCH = array(
 * @global array $LANG_LINKS_SUBMIT 
 */
 $LANG_LINKS_SUBMIT = array(
-    1 => 'Oddaj povezavo',
-    2 => 'Povezava',
-    3 => 'Kategorija',
-    4 => 'Drugo',
-    5 => 'Če drugo, prosim navedi',
-    6 => 'Napaka: Manjka kategorija',
-    7 => 'Kadar izbereš "Drugo", prosim navedi tudi ime kategorije',
-    8 => 'Naslov',
+    1 => 'Enviar enlace',
+    2 => 'Enlace',
+    3 => 'Categoría',
+    4 => 'Otra',
+    5 => 'Si otra, por favor especifique',
+    6 => 'Error: Categoría inexistente',
+    7 => 'Al elegir "Otra" proporcione también un nombre de categoría, por favor',
+    8 => 'Título',
     9 => 'URL',
-    10 => 'Kategorija',
-    11 => 'Povezave'
+    10 => 'Categoría',
+    11 => 'Enlaces enviados'
 );
 
 ###############################################################################
 # Messages for COM_showMessage the submission form
 
-$PLG_links_MESSAGE1 = "Hvala, da si povezavo oddal/a na spletno mesto {$_CONF['site_name']}. Pred objavo ga bo pregledal eden od urednikov. Če bo odobren, bo objavljen in dan na razpolago bralcem te spletne strani v razdelku <a href={$_CONF['site_url']}/links/index.php>povezave</a>.";
-$PLG_links_MESSAGE2 = 'Tvoja povezava je uspešno shranjena.';
-$PLG_links_MESSAGE3 = 'Povezava je uspešno izbrisana.';
-$PLG_links_MESSAGE4 = "Hvala, da si povezavo oddal/a na spletno mesto {$_CONF['site_name']}.  Sedaj jo lahko vidiš v razdelku <a href={$_CONF['site_url']}/links/index.php>povezave</a>.";
+$PLG_links_MESSAGE1 = "Gracias por enviar un enlace a {$_CONF['site_name']}.  Lo hemos reenviado a nuestros administradores paara que lo aprueben. Si es aprobado apareceerá en la sección de <a href={$_CONF['site_url']}/links/index.php>enlaces</a>.";
+$PLG_links_MESSAGE2 = 'Tu enlace se ha guardado satisfactoriamente.';
+$PLG_links_MESSAGE3 = 'El enlace ha sido borrado satisfactoriamente.';
+$PLG_links_MESSAGE4 = "Grac ias por enviar un enlace a {$_CONF['site_name']}.  Puedes verlo en la sección de <a href={$_CONF['site_url']}/links/index.php>enlaces</a>.";
 
 // Messages for the plugin upgrade
 $PLG_links_MESSAGE3002 = $LANG32[9];
@@ -135,25 +136,25 @@ $PLG_links_MESSAGE3002 = $LANG32[9];
 * @global array $LANG_LINKS_ADMIN 
 */
 $LANG_LINKS_ADMIN = array(
-    1 => 'Urejevalnik povezav',
-    2 => 'ID povezave',
-    3 => 'Naslov povezave',
-    4 => 'URL povezave',
-    5 => 'Kategorija',
-    6 => '(vključi http://)',
-    7 => 'Drugo',
-    8 => 'Zadetki povezav',
-    9 => 'Opis povezav',
-    10 => 'Določiti moraš  naslov povezave, URL in opis.',
-    11 => 'Upravljalnik povezav',
-    12 => 'Za spreminjanje ali izbris povezave klikni na njeno ikono za urejanje spodaj.  Za ustvarjenje nove povezave klikni na "Ustvari novo" zgoraj.',
-    14 => 'kategorija povezave',
-    16 => 'Dostop zavrnjen',
-    17 => "Poskušaš dostopiti do povezave, za katero nimaš pravic. Ta poskus je bil zabeležen. Prosim <a href=\"{$_CONF['site_admin_url']}/plugins/links/index.php\">pojdi nazaj na zaslon za upravljanje povezav</a>.",
-    20 => 'Če drugo, navedi',
-    21 => 'shrani',
-    22 => 'prekliči',
-    23 => 'izbriši'
+    1 => 'Editor de enlaces',
+    2 => 'ID del enlace',
+    3 => 'Título del enlace',
+    4 => 'URL del enlace',
+    5 => 'Categoría',
+    6 => '(incluir http://)',
+    7 => 'Otra',
+    8 => 'Visitas',
+    9 => 'Descripción del enlace',
+    10 => 'Necesita proporcionar un título, URL y descripción para el enlace.',
+    11 => 'Gestor de enlaces',
+    12 => 'Para modificar o borrar un enlace, pulse en el botón de edición. Para crear un enlace nuevo pulse en "Crear nuevo".',
+    14 => 'Categoría del enlace',
+    16 => 'Acceso denegado',
+    17 => "Estás intentando acceder a un enlace al que no tienes derecho. Este intento ha sido anotado. Por favor, <a href=\"{$_CONF['site_admin_url']}/plugins/links/index.php\">vuelve a la pantalla de administración de enlaces</a>.",
+    20 => 'Si Otra, especificar',
+    21 => 'guardar',
+    22 => 'cancelar',
+    23 => 'borrar'
 );
 
 ?>

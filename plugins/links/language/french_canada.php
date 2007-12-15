@@ -2,10 +2,13 @@
 
 ###############################################################################
 # english.php
-# This is the polish language page for the Geeklog links Plug-in!
+# This is the english language page for the Geeklog links Plug-in!
 #
-# Copyright (C) 2006 Robert Stadnik
-# geeklog_pl AT geeklog DOT now DOT pl
+# Copyright (C) 2001 Tony Bibbs
+# tony@tonybibbs.com
+# Copyright (C) 2005 Trinity Bays
+# trinity93@gmail.com
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
@@ -21,7 +24,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 ###############################################################################
-# $Id: polish.php,v 1.2.2.1 2007/12/15 22:26:50 dhaun Exp $
+# $Id: french_canada.php,v 1.1.2.1 2007/12/15 22:26:50 dhaun Exp $
 
 /** 
  * This is the english language page for the Geeklog links Plug-in! 
@@ -44,9 +47,9 @@
 
 ###############################################################################
 # Array Format:
-# $LANGXX[YY]:    $LANG - variable name
-#              XX - file id number
-#            YY - phrase id number
+# $LANGXX[YY]:	$LANG - variable name
+#		  	XX - file id number
+#			YY - phrase id number
 ###############################################################################
 /**
 * the link plugin's lang array
@@ -54,12 +57,12 @@
 * @global array $LANG_LINKS 
 */
 $LANG_LINKS= array(
-    10 => 'Przes³ane Linki',
-    14 => 'Linki',
-    84 => 'LINKI',
-    88 => 'Brak nowych linków',
-    114 => 'Linki',
-    116 => 'Dodaj Link'
+    10 => 'Soumissions',
+    14 => 'liens',
+    84 => 'LIENS',
+    88 => 'Pas de liens récents',
+    114 => 'liens',
+    116 => 'Ajoutez un lien'
 );
 
 ###############################################################################
@@ -70,11 +73,11 @@ $LANG_LINKS= array(
 * @global array $LANG_LINKS_STATS
 */
 $LANG_LINKS_STATS = array(
-    'links' => 'Liczba Linków (Klikniêæ) w Serwisie',
-    'stats_headline' => '10 Najpopularniejszych Linków',
-    'stats_page_title' => 'Linki',
-    'stats_hits' => 'Ods³on',
-    'stats_no_hits' => 'Wygl±da na to, ¿e nie ma ¿adnych linków albo nikt jeszcze nie klikn±³ na ¿aden link.',
+    'links' => 'Liens en mémoire',
+    'stats_headline' => 'Top-10 des liens',
+    'stats_page_title' => 'Liens',
+    'stats_hits' => 'Clics',
+    'stats_no_hits' => 'Il appert qu\'il n\'existe aucun lien, ou que personne n\'a cliqué sur le lien.',
 );
 
 ###############################################################################
@@ -85,11 +88,11 @@ $LANG_LINKS_STATS = array(
 * @global array $LANG_LINKS_SEARCH 
 */
 $LANG_LINKS_SEARCH = array(
- 'results' => 'Linki - Wyniki',
- 'title' => 'Tytu³',
- 'date' => 'Dodano',
- 'author' => 'Przes³any przez',
- 'hits' => 'Klikniêæ'
+ 'results' => 'Résultat des liens',
+ 'title' => 'Titre',
+ 'date' => 'Date d\'ajout',
+ 'author' => 'Soumis par',
+ 'hits' => 'Clics'
 );
 ###############################################################################
 # for the submission form
@@ -99,29 +102,26 @@ $LANG_LINKS_SEARCH = array(
 * @global array $LANG_LINKS_SUBMIT 
 */
 $LANG_LINKS_SUBMIT = array(
-    1 => 'Prze¶lij Link',
-    2 => 'Link',
-    3 => 'Kategoria',
-    4 => 'Inne',
-    5 => 'Je¶li Inne, proszê sprecyzowaæ jaka',
-    6 => 'B³±: Brak Kategorii',
-    7 => 'Podczas wyboru "Inne" proszê podaæ nazwê kategorii',
-    8 => 'Tytu³',
+    1 => 'Soumettez un lien',
+    2 => 'Lien',
+    3 => 'Catégorie',
+    4 => 'Autre',
+    5 => 'Spécifiez autre',
+    6 => 'Erreur : catégorie manquante',
+    7 => 'Lorsque vous sélectionnez "Autre", merci d\'aussi inscrire une catégorie correspondante',
+    8 => 'Titre',
     9 => 'URL',
-    10 => 'Kategoria',
-    11 => 'Prze¶lij Link'
+    10 => 'Catégorie',
+    11 => 'Liens soumis'
 );
 
 ###############################################################################
 # Messages for COM_showMessage the submission form
 
-$PLG_links_MESSAGE1 = "Dziêkujê za przes³anie linka.  Po zatwierdzeniu link pojawi siê w sekcji <a href={$_CONF['site_url']}/links/index.php>linki</a>.";
-$PLG_links_MESSAGE2 = 'Link zosta³ zapisany.';
-$PLG_links_MESSAGE3 = 'Link zosta³ wykasowany.';
-$PLG_links_MESSAGE4 = "Dziêkujê za przes³anie linka.  Link jest dostêpny w sekcji <a href={$_CONF['site_url']}/links/index.php>linki</a>.";
-
-// Messages for the plugin upgrade
-$PLG_links_MESSAGE3002 = $LANG32[9];
+$PLG_links_MESSAGE1 = "Merci de soumettre un lien vers {$_CONF['site_name']}.  Votre demande est en cours d\'approbation. Lorsque qu\'approuvé, votre soumission sera affichée dans la <a href={$_CONF['site_url']}/links/index.php>section des liens</a>.";
+$PLG_links_MESSAGE2 = 'Lien sauvegardé avec succès.';
+$PLG_links_MESSAGE3 = 'Lien effacé avec succès.';
+$PLG_links_MESSAGE4 = "Merci de soumettre un lien vers {$_CONF['site_name']}. Il apparaît désormais à la <a href={$_CONF['site_url']}/links/index.php>section des liens</a>.";
 
 ###############################################################################
 # admin/link.php
@@ -131,25 +131,25 @@ $PLG_links_MESSAGE3002 = $LANG32[9];
 * @global array $LANG_LINKS_ADMIN 
 */
 $LANG_LINKS_ADMIN = array(
-    1 => 'Edytor Linków',
-    2 => 'ID Linka',
-    3 => 'Tytu³ Linka',
-    4 => 'URL Link',
-    5 => 'Kategoria',
-    6 => '(w³±cznie z http://)',
-    7 => 'Inne',
-    8 => 'Ods³on',
-    9 => 'Opis Linka',
-    10 => 'Musisz podaæ Tytu³, URL, i Opis.',
-    11 => 'Menad¿er Linków',
-    12 => 'Aby zmodyfikowaæ lub wykasowaæ link, kliknij na ikonê edycji poni¿ej.  Aby stworzyæ nowy link, kliknij na "Nowy Link" powy¿ej.',
-    14 => 'Kategoria Linka',
-    16 => 'Odmowa Dostêpu',
-    17 => "Nie masz uprawnieñ do tego linka.  Twoja próba wej¶cia zosta³a zarejestrowana w logu. Proszê <a href=\"{$_CONF['site_admin_url']}/plugins/links/index.php\">do ekranu zarz±dzania linkami</a>.",
-    20 => 'Je¶li inna, podaj jaka',
-    21 => 'zapisz',
-    22 => 'anuluj',
-    23 => 'kasuj'
+    1 => 'Link Editor',
+    2 => 'Link ID',
+    3 => 'Link Title',
+    4 => 'Link URL',
+    5 => 'Category',
+    6 => '(include http://)',
+    7 => 'Other',
+    8 => 'Link Hits',
+    9 => 'Link Description',
+    10 => 'You need to provide a link Title, URL and Description.',
+    11 => 'Link Manager',
+    12 => 'To modify or delete a link, click on that link\'s edit icon below.  To create a new link, click on "Create New" above.',
+    14 => 'Link Category',
+    16 => 'Access Denied',
+    17 => "You are trying to access a link that you don't have rights to.  This attempt has been logged. Please <a href=\"{$_CONF['site_admin_url']}/plugins/links/index.php\">go back to the link administration screen</a>.",
+    20 => 'If other, specify',
+    21 => 'save',
+    22 => 'cancel',
+    23 => 'delete'
 );
 
 ?>

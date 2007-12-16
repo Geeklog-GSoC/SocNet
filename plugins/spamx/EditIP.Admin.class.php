@@ -10,7 +10,7 @@
 *
 * Licensed under GNU General Public License
 *
-* $Id: EditIP.Admin.class.php,v 1.5.2.1 2007/05/06 08:26:36 dhaun Exp $
+* $Id: EditIP.Admin.class.php,v 1.5.2.2 2007/12/16 17:14:38 dhaun Exp $
 */
 
 if (strpos ($_SERVER['PHP_SELF'], 'EditIP.Admin.class.php') !== false) {
@@ -67,7 +67,7 @@ class EditIP extends BaseAdmin {
         $display .= '</ul>' . LB . '<p>' . $LANG_SX00['e1'] . '</p>' . LB;
         $display .= '<p>' . $LANG_SX00['e2'] . '</p>' . LB;
         $display .= '<form method="POST" action="' . $_CONF['site_admin_url'] . '/plugins/spamx/index.php?command=EditIP">' . LB;
-        $display .= '<input type="text" size ="30" name="pentry">&nbsp;&nbsp;&nbsp;';
+        $display .= '<input type="text" size ="31" name="pentry">&nbsp;&nbsp;&nbsp;';
         $display .= '<input type="submit" name="paction" value="' . $LANG_SX00['addentry'] . '">' . LB;
         $display .= '</form>' . LB;
 

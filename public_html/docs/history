@@ -78,6 +78,8 @@ Spam-X plugin
   bye Joe) [Dirk]
 - Fixed an error with the Spam-X SLV module when $_CONF['site_url'] was empty
   (reported by AA6QN) [Dirk]
+- Added support for blocking entire IP ranges, using either CIDR notation or
+  simple x.x.x.x-y.y.y.y ranges [Dirk]
 
 Static Pages plugin
 -------------------

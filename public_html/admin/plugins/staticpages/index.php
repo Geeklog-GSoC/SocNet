@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: index.php,v 1.80.2.1 2007/01/13 22:29:17 dhaun Exp $
+// $Id: index.php,v 1.80.2.2 2007/12/20 21:10:16 dhaun Exp $
 
 require_once ('../../../lib-common.php');
 require_once ('../../auth.inc.php');
@@ -202,7 +202,7 @@ function form ($A, $error = false)
         if (empty ($current_topic)) {
             $current_topic = 'none';
         }
-        $topics = COM_topicList ('tid,topic', $current_topic);
+        $topics = COM_topicList ('tid,topic', $current_topic, 1, true);
         $alltopics = '<option value="all"';
         if ($current_topic == 'all') {
             $alltopics .= ' selected="selected"';

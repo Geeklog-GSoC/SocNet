@@ -10,7 +10,7 @@
 *
 * Licensed under GNU General Public License
 *
-* $Id: EditIP.Admin.class.php,v 1.5.2.2 2007/12/16 17:14:38 dhaun Exp $
+* $Id: EditIP.Admin.class.php,v 1.5.2.3 2007/12/28 16:34:13 dhaun Exp $
 */
 
 if (strpos ($_SERVER['PHP_SELF'], 'EditIP.Admin.class.php') !== false) {
@@ -50,6 +50,7 @@ class EditIP extends BaseAdmin {
             $result = DB_query ("DELETE FROM {$_TABLES['spamx']} WHERE name = 'IP' AND value = '$entry'");
         } elseif ($action == $LANG_SX00['addentry']) {
             if (!empty ($entry)) {
+                $entry = str_replace (' ', '', $entry);
                 $entry = addslashes ($entry);
                 $result = DB_query ("INSERT INTO {$_TABLES['spamx']} VALUES ('IP', '$entry')");
             }

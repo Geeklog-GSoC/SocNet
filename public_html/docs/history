@@ -3,6 +3,7 @@ GeekLog History/Changes:
 ??? ??, ???? (1.4.1-1)
 ------------
 
+- Set variable {max_url_length} in pingbackform.thtml [Dirk]
 - Fixed multiple application of htmlspecialchars() in the story preview [Dirk]
 - Set variable {max_url_length} for the default block editor (used in the
   template file but wasn't set). Patch provided by dengen. [Dirk]

@@ -29,7 +29,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: trackback.php,v 1.43.2.1 2007/02/11 09:36:03 dhaun Exp $
+// $Id: trackback.php,v 1.43.2.2 2008/02/16 23:07:24 dhaun Exp $
 
 require_once ('../lib-common.php');
 
@@ -297,6 +297,7 @@ function pingbackForm ($targetUrl = '')
     $template->set_var ('lang_pingback_url', $LANG_TRB['pingback_url']);
     $template->set_var ('lang_site_url', $LANG_TRB['site_url']);
     $template->set_var ('lang_send', $LANG_TRB['button_send']);
+    $template->set_var ('max_url_length', 255);
 
     $template->set_var ('target_url', $targetUrl);
 

@@ -3,6 +3,10 @@ GeekLog History/Changes:
 ??? ??, ???? (1.4.1-1)
 ------------
 
+- Removed Blogger remote authentication option. Blogger.com have changed their
+  authentication process, so this module no longer works.
+- The topic editor allowed you to enter topic IDs with more than 20 characters
+  (reported by Markus Wollschläger) [Dirk]
 - Set variable {max_url_length} in pingbackform.thtml [Dirk]
 - Fixed multiple application of htmlspecialchars() in the story preview [Dirk]
 - Set variable {max_url_length} for the default block editor (used in the

@@ -3,6 +3,8 @@ GeekLog History/Changes:
 ??? ??, ???? (1.4.1-1)
 ------------
 
+- The {lang_attribute} can only properly be set in a multi-language setup
+  (bug #0000616) [Dirk]
 - Removed Blogger remote authentication option. Blogger.com have changed their
   authentication process, so this module no longer works.
 - The topic editor allowed you to enter topic IDs with more than 20 characters

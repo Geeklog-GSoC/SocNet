@@ -33,7 +33,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-common.php,v 1.611.2.3 2007/03/03 17:39:13 dhaun Exp $
+// $Id: lib-common.php,v 1.611.2.4 2008/04/26 16:24:35 dhaun Exp $
 
 // Prevent PHP from reporting uninitialized variables
 error_reporting( E_ERROR | E_WARNING | E_PARSE | E_COMPILE_ERROR );
@@ -1018,7 +1018,11 @@ function COM_siteHeader( $what = 'menu', $pagetitle = '', $headercode = '' )
         }
     }
     $header->set_var( 'lang_id', $langId );
-    $header->set_var( 'lang_attribute', $langAttr );
+    if( isset( $_CONF['languages'] ) && isset( $_CONF['language_files'] ))
+        $header->set_var( 'lang_attribute', $langAttr );
+    } else {
+        $header->set_var( 'lang_attribute', '' );
+    }
 
     $header->set_var( 'background_image', $_CONF['layout_url']
                                           . '/images/bg.' . $_IMAGE_TYPE );

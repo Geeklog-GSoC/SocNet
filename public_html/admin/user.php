@@ -32,7 +32,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: user.php,v 1.180 2006/12/28 09:27:54 dhaun Exp $
+// $Id: user.php,v 1.180.2.1 2008/05/22 12:03:49 dhaun Exp $
 
 // Set this to true to get various debug messages from this script
 $_USER_VERBOSE = false;
@@ -913,7 +913,7 @@ function importusers ($file)
             $ecount = DB_count ($_TABLES['users'], 'email',
                                 addslashes ($emailAddr));
 
-            if ($ucount == 0 && ecount == 0) {
+            if ($ucount == 0 && $ecount == 0) {
                 // user doesn't already exist
                 $uid = USER_createAccount ($userName, $emailAddr, '',
                                            $fullName);

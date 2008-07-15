@@ -29,7 +29,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: config.class.php,v 1.42 2008/06/14 15:28:01 dhaun Exp $
+// $Id: config.class.php,v 1.42.2.1 2008/07/15 07:58:23 dhaun Exp $
 
 class config {
     var $dbconfig_file;
@@ -102,17 +102,20 @@ class config {
      * track of this reference, and the set function will mutate it.
      *
      * @return array(string => mixed)      This is a reference to the
-     *                              config array
+     *                                     config array
      */
     function &initConfig()
     {
         global $_TABLES;
 
-        $sql_query = "SELECT name, value, group_name FROM {$_TABLES['conf_values']} WHERE (type <> 'subgroup') AND (type <> 'fieldset')";
-        $result = DB_query($sql_query);
+        $sql = "SELECT name, value, group_name FROM {$_TABLES['conf_values']} WHERE (type <> 'subgroup') AND (type <> 'fieldset')";
+        $result = DB_query($sql);
         while ($row = DB_fetchArray($result)) {
             if ($row[1] !== 'unset') {
-                $this->config_array[$row[2]][$row[0]] = unserialize($row[1]);
+                if (!array_key_exists($row[2], $this->config_array) ||
+                    !array_key_exists($row[0], $this->config_array[$row[2]])) {
+                    $this->config_array[$row[2]][$row[0]] = unserialize($row[1]);
+                }
             }
         }
         $this->_post_configuration();
@@ -154,21 +157,15 @@ class config {
      */
     function set($name, $value, $group='Core')
     {
-        global $_TABLES, $_DB, $_DB_dbms;
+        global $_TABLES;
 
         $escaped_val = addslashes(serialize($value));
         $escaped_name = addslashes($name);
         $escaped_grp = addslashes($group);
-        $sql_query = "UPDATE {$_TABLES['conf_values']} " .
-            "SET value = '{$escaped_val}' WHERE " .
-            "name = '{$escaped_name}' AND group_name = '{$escaped_grp}'";
-        if ($_DB_dbms == 'mssql') {
-            $sql_query = str_replace("\\'","''",$sql_query);
-            $sql_query = str_replace('\\"','"',$sql_query);
-            $_DB->dbQuery($sql_query, 0, 1);
-        } else {
-            DB_query($sql_query);
-        }
+        $sql = "UPDATE {$_TABLES['conf_values']} " .
+               "SET value = '{$escaped_val}' WHERE " .
+               "name = '{$escaped_name}' AND group_name = '{$escaped_grp}'";
+        $this->_DB_escapedQuery($sql);
         $this->config_array[$group][$name] = $value;
         $this->_post_configuration();
     }
@@ -184,21 +181,15 @@ class config {
      */
     function set_default($name, $value, $group = 'Core')
     {
-        global $_TABLES, $_DB, $_DB_dbms;
+        global $_TABLES;
 
         $escaped_val = addslashes(serialize($value));
         $escaped_name = addslashes($name);
         $escaped_grp = addslashes($group);
-        $sql_query = "UPDATE {$_TABLES['conf_values']} " .
-            "SET default_value = '{$escaped_val}' WHERE " .
-            "name = '{$escaped_name}' AND group_name = '{$escaped_grp}'";
-        if ($_DB_dbms == 'mssql') {
-            $sql_query = str_replace("\\'", "''", $sql_query);
-            $sql_query = str_replace('\\"', '"', $sql_query);
-            $_DB->dbQuery($sql_query, 0, 1);
-        } else {
-            DB_query($sql_query);
-        }
+        $sql = "UPDATE {$_TABLES['conf_values']} " .
+               "SET default_value = '{$escaped_val}' WHERE " .
+               "name = '{$escaped_name}' AND group_name = '{$escaped_grp}'";
+        $this->_DB_escapedQuery($sql);
     }
 
     function restore_param($name, $group)
@@ -207,9 +198,19 @@ class config {
 
         $escaped_name = addslashes($name);
         $escaped_grp = addslashes($group);
-        $sql = "UPDATE {$_TABLES['conf_values']} SET value = default_value " .
-            "WHERE name = '{$escaped_name}' AND group_name = '{$escaped_grp}'";
-        DB_query($sql);
+
+        $result = DB_query("SELECT value, default_value FROM {$_TABLES['conf_values']} WHERE name = '{$escaped_name}' AND group_name = '{$escaped_grp}'");
+        list($value, $default_value) = DB_fetchArray($result);
+
+        $sql = "UPDATE {$_TABLES['conf_values']} ";
+        if ($value == 'unset') {
+            $default_value = addslashes($default_value);
+            $sql .= "SET value = '{$default_value}', default_value = 'unset:{$default_value}'";
+        } else {
+            $sql .= "SET value = default_value";
+        }
+        $sql .= " WHERE name = '{$escaped_name}' AND group_name = '{$escaped_grp}'";
+        $this->_DB_escapedQuery($sql);
     }
 
     function unset_param($name, $group)
@@ -218,9 +219,15 @@ class config {
 
         $escaped_name = addslashes($name);
         $escaped_grp = addslashes($group);
-        $sql = "UPDATE {$_TABLES['conf_values']} SET value = 'unset' " .
-            "WHERE name = '{$escaped_name}' AND group_name = '{$escaped_grp}'";
-        DB_query($sql);
+        $default_value = DB_getItem($_TABLES['conf_values'], 'default_value',
+                "name = '{$escaped_name}' AND group_name = '{$escaped_grp}'");
+        $sql = "UPDATE {$_TABLES['conf_values']} SET value = 'unset'";
+        if (substr($default_value, 0, 6) == 'unset:') {
+            $default_value = addslashes(substr($default_value, 6));
+            $sql .= ", default_value = '{$default_value}'";
+        }
+        $sql .= " WHERE name = '{$escaped_name}' AND group_name = '{$escaped_grp}'";
+        $this->_DB_escapedQuery($sql);
     }
 
     /**
@@ -254,10 +261,10 @@ class config {
      *
      * @param boolean $set              whether or not this parameter is set
      */
-    function add( $param_name, $default_value, $type, $subgroup, $fieldset,
+    function add($param_name, $default_value, $type, $subgroup, $fieldset,
          $selection_array=null, $sort=0, $set=true, $group='Core')
     {
-        global $_TABLES, $_DB, $_DB_dbms;
+        global $_TABLES;
 
         $format = 'INSERT INTO %1$s (name, value, type, ' .
             'subgroup, group_name, selectionArray, sort_order,'.
@@ -276,15 +283,9 @@ class config {
                        $fieldset,
                        serialize($default_value));
         $Qargs = array_map('addslashes', $Qargs);
-        $sql_query = vsprintf($format, $Qargs);
+        $sql = vsprintf($format, $Qargs);
 
-        if ($_DB_dbms == 'mssql') {
-            $sql_query = str_replace("\\'","''",$sql_query);
-            $sql_query = str_replace('\\"','""',$sql_query);
-            $_DB->dbQuery($sql_query, 0, 1);
-        } else {
-            DB_query($sql_query);
-        }
+        $this->_DB_escapedQuery($sql);
 
         $this->config_array[$group][$param_name] = $default_value;
     }
@@ -296,7 +297,7 @@ class config {
     function del($param_name, $group)
     {
         DB_delete($GLOBALS['_TABLES']['conf_values'],
-                  array("name","group_name"),
+                  array('name', 'group_name'),
                   array(addslashes($param_name), addslashes($group)));
         unset($this->config_array[$group][$param_name]);
     }
@@ -312,7 +313,7 @@ class config {
         global $_TABLES, $LANG_confignames, $LANG_configselects;
 
         $q_string = "SELECT name, type, selectionArray, "
-            . "fieldset, value FROM {$_TABLES['conf_values']}" .
+            . "fieldset, value, default_value FROM {$_TABLES['conf_values']}" .
             " WHERE group_name='{$group}' AND subgroup='{$subgroup}' " .
             " AND (type <> 'fieldset' AND type <> 'subgroup') " .
             " ORDER BY fieldset,sort_order ASC";
@@ -326,6 +327,11 @@ class config {
         }
         while ($row = DB_fetchArray($Qresult)) {
             $cur = $row;
+            if (substr($cur[5], 0, 6) == 'unset:') {
+                $cur[5] = true;
+            } else {
+                $cur[5] = false;
+            }
             $res[$cur[3]][$cur[0]] =
                 array('display_name' =>
                       (array_key_exists($cur[0], $LANG_confignames[$group]) ?
@@ -340,7 +346,8 @@ class config {
                        $LANG_configselects[$group][$cur[2]] : null),
                       'value' =>
                       (($cur[4] == 'unset') ?
-                       'unset' : unserialize($cur[4])));
+                       'unset' : unserialize($cur[4])),
+                      'reset' => $cur[5]);
         }
 
         return $res;
@@ -443,7 +450,7 @@ class config {
         $groups = $this->_get_groups();
         $outerloopcntr = 1;
         if (count($groups) > 0) {
-            $t->set_block('menugroup','subgroup-selector','subgroups');
+            $t->set_block('menugroup', 'subgroup-selector', 'subgroups');
             foreach ($groups as $group) {
                 $t->set_var("select_id", ($group === $grp ? 'id="current"' : ''));
                 $t->set_var("group_select_value", $group);
@@ -501,7 +508,8 @@ class config {
                                                $e['display_name'],
                                                $e['type'],
                                                $e['value'],
-                                               $e['selectionArray']);
+                                               $e['selectionArray'], false,
+                                               $e['reset']);
             }
             $this->_UI_get_fs($grp, $fs_contents, $fset, $t);
         }
@@ -568,7 +576,8 @@ class config {
     }
 
     function _UI_get_conf_element($group, $name, $display_name, $type, $val,
-                                  $selectionArray = null , $deletable = 0)
+                                  $selectionArray = null , $deletable = false,
+                                  $allow_reset = false)
     {
         global $_CONF, $LANG_CONFIG;
 
@@ -598,8 +607,10 @@ class config {
         if ($deletable) {
             $t->set_var('delete', $t->parse('output', 'delete-button'));
         } else {
-            //$t->set_var('unset_link',
-            //            "(<a href='#' onClick='unset(\"{$name}\");'>X</a>)");
+            if ($allow_reset) {
+                $t->set_var('unset_link',
+                        "(<a href='#' onClick='unset(\"{$name}\");'>X</a>)");
+            }
             if (($a = strrchr($name, '[')) !== FALSE) {
                 $on = substr($a, 1, -1);
                 $o = str_replace(array('[', ']'), array('_', ''), $name);
@@ -664,7 +675,8 @@ class config {
                 $result .= config::_UI_get_conf_element($group,
                                 $name . '[' . $valkey . ']',
                                 $display_name . '[' . $valkey . ']',
-                                substr($type, 1), $valval, $selectionArray);
+                                substr($type, 1), $valval, $selectionArray,
+                                false);
             }
             return $result;
         } elseif (strpos($type, "*") === 0 || strpos($type, "%") === 0) {
@@ -828,6 +840,23 @@ class config {
                                                      'footer'));
 
         return $retval;
+    }
+
+    /**
+     * Helper function: Fix escaped SQL requests for MS SQL, if necessary
+     *
+     */
+    function _DB_escapedQuery($sql)
+    {
+        global $_DB, $_DB_dbms;
+
+        if ($_DB_dbms == 'mssql') {
+            $sql = str_replace("\\'", "''", $sql);
+            $sql = str_replace('\\"', '"', $sql);
+            $_DB->dbQuery($sql, 0, 1);
+        } else {
+            DB_query($sql);
+        }
     }
 }
 

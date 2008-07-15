@@ -34,7 +34,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: index.php,v 1.38 2008/06/12 19:45:26 dhaun Exp $
+// $Id: index.php,v 1.38.2.1 2008/07/15 08:26:51 dhaun Exp $
 
 /**
  * This is the links page
@@ -313,8 +313,8 @@ function links_list($message)
             }
         }
         if ($pages > 0) {
-            if (($_LI_CONF['linkcols'] > 0) && isset($currentcategory)) {
-                $catlink = '?category=' . urlencode ($currentcategory);
+            if (($_LI_CONF['linkcols'] > 0) && !empty($currentcid)) {
+                $catlink = '?category=' . urlencode($currentcid);
             } else {
                 $catlink = '';
             }

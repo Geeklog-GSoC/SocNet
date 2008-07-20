@@ -5,6 +5,14 @@ Geeklog History/Changes:
 
 Geeklog 1.5.0-1 is a "bugfixes only" update for Geeklog 1.5.0
 
+- Corrected error handling to prevent creation of error.log files outside the
+  logs directory [Dirk]
+- Hide the database password when the database backup failed and we're logging
+  the mysqldump command [Dirk]
+- Allow to unset Configuration options again after they have been "restored",
+  i.e. enabled (bug #0000664) [Dirk]
+- Enabled siteconfig.php to override database config in core, primarily for
+  rootdebug. [bug 0000673] [Mike]
 - Fixed printer friendly version of a static page not working when url_rewrite
   is enabled (bug #0000661) [Dirk]
 - Changed SEC_createToken so that it will only return one token per page
@@ -15,6 +23,14 @@ Geeklog 1.5.0-1 is a "bugfixes only" update for Geeklog 1.5.0
   a duplicate in the submission queue, unless you changed the story ID at the
   same time [Dirk, Mark Evans]
 - Fixed user submission queue (reported by greenteagod) [Dirk]
+
+Calendar plugin
+---------------
+- Fixed Admin delete links in day and week view (bug #0000680) [Dirk]
+
+Links plugin
+------------
+- Fixed passing the category on multi-page link lists [Dirk]
 
 
 June 15, 2008 (1.5.0)

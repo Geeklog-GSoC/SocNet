@@ -5,6 +5,11 @@ Geeklog History/Changes:
 
 Geeklog 1.5.0-1 is a "bugfixes only" update for Geeklog 1.5.0
 
+- Fixed SQL error(s) for story submissions by users with story.submit but no
+  further Story Admin permissions (reported by Orion) [Dirk]
+- Stories with a publishing date in the future and stories with the draft flag
+  set were accessible if you knew their story id (bug #0000678) [Mike]
+- Fixed SQL error in story submissions (reported by Chase) [Mike]
 - Corrected error handling to prevent creation of error.log files outside the
   logs directory [Dirk]
 - Hide the database password when the database backup failed and we're logging

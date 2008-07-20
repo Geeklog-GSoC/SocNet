@@ -29,7 +29,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: story.class.php,v 1.27.2.1 2008/06/20 19:10:38 dhaun Exp $
+// $Id: story.class.php,v 1.27.2.2 2008/07/20 10:32:57 dhaun Exp $
 
 /**
  * This file provides a class to represent a story, or article. It provides a
@@ -495,6 +495,8 @@ class Story
                     return STORY_PERMISSION_DENIED;
                 } elseif ($this->_access == 2 && $mode != 'view') {
                     return STORY_EDIT_DENIED;
+                } elseif ((($this->_access == 2) && ($mode == 'view')) && (($this->_draft_flag == 1) || ($this->_date > time()))) {
+                        return STORY_INVALID_SID;
                 }
             } else {
                 return STORY_INVALID_SID;
@@ -793,6 +795,7 @@ class Story
 
         // Use what we have:
         $this->_tid = $topic;
+        $this->_date = time();
     }
 
     /**
@@ -801,6 +804,10 @@ class Story
     function loadSubmission()
     {
         $array = $_POST;
+        
+        $this->_expire = time();
+        $this->_date = time();
+        $this->_expiredate = 0;
 
         // Handle Magic GPC Garbage:
         while (list($key, $value) = each($array))
@@ -812,6 +819,10 @@ class Story
         $this->_sid = COM_applyFilter($array['sid']);
         $this->_uid = COM_applyFilter($array['uid'], true);
         $this->_unixdate = COM_applyFilter($array['date'], true);
+
+        if (!isset($array['bodytext'])) {
+            $array['bodytext'] = '';
+        }
 
         /* Then load the title, intro and body */
         if (($array['postmode'] == 'html') || ($array['postmode'] == 'adveditor')) {
@@ -906,9 +917,12 @@ class Story
 
             $this->_oldsid = $this->_sid;
             $this->_date = mktime();
+            $this->_featured = 0;
             $this->_commentcode = $_CONF['comment_code'];
             $this->_trackbackcode = $_CONF['trackback_code'];
+            $this->_statuscode = 0;
             $this->_show_topic_icon = $_CONF['show_topic_icon'];
+            $this->_owner_id = $_USER['uid'];
             $this->_group_id = $T['group_id'];
             $this->_perm_owner = $T['perm_owner'];
             $this->_perm_group = $T['perm_group'];

@@ -29,7 +29,7 @@
 // |                                                                           |
 // +---------------------------------------------------------------------------+
 //
-// $Id: lib-webservices.php,v 1.37 2008/05/31 21:42:27 dhaun Exp $
+// $Id: lib-webservices.php,v 1.37.2.1 2008/07/24 09:40:35 dhaun Exp $
 
 if (strpos ($_SERVER['PHP_SELF'], 'lib-webservices.php') !== false) {
     die ('This file can not be used on its own!');
@@ -456,11 +456,13 @@ function WS_getContent(&$args, $atom_doc, $node)
 
     switch ($type) {
     case 'text':
+    case 'text/plain':
         $args['content'] = (string) $node->nodeValue;
         $args['content_type'] = 'text';
         break;
 
     case 'html':
+    case 'text/html':
         $args['content'] = (string) $node->nodeValue;
         $args['content_type'] = 'html';
         break;
@@ -567,6 +569,8 @@ function WS_xmlToArgs(&$args)
                             if ($child_node->firstChild->nodeType == XML_TEXT_NODE) {
                                 $args[$node->localName][$node->firstChild->localName] = $child_node->firstChild->nodeValue;
                             }
+                        } elseif ($child_node->nodeType == XML_CDATA_SECTION_NODE) {
+                            $args[$node->localName] = $child_node->nodeValue;
                         }
                     }
                 }

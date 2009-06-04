@@ -56,7 +56,7 @@ if (!defined('VERSION')) {
     * This constant defines Geeklog's version number. It will be written to
     * siteconfig.php and the database (in the latter case minus any suffix).
     */
-    define('VERSION', '1.6.0b1');
+    define('VERSION', '1.6.0b2');
 }
 if (!defined('XHTML')) {
     define('XHTML', ' /');
@@ -673,7 +673,7 @@ function INST_checkPost150Upgrade($dbconfig_path, $siteconfig_path)
 */
 function INST_getPluginInfo($plugin)
 {
-    global $_CONF;
+    global $_CONF, $_TABLES, $_DB_dbms, $_DB_table_prefix;
 
     $info = false;
 

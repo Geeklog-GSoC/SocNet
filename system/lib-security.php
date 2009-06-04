@@ -470,15 +470,15 @@ function SEC_getPermissionsHTML($perm_owner,$perm_group,$perm_members,$perm_anon
 /**
 * Gets everything a user has permissions to within the system
 *
-* This is part of the Geeklog security implmentation.  This function
-* will get all the permissions the current user has call itself recursively.
+* This is part of the Geeklog security implementation.  This function
+* will get all the permissions the current user has. Calls itself recursively.
 *
-* @param    int     $grp_id     DO NOT USE (Used for reccursion) Current group function is working on
+* @param    int     $grp_id     DO NOT USE (Used for recursion) Current group function is working on
 * @param    int     $uid        User to check, if empty current user.
 * @return   string  returns comma delimited list of features the user has access to
 *
 */
-function SEC_getUserPermissions($grp_id='',$uid='')
+function SEC_getUserPermissions($grp_id='', $uid='')
 {
     global $_TABLES, $_USER, $_SEC_VERBOSE, $_GROUPS;
 
@@ -504,6 +504,11 @@ function SEC_getUserPermissions($grp_id='',$uid='')
         $groups = $_GROUPS;
     } else {
         $groups = SEC_getUserGroups ($uid);
+    }
+
+    if (empty($groups)) {
+        // this shouldn't happen - make a graceful exit to avoid an SQL error
+        return '';
     }
 
     $glist = join(',', $groups);
@@ -1087,17 +1092,12 @@ function SEC_createToken($ttl = 1200)
     /* Generate the token */
     $token = md5($_USER['uid'].$pageURL.uniqid (rand (), 1));
     $pageURL = addslashes($pageURL);
-    
+
     /* Destroy exired tokens: */
-    if($_DB_dbms == 'mssql') {
-        $sql = "DELETE FROM {$_TABLES['tokens']} WHERE (DATEADD(ss, ttl, created) < NOW())"
-           . " AND (ttl > 0)";
-    } else {
-        $sql = "DELETE FROM {$_TABLES['tokens']} WHERE (DATE_ADD(created, INTERVAL ttl SECOND) < NOW())"
-           . " AND (ttl > 0)";
-    }
+    $sql['mssql'] = "DELETE FROM {$_TABLES['tokens']} WHERE (DATEADD(ss, ttl, created) < NOW()) AND (ttl > 0)";
+    $sql['mysql'] = "DELETE FROM {$_TABLES['tokens']} WHERE (DATE_ADD(created, INTERVAL ttl SECOND) < NOW()) AND (ttl > 0)";
     DB_query($sql);
-    
+
     /* Destroy tokens for this user/url combination */
     $sql = "DELETE FROM {$_TABLES['tokens']} WHERE owner_id={$_USER['uid']} AND urlfor='$pageURL'";
     DB_query($sql);
@@ -1135,20 +1135,17 @@ function SEC_checkToken()
         $token = COM_applyFilter($_POST[CSRF_TOKEN]);
     }
     
-    if(trim($token) != '') {
-        if($_DB_dbms != 'mssql') {
-            $sql = "SELECT ((DATE_ADD(created, INTERVAL ttl SECOND) < NOW()) AND ttl > 0) as expired, owner_id, urlfor FROM "
-               . "{$_TABLES['tokens']} WHERE token='$token'";
-        } else {
-            $sql = "SELECT owner_id, urlfor, expired = 
+    if (trim($token) != '') {
+        $sql['mysql'] = "SELECT ((DATE_ADD(created, INTERVAL ttl SECOND) < NOW()) AND ttl > 0) as expired, owner_id, urlfor FROM {$_TABLES['tokens']} WHERE token='$token'";
+        $sql['mssql'] = "SELECT owner_id, urlfor, expired = 
                       CASE 
                          WHEN (DATEADD(s,ttl,created) < getUTCDate()) AND (ttl>0) THEN 1
                 
                          ELSE 0
                       END
                     FROM {$_TABLES['tokens']} WHERE token='$token'";
-        }
         $tokens = DB_query($sql);
+
         $numberOfTokens = DB_numRows($tokens);
         if($numberOfTokens != 1) {
             $return = false; // none, or multiple tokens. Both are invalid. (token is unique key...)

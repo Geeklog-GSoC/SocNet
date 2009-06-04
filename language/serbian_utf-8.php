@@ -533,7 +533,8 @@ $LANG09 = array(
     66 => 'Comment',
     67 => 'Show %d Results',
     68 => 'Sort By',
-    69 => 'Titles Only'
+    69 => 'Titles Only',
+    70 => 'Not available ...'
 );
 
 ###############################################################################
@@ -978,7 +979,7 @@ $LANG29 = array(
     18 => 'Email',
     34 => 'Komande i Kontrola',
     35 => 'Zahtev za postavljanje teksta',
-    36 => 'Comment',
+    36 => 'Parent or Comment',
     37 => '',
     38 => 'Potvrdi',
     39 => 'Trenutno nema tekstova (korisničkih doprinosa) za administraciju',
@@ -1861,7 +1862,6 @@ $LANG_confignames['Core'] = array(
     'search_show_type' => 'Show Result Type?',
     'search_show_sort' => 'Allow User to Sort Results?',
     'search_show_limit' => 'Show Page Limits?',
-    'search_no_data' => 'If No Data is Avaliable, Display',
     'search_separator' => 'Group Separator',
     'search_def_keytype' => 'Default Search Method'
 );

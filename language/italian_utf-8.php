@@ -524,12 +524,13 @@ $LANG09 = array(
     61 => 'Refine search',
     62 => '#',
     63 => 'Description',
-    64 => 'Showing %d - %d of %d results',
+    64 => 'Showing %1$d - %2$d of %3$d results',
     65 => 'Story',
     66 => 'Comment',
     67 => 'Show %d Results',
     68 => 'Sort By',
-    69 => 'Titles Only'
+    69 => 'Titles Only',
+    70 => 'Not available ...'
 );
 
 ###############################################################################
@@ -974,7 +975,7 @@ $LANG29 = array(
     18 => 'E-mail',
     34 => 'Console di Amministrazione',
     35 => 'Inserimento Articolo',
-    36 => 'Comment',
+    36 => 'Parent or Comment',
     37 => '',
     38 => 'Invia',
     39 => 'Non ci sono inserimenti da moderare al momento',
@@ -1857,7 +1858,6 @@ $LANG_confignames['Core'] = array(
     'search_show_type' => 'Show Result Type?',
     'search_show_sort' => 'Allow User to Sort Results?',
     'search_show_limit' => 'Show Page Limits?',
-    'search_no_data' => 'If No Data is Avaliable, Display',
     'search_separator' => 'Group Separator',
     'search_def_keytype' => 'Default Search Method'
 );

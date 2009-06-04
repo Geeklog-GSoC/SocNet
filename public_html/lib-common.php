@@ -3455,7 +3455,8 @@ function COM_showBlocks( $side, $topic='', $name='all' )
 
     if( !empty( $topic ))
     {
-        $commonsql .= " AND (tid = '$topic' OR tid = 'all')";
+        $tp = addslashes($topic);
+        $commonsql .= " AND (tid = '$tp' OR tid = 'all')";
     }
     else
     {
@@ -4507,7 +4508,7 @@ function COM_showMessage($msg, $plugin = '')
                 $message = $$var;
             } else {
                 $message = sprintf($MESSAGE[61], $plugin);
-                COM_errorLog($MESSAGE[61] . ": " . $var, 1);
+                COM_errorLog($message . ": " . $var, 1);
             }
         } else {
             $message = $MESSAGE[$msg];
@@ -5806,32 +5807,28 @@ function COM_undoClickableLinks( $text )
 */
 function COM_highlightQuery( $text, $query, $class = 'highlight' )
 {
-    $query = str_replace( '+', ' ', $query );
+    // escape PCRE special characters
+    $query = preg_quote($query, '/');
 
-    // escape all the other PCRE special characters
-    $query = preg_quote( $query );
-
-    // ugly workaround:
-    // Using the /e modifier in preg_replace will cause all double quotes to
-    // be returned as \" - so we replace all \" in the result with unescaped
-    // double quotes. Any actual \" in the original text therefore have to be
-    // turned into \\" first ...
-    $text = str_replace( '\\"', '\\\\"', $text );
-
-    $mywords = explode( ' ', $query );
-    foreach( $mywords as $searchword )
+    $mywords = explode(' ', $query);
+    foreach ($mywords as $searchword)
     {
-        if( !empty( $searchword ))
+        if (!empty($searchword))
         {
-            $searchword = preg_quote( str_replace( "'", "\'", $searchword ));
-            $searchword = str_replace('/', '\\/', $searchword);
-            $text = preg_replace( '/(\>(((?>[^><]+)|(?R))*)\<)/ie', "preg_replace('/(?>$searchword+)/i','<span class=\"$class\">\\\\0</span>','\\0')", '<!-- x -->' . $text . '<!-- x -->' );
+            $before = "/(?!(?:[^<]+>|[^>]+<\/a>))\b";
+            $after = "\b/i";
+            if ($searchword <> utf8_encode($searchword)) {
+                 if (@preg_match('/^\pL$/u', urldecode('%C3%B1'))) { // Unicode property support
+                      $before = "/(?<!\p{L})";
+                      $after = "(?!\p{L})/u";
+                 } else {
+                      $before = "/";
+                      $after = "/u";
+                 }
+            }
+            $text = preg_replace($before . $searchword . $after, "<span class=\"$class\">\\0</span>", '<!-- x -->' . $text . '<!-- x -->' );
         }
     }
-
-    // ugly workaround, part 2
-    $text = str_replace( '\\"', '"', $text );
-
     return $text;
 }
 
@@ -6275,7 +6272,7 @@ function COM_createImage($url, $alt = "", $attr = array())
 
     $retval = '';
 
-    if (strpos($url, 'http://') !== 0) {
+    if (preg_match("/^(https?):/", $url) !== 1) {
         $url = $_CONF['layout_url'] . $url;
     }
     $attr_str = 'src="' . $url . '"';

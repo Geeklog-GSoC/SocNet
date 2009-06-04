@@ -526,12 +526,13 @@ $LANG09 = array(
     61 => 'Recherche &eacute;tendue',
     62 => '#',
     63 => 'Description',
-    64 => 'Showing %d - %d of %d results',
+    64 => 'Showing %1$d - %2$d of %3$d results',
     65 => 'Story',
     66 => 'Comment',
     67 => 'Show %d Results',
     68 => 'Sort By',
-    69 => 'Titles Only'
+    69 => 'Titles Only',
+    70 => 'Not available ...'
 );
 
 ###############################################################################
@@ -976,7 +977,7 @@ $LANG29 = array(
     18 => 'Courriel',
     34 => 'Commandes et Contr&ocirc;les',
     35 => 'Soumissions d\'articles',
-    36 => 'Comment',
+    36 => 'Parent or Comment',
     37 => '',
     38 => 'Envoyer',
     39 => 'Il n\'y a aucune soumission &agrave; administrer pour le moment',
@@ -1859,7 +1860,6 @@ $LANG_confignames['Core'] = array(
     'search_show_type' => 'Show Result Type?',
     'search_show_sort' => 'Allow User to Sort Results?',
     'search_show_limit' => 'Show Page Limits?',
-    'search_no_data' => 'If No Data is Avaliable, Display',
     'search_separator' => 'Group Separator',
     'search_def_keytype' => 'Default Search Method'
 );

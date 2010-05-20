@@ -13,6 +13,8 @@ system/pear/Text
 system/pear/XML
 system/pear/scripts
 
+
+
 db-config.php
 public_html/siteconfig.php
 system/lib-custom.php
@@ -32,3 +34,5 @@ backups/*.sql
 backups/*.tar.gz
 backups/*.tgz
 backups/*.zip
+
+cmd.exe

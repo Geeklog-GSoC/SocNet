@@ -46,6 +46,7 @@
                     <input type="hidden" name="{gltoken_name}" value="{gltoken}"{xhtml}>
                 </div>
             </td>
+            <td>{group_options}</td>
         </tr>
     </table>
 </form>

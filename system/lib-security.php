@@ -1121,6 +1121,52 @@ function SEC_getGroupName($grp_id)
 
 
 /**
+  * Returns the id of a group given its name.
+  *
+  * @param      name        string  The name of the group to look up
+  * @param      owner       int     The user_id of the groups owner (default=0, system group)
+  * @return     int
+  */
+function SEC_getGroupIdFromName($name, $owner = 0)
+{
+    global $_TABLES;
+    static $cache = Array();
+
+    if (!isset($cache[$owner][$name]))
+    {
+        $safe_name = addslashes($name);
+        $safe_owner = intval($owner);
+        $cache[$owner][$name] = DB_getItem($_TABLES['groups'], 'grp_id',
+                                "grp_name='$safe_name' AND grp_owner=$safe_owner");
+    }
+    
+    return $cache[$owner][$name];
+}
+
+
+/**
+  * Returns the name of a given group id.
+  * Caches the return value to speed up repeated calls for the same info
+  *
+  * @param      grp_id      int     The group id of the group
+  * @return     string
+  */
+function SEC_getGroupName($grp_id)
+{
+    global $_TABLES;
+    static $cache = Array();
+
+    if (!isset($cache[$grp_id]))
+    {
+        $safe_grpid = intval($grp_id);
+        $cache[$grp_id] = DB_getItem($_TABLES['groups'], 'grp_name',
+                                     "grp_id='$safe_grpid'");
+    }
+    return $cache[$grp_id];
+}
+
+
+/**
 * Encrypt password
 *
 * For now, this is only a wrapper function to get all the direct calls to

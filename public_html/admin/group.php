@@ -180,6 +180,17 @@ function editgroup($grp_id = '')
                                   ' style="display:none;"');
     }
 
+    if ($A['grp_owner'] > 0) {
+        $group_templates->set_var('group_owner', $A['grp_owner']);
+        $group_templates->set_var('hide_owneroption', '');
+        $group_templates->set_var('lang_groupowner', $LANG_ACCESS['groupowner']);
+        $group_templates->set_var('group_owner_name', COM_getDisplayName($A['grp_owner']));
+    } else {
+        $group_templates->set_var('group_owner', 0);
+        $group_templates->set_var('hide_owneroption',
+                                  ' style="display:none;"');
+    }
+
     if ($A['grp_gl_core'] != 1) {
         $group_templates->set_var('groupname_inputtype', 'text');
         $group_templates->set_var('groupname_static', '');
@@ -1046,6 +1057,95 @@ function listgroupsbyuser($uid = 0)
 }
 
 /**
+* Display a list of user groups based on user id
+*
+* @param    int     $uid    User whose groups are to be fetched
+*
+*/
+function listgroupsbyuser($uid = 0)
+{
+    global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_ACCESS, $LANG28, $_IMAGE_TYPE, $_USER;
+
+    require_once $_CONF['path_system'] . 'lib-admin.php';
+
+    if ($uid <= 1) $uid = $_USER['uid'];
+    
+    if (!SEC_hasRights('group.useradmin') || $uid <= 1) {
+        $retval .= COM_startBlock ($LANG_ACCESS['usergroupadmin'], '',
+                           COM_getBlockTemplate ('_msg_block', 'header'));
+        $retval .= $LANG_ACCESS['cantviewgroup'];
+        $retval .= COM_endBlock (COM_getBlockTemplate ('_msg_block', 'footer'));
+
+        return $retval;
+    }
+
+    $retval = '';
+
+    $header_arr = array(      // display 'text' and use table field 'field'
+        array('text' => $LANG_ADMIN['edit'], 'field' => 'edit', 'sort' => false),
+        array('text' => $LANG_ACCESS['groupname'], 'field' => 'grp_name', 'sort' => true),
+        array('text' => $LANG_ACCESS['description'], 'field' => 'grp_descr', 'sort' => true),
+        array('text' => $LANG_ACCESS['listusers'], 'field' => 'list', 'sort' => false)
+    );
+
+    $defsort_arr = array('field' => 'grp_name', 'direction' => 'asc');
+
+    $form_url = $_CONF['site_admin_url'] . '/group.php?mode=usergroups';
+    if ($show_all_groups) {
+        $form_url .= '?chk_showall=1';
+    }
+
+    $menu_arr = Array(
+                    array('url' => $_CONF['site_admin_url'] .  '/group.php',
+                          'text' => $LANG28[38]),
+                    array('url' => $_CONF['site_admin_url'],
+                          'text' => $LANG_ADMIN['admin_home']) );
+
+    $retval .= COM_startBlock($LANG_ACCESS['groupmanager'], '',
+                              COM_getBlockTemplate('_admin_block', 'header'));
+
+    $retval .= ADMIN_createMenu(
+        $menu_arr,
+        $LANG_ACCESS['newgroupmsg'],
+        $_CONF['layout_url'] . '/images/icons/group.' . $_IMAGE_TYPE
+    );
+
+    $text_arr = array(
+        'has_extras' => true,
+        'form_url'   => $form_url
+    );
+
+    $filter = '<span style="padding-right:20px;">';
+
+    $checked ='';
+    if ($show_all_groups) {
+        $checked = ' checked="checked"';
+    }
+    $userlist = '<label for="uid">' . $LANG28[3] . '</label><select name="uid">';
+    $userres = DB_query("SELECT uid, username, fullname, remoteusername, remoteservice FROM {$_TABLES['users']}");
+    while ($A = DB_fetchArray($userres)) {
+        if ($uid <= 1) continue;
+        $selected = $uid == $A['uid'] ? ' selected="selected"' : '';
+        $userlist .= '<option value="' . $A['uid'] . '"'. $selected . '>' 
+                  . COM_getDisplayName($A['uid'], $A['username'], $A['fullname'], $A['remoteusername'], $A['remoteservice'])
+                  . "</option>" . LB;
+    }
+   $userlist .= '</select>';
+
+    $query_arr = array(
+        'table' => 'groups',
+        'sql' => "SELECT * FROM {$_TABLES['groups']} WHERE grp_owner = $uid ",
+        'query_fields' => array('grp_name', 'grp_descr'),
+        'default_filter' => '');
+
+    $retval .= ADMIN_list('groups', 'ADMIN_getListField_groups', $header_arr,
+                          $text_arr, $query_arr, $defsort_arr, $userlist);
+    $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
+
+    return $retval;
+}
+
+/**
 * Get list of users in a given group
 *
 * Effectively, this function is used twice: To get a list of all users currently
@@ -1348,6 +1448,11 @@ if (($mode == $LANG_ADMIN['delete']) && !empty ($LANG_ADMIN['delete'])) {
     $grp_id = COM_applyFilter ($_REQUEST['grp_id'], true);
     $display .= COM_siteHeader ('menu', $LANG_ACCESS['usergroupadmin']);
     $display .= editusers ($grp_id);
+    $display .= COM_siteFooter ();
+} elseif ($mode == 'usergroups') {
+    $uid = COM_applyFilter ($_REQUEST['uid'], true);
+    $display .= COM_siteHeader ('menu', $LANG28[91]);
+    $display .= listgroupsbyuser($uid);
     $display .= COM_siteFooter ();
 } elseif ($mode == 'usergroups') {
     $uid = COM_applyFilter ($_REQUEST['uid'], true);

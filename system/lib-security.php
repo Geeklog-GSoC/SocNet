@@ -151,14 +151,22 @@ function SEC_getUserGroups($uid='',$filter='')
             }
             if (!in_array($A['ug_main_grp_id'], $groups)) {
                 array_push($cgroups, $A['ug_main_grp_id']);
-                $groups[$A['grp_name']] = $A['ug_main_grp_id'];
+                $name = $A['grp_name'];
+                if ($A['grp_owner'] > 0) { // avoid name collisions with personal groups
+                    $name .= ':' . $A['grp_owner'];
+                }
+                $groups[$name] = $A['ug_main_grp_id'];
             }
         }
 
         if (count($cgroups) > 0) {
             $glist = implode(',', $cgroups);
-            $result = DB_query("SELECT ug_main_grp_id,grp_name FROM {$_TABLES["group_assignments"]},{$_TABLES["groups"]}"
-                    . " WHERE grp_id = ug_main_grp_id AND ug_grp_id IN ($glist)",1);
+            $sql = "SELECT ug_main_grp_id,grp_name,grp_owner FROM {$_TABLES['group_assignments']},{$_TABLES['groups']}"
+                 . " WHERE grp_id = ug_main_grp_id AND ug_grp_id IN ($glist)";
+            if (!empty($filter))
+                $sql .= " AND ($filter)";
+            $result = DB_query($sql,1);
+            
             $nrows = DB_numRows($result);
         } else {
             $nrows = 0;
@@ -174,6 +182,50 @@ function SEC_getUserGroups($uid='',$filter='')
         $unfiltered_cache[$uid] = $groups;
     }
     return $groups;
+}
+
+/**
+  * Returns the id of a group given its name.
+  *
+  * @param      name        string  The name of the group to look up
+  * @param      owner       int     The user_id of the groups owner (default=0, system group)
+  * @return     int
+  */
+function SEC_getGroupIdFromName($name, $owner = 0)
+{
+    global $_TABLES;
+    static $cache = Array();
+
+    if (!isset($cache[$owner][$name]))
+    {
+        $safe_name = addslashes($name);
+        $safe_owner = intval($owner);
+        $cache[$owner][$name] = DB_getItem($_TABLES['groups'], 'grp_id',
+                                "grp_name='$safe_name' AND grp_owner=$safe_owner");
+    }
+    
+    return $cache[$owner][$name];
+}
+
+  /**
+  * Returns the name of a given group id.
+  * Caches the return value to speed up repeated calls for the same info
+  *
+  * @param      grp_id      int     The group id of the group
+  * @return     string
+  */
+function SEC_getGroupName($grp_id)
+{
+    global $_TABLES;
+    static $cache = Array();
+
+    if (!isset($cache[$grp_id]))
+    {
+        $safe_grpid = intval($grp_id);
+        $cache[$grp_id] = DB_getItem($_TABLES['groups'], 'grp_name',
+                                     "grp_id='$safe_grpid'");
+    }
+    return $cache[$grp_id];
 }
 
 /**

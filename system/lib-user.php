@@ -57,8 +57,7 @@ function USER_deleteAccount ($uid)
 
                 return false;
             } else {
-                $rootgrp = DB_getItem ($_TABLES['groups'], 'grp_id',
-                                       "grp_name = 'Root'");
+                $rootgrp = SEC_getGroupIdFromName('Root');
                 $result = DB_query ("SELECT COUNT(DISTINCT {$_TABLES['users']}.uid) AS count FROM {$_TABLES['users']},{$_TABLES['group_assignments']} WHERE {$_TABLES['users']}.uid > 1 AND {$_TABLES['users']}.uid = {$_TABLES['group_assignments']}.ug_uid AND ({$_TABLES['group_assignments']}.ug_main_grp_id = $rootgrp)");
                 $A = DB_fetchArray ($result);
                 if ($A['count'] <= 1) {
@@ -114,14 +113,28 @@ function USER_deleteAccount ($uid)
 
     // in case the user owned any objects that require Admin access, assign
     // them to the Root user with the lowest uid
-    $rootgroup = DB_getItem ($_TABLES['groups'], 'grp_id', "grp_name = 'Root'");
-    $result = DB_query ("SELECT DISTINCT ug_uid FROM {$_TABLES['group_assignments']} WHERE ug_main_grp_id = $rootgroup ORDER BY ug_uid LIMIT 1");
+    $rootgroup = SEC_getGroupIdFromName('Root');
+    $result = DB_query ("SELECT DISTINCT ug_uid FROM {$_TABLES['group_assignments']} WHERE ug_main_grp_id = $rootgroup AND ug_uid <> $uid ORDER BY ug_uid LIMIT 1");
     $A = DB_fetchArray ($result);
     $rootuser = $A['ug_uid'];
 
     DB_query ("UPDATE {$_TABLES['blocks']} SET owner_id = $rootuser WHERE owner_id = $uid");
     DB_query ("UPDATE {$_TABLES['topics']} SET owner_id = $rootuser WHERE owner_id = $uid");
-
+    
+    // remove all non-system groups owned by this user
+    unset($result);
+    $usergroups = Array();
+    $result = DB_query("SELECT grp_id FROM {$_TABLES['groups']} WHERE grp_owner = $uid");
+    while ($A = DB_fetchArray($result)) {
+        $usergroups[] = $A['grp_id'];
+    }
+    if (count($usergroups) > 0) {
+        $grplist = implode(',', $usergroups);
+        DB_query("DELETE FROM {$_TABLES['access']} WHERE acc_grp_id in ($grplist)"); // this shouldn't be needed but do it just to be safe
+        DB_query("DELETE FROM {$_TABLES['group_assignments']} WHERE ug_main_grp_id in ($grplist)");
+        DB_query("DELETE FROM {$_TABLES['groups']} WHERE grp_id in ($grplist)");
+    }
+    
     // now delete the user itself
     DB_delete ($_TABLES['users'], 'uid', $uid);
 
@@ -303,10 +316,8 @@ function USER_createAccount($username, $email, $passwd = '', $fullname = '', $ho
     }
 
     // Add user to Logged-in group (i.e. members) and the All Users group
-    $normal_grp = DB_getItem($_TABLES['groups'], 'grp_id',
-                             "grp_name='Logged-in Users'");
-    $all_grp = DB_getItem($_TABLES['groups'], 'grp_id',
-                          "grp_name='All Users'");
+    $normal_grp = SEC_getGroupIdFromName('Logged-in Users');
+    $all_grp = SEC_getGroupIdFromName('All Users');
     DB_query("INSERT INTO {$_TABLES['group_assignments']} (ug_main_grp_id, ug_uid) VALUES ($normal_grp, $uid)");
     DB_query("INSERT INTO {$_TABLES['group_assignments']} (ug_main_grp_id, ug_uid) VALUES ($all_grp, $uid)");
 

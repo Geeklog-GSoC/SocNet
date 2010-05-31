@@ -70,11 +70,9 @@ function SP_update_ConfValues_1_6_0()
     $c->add('meta_tags', $_SP_DEFAULT['meta_tags'], 'select', 0, 0, 0, 120, true, 'staticpages');
 
     // check for wrong Admin group name
-    $wrong_id = DB_getItem($_TABLES['groups'], 'grp_id',
-                           "grp_name = 'Static Pages Admin'"); // wrong name
+    $wrong_id = SEC_getGroupIdFromName('Static Pages Admin'); // wrong name
     if (! empty($wrong_id)) {
-        $grp_id = DB_getItem($_TABLES['groups'], 'grp_id',
-                             "grp_name = 'Static Page Admin'"); // correct name
+        $grp_id = SEC_getGroupIdFromName('Static Page Admin'); // correct name
         if (empty($grp_id)) {
             // correct name not found - probably a fresh install: rename
             DB_query("UPDATE {$_TABLES['groups']} SET grp_name = 'Static Page Admin' WHERE grp_name = 'Static Pages Admin'");

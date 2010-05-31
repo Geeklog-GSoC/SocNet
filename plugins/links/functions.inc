@@ -458,8 +458,7 @@ function plugin_user_delete_links ($uid)
         DB_delete($_TABLES['links'], 'owner_id', $uid);
     } else {
         // assign ownership to a user from the Root group
-        $rootgroup = DB_getItem ($_TABLES['groups'], 'grp_id',
-                                 "grp_name = 'Root'");
+        $rootgroup = SEC_getGroupIdFromName('Root');
         $result = DB_query ("SELECT DISTINCT ug_uid FROM {$_TABLES['group_assignments']} WHERE ug_main_grp_id = $rootgroup ORDER BY ug_uid LIMIT 1");
         $A = DB_fetchArray ($result);
         $rootuser = $A['ug_uid'];
@@ -1004,8 +1003,7 @@ function plugin_save_submit_links($A)
         if (SEC_hasRights('links.submit')) {
             $A['group_id'] = SEC_getFeatureGroup('links.submit');
         } else {
-            $A['group_id'] = DB_getItem($_TABLES['groups'], 'grp_id',
-                                        "grp_name = 'All Users'");
+            $A['group_id'] = SEC_getGroupIdFromName('All Users');
         }
         SEC_setDefaultPermissions($A, $_LI_CONF['default_permissions']);
 

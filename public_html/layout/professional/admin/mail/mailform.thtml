@@ -8,6 +8,7 @@
                     {group_options}
                 </select>
             </td>
+            <td>{group_options}</td>
         </tr>
         <tr>
             <td class="alignright"><b>{lang_from}:</b></td>

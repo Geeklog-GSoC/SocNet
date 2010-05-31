@@ -97,27 +97,7 @@ function display_mailform($vars = array())
                                          . '/mail.php');
     $mail_templates->set_var('lang_note', $LANG31[19]);
     $mail_templates->set_var('lang_to', $LANG31[18]);
-    $mail_templates->set_var('lang_selectgroup', $LANG31[25]);
-
-    $to_group = 0;
-    if (isset($vars['to_group'])) {
-        $to_group = COM_applyFilter($vars['to_group'], true);
-    }
-
-    $thisUsersGroups = SEC_getUserGroups();
-    uksort($thisUsersGroups, 'strcasecmp');
-    $group_options = '';
-    foreach ($thisUsersGroups as $groupName => $groupID) {
-        if ($groupName != 'All Users') {
-            $group_options .= '<option value="' . $groupID . '"';
-            if (($to_group > 0) && ($to_group == $groupID)) {
-                $group_options .= ' selected="selected"';
-            }
-            $group_options .= '>' . ucwords($groupName) . '</option>';
-        }
-    }
-
-    $mail_templates->set_var('group_options', $group_options);
+    $mail_templates->set_var('group_options', SEC_getGroupDropdown(0,3,$LANG31[25]));
     $mail_templates->set_var('lang_from', $LANG31[2]);
     if (! empty($vars['fra'])) {
         $from = $vars['fra'];
@@ -189,8 +169,7 @@ function send_messages($vars)
 
     $to_group = COM_applyFilter($vars['to_group'], true);
     if ($to_group > 0) {
-        $group_name = DB_getItem($_TABLES['groups'], 'grp_name',
-                                 "grp_id = $to_group");
+        $group_name = SEC_getGroupIdFromName($to_group);  // this will need expanding if mail.php is to support users sending email to their friend groups
         if (! SEC_inGroup($group_name)) {
             return COM_refresh($_CONF['site_admin_url'] . '/mail.php');
         }

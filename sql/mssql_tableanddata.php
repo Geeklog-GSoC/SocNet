@@ -214,7 +214,8 @@ CREATE TABLE [dbo].[{$_TABLES['groups']}] (
     [grp_name] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL ,
     [grp_descr] [varchar] (255) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL ,
     [grp_gl_core] [tinyint] NOT NULL ,
-    [grp_default] [tinyint] NOT NULL
+    [grp_default] [tinyint] NOT NULL,
+    [grp_owner] [int] NOT NULL
 ) ON [PRIMARY]
 ";
 
@@ -602,10 +603,16 @@ $_SQL[] = "ALTER TABLE [dbo].[{$_TABLES['frontpagecodes']}] ADD
 
 $_SQL[] = "ALTER TABLE [dbo].[{$_TABLES['groups']}] ADD
     CONSTRAINT [DF_{$_TABLES['groups']}_grp_gl_core] DEFAULT (0) FOR [grp_gl_core],
+    CONSTRAINT [DF_{$_TABLES['groups']}_grp_owner] DEFAULT (0) FOR [grp_owner],
     CONSTRAINT [PK_{$_TABLES['groups']}] PRIMARY KEY  CLUSTERED
     (
         [grp_id]
-    )  ON [PRIMARY]
+    )  ON [PRIMARY],
+    CONSTRAIT [IDX_{$_TABLES['groups']}_NAME] UNIQUE CLUSTER
+    (
+        [grp_owner],
+        [grp_name]
+    )
 ";
 
 $_SQL[] = "ALTER TABLE [dbo].[{$_TABLES['maillist']}] ADD
@@ -1238,6 +1245,7 @@ $_SQL[] = "INSERT INTO {$_TABLES['access']} (acc_ft_id, acc_grp_id) VALUES (16,4
 $_SQL[] = "INSERT INTO {$_TABLES['access']} (acc_ft_id, acc_grp_id) VALUES (17,10)";
 $_SQL[] = "INSERT INTO {$_TABLES['access']} (acc_ft_id, acc_grp_id) VALUES (18,10)";
 $_SQL[] = "INSERT INTO {$_TABLES['access']} (acc_ft_id, acc_grp_id) VALUES (19,11)";
+$_SQL[] = "INSERT INTO {$_TABLES['access']} (acc_ft_id, acc_grp_id) VALUES (23,11)";
 
 $_SQL[] = "
 set identity_insert {$_TABLES['blocks']} on;
@@ -1325,6 +1333,7 @@ INSERT INTO {$_TABLES['features']} (ft_id, ft_name, ft_descr, ft_gl_core) VALUES
 INSERT INTO {$_TABLES['features']} (ft_id, ft_name, ft_descr, ft_gl_core) VALUES (20, 'comment.moderate', 'Ability to moderate comments', 1)
 INSERT INTO {$_TABLES['features']} (ft_id, ft_name, ft_descr, ft_gl_core) VALUES (21, 'comment.submit', 'Comments are automatically published', 1)
 INSERT INTO {$_TABLES['features']} (ft_id, ft_name, ft_descr, ft_gl_core) VALUES (22, 'htmlfilter.skip', 'Skip filtering posts for HTML', 1)
+INSERT INTO {$_TABLES['features']} (ft_id, ft_name, ft_descr, ft_gl_core) VALUES (23, 'group.useradmin', 'Ability to modify user owned groups', 1)
 
 set identity_insert {$_TABLES['features']} off
 ";

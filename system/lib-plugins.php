@@ -262,8 +262,7 @@ function PLG_uninstall($type)
         // removing groups
         $num_groups = count($remvars['groups']);
         for ($i = 0; $i < $num_groups; $i++) {
-            $grp_id = DB_getItem ($_TABLES['groups'], 'grp_id',
-                                  "grp_name = '{$remvars['groups'][$i]}'");
+            $grp_id = SEC_getGroupIdFromName($remvars['groups'][$i]);
             if (!empty($grp_id)) {
                 COM_errorLog ("Attempting to remove the {$remvars['groups'][$i]} group", 1);
                 DB_delete($_TABLES['groups'], 'grp_id', $grp_id);

@@ -626,8 +626,7 @@ function plugin_savesubmission_calendar($A)
             if (SEC_hasRights('calendar.submit')) {
                 $A['group_id'] = SEC_getFeatureGroup('calendar.submit');
             } else {
-                $A['group_id'] = DB_getItem($_TABLES['groups'], 'grp_id',
-                                            "grp_name = 'All Users'");
+                $A['group_id'] = SEC_getGroupIdFromName('All Users');
             }
             SEC_setDefaultPermissions($A, $_CA_CONF['default_permissions']);
 
@@ -1451,8 +1450,7 @@ function plugin_user_delete_calendar ($uid)
 
     } else {
         // assign ownership to a user from the Root group
-        $rootgroup = DB_getItem ($_TABLES['groups'], 'grp_id',
-                                 "grp_name = 'Root'");
+        $rootgroup = SEC_getGroupIdFromName('Root');
         $result = DB_query ("SELECT DISTINCT ug_uid FROM {$_TABLES['group_assignments']} WHERE ug_main_grp_id = $rootgroup ORDER BY ug_uid LIMIT 1");
         list($rootuser) = DB_fetchArray ($result);
         DB_query ("UPDATE {$_TABLES['events']} SET owner_id = $rootuser WHERE owner_id = $uid");

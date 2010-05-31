@@ -169,8 +169,7 @@ function editdefaultblock ($A, $access)
     $block_templates->set_var('lang_group', $LANG_ACCESS['group']);
     $block_templates->set_var('group_dropdown',
                               SEC_getGroupDropdown ($A['group_id'], $access));
-    $block_templates->set_var('group_name', DB_getItem ($_TABLES['groups'],
-                                    'grp_name', "grp_id = '{$A['group_id']}'"));
+    $block_templates->set_var('group_name', SEC_getGroupName($A['group_id']));
     $block_templates->set_var('group_id', $A['group_id']);
     $block_templates->set_var('lang_permissions', $LANG_ACCESS['permissions']);
     $block_templates->set_var('lang_perm_key', $LANG_ACCESS['permissionskey']);

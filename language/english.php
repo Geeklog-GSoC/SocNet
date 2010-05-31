@@ -915,7 +915,7 @@ $LANG28 = array(
     35 => 'Last Login',
     36 => 'never',
     37 => 'UID',
-    38 => 'Group Listing',
+    38 => 'Show System Groups',
     39 => 'Password (again)',
     40 => 'Registration Date',
     41 => 'Last login Date',
@@ -967,7 +967,8 @@ $LANG28 = array(
     87 => 'Reminders',
     88 => 'Default Group',
     89 => 'Check to make this a default group for new users',
-    90 => 'Apply "Default Group" change to existing user accounts'
+    90 => 'Apply "Default Group" change to existing user accounts',
+    91 => 'Show User Groups'
 );
 
 ###############################################################################
@@ -1323,7 +1324,9 @@ $LANG_ACCESS = array(
     'group_id' => 'Group ID',
     'plugin_access_denied_msg' => 'You are illegally trying access a plugin administration page.  Please note that all attempts to illegally access this page are logged.',
     'groupexists' => 'Group name already exists',
-    'groupexistsmsg' => 'There is already a group with this name. Group names must be unique.'
+    'groupexistsmsg' => 'There is already a group with this name. Group names must be unique.',
+    'groupowner' => 'Group Owner',
+    'cantviewgroup' => 'You do not have permission to view personal user groups.'
 );
 
 ###############################################################################
@@ -1909,7 +1912,8 @@ $LANG_confignames['Core'] = array(
     'search_show_limit' => "Show Page Limits?",
     'search_separator' => "Group Separator",
     'search_def_keytype' => "Default Search Method",
-    'search_def_sort' => "Default Sort Order"
+    'search_def_sort' => "Default Sort Order",
+    'allow_user_groups' => "Allow User Groups"
 );
 
 $LANG_configsubgroups['Core'] = array(

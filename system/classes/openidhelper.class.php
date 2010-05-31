@@ -123,8 +123,7 @@ class SimpleActionHandler extends ActionHandler {
             DB_query("UPDATE {$_TABLES['users']} SET remoteusername = '$openid_identity', remoteservice = 'openid', status = 3 WHERE uid = $uid");
 
             // Add to remote users:
-            $remote_grp = DB_getItem($_TABLES['groups'], 'grp_id',
-                                     "grp_name = 'Remote Users'");
+            $remote_grp = SEC_getGroupIdFromName('Remote Users');
             DB_query("INSERT INTO {$_TABLES['group_assignments']} (ug_main_grp_id, ug_uid) VALUES ($remote_grp, $uid)");
         } else {
             $result = DB_query("SELECT uid,status FROM {$_TABLES['users']} WHERE remoteusername = '$openid_identity' AND remoteservice = 'openid'");

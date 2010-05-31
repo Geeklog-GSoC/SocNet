@@ -186,6 +186,7 @@ function install_config()
     $c->add('allow_user_photo',1,'select',4,16,0,250,TRUE);
     $c->add('allow_username_change',0,'select',4,16,0,260,TRUE);
     $c->add('allow_account_delete',0,'select',4,16,0,270,TRUE);
+    $c->add('allow_user_groups',1,'select',4,16,0,275,TRUE);
     $c->add('hide_author_exclusion',0,'select',4,16,0,280,TRUE);
     $c->add('show_fullname',0,'select',4,16,0,290,TRUE);
     $c->add('show_servicename',TRUE,'select',4,16,1,300,TRUE);

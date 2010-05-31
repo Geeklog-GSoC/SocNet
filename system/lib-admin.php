@@ -724,7 +724,8 @@ function ADMIN_getListField_groups($fieldname, $fieldvalue, $A, $icon_arr, $sele
     }
 
     if (in_array($A['grp_id'], $thisUsersGroups) ||
-          SEC_groupIsRemoteUserAndHaveAccess($A['grp_id'], $thisUsersGroups)) {
+          SEC_groupIsRemoteUserAndHaveAccess($A['grp_id'], $thisUsersGroups) ||
+          ($A['grp_owner'] > 0 && SEC_hasRights('group.useradmin')) ) {
         switch($fieldname) {
         case 'edit':
             $url = $_CONF['site_admin_url'] . '/group.php?mode=edit&amp;grp_id='

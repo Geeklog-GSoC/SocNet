@@ -289,11 +289,8 @@ function edituser($uid = '', $msg = '')
                 $selected = '';
             }
         } else {
-            $selected = DB_getItem($_TABLES['groups'], 'grp_id',
-                                   "grp_name = 'All Users'")
-                      . ' ';
-            $selected .= DB_getItem($_TABLES['groups'], 'grp_id',
-                                    "grp_name = 'Logged-in Users'");
+            $selected = SEC_getGroupIdFromName('All Users') . ' ';
+            $selected .= SEC_getGroupIdFromName('Logged-in Users');
 
             // add default groups, if any
             $result = DB_query("SELECT grp_id FROM {$_TABLES['groups']} WHERE grp_default = 1");
@@ -304,8 +301,7 @@ function edituser($uid = '', $msg = '')
             }
         }
         $thisUsersGroups = SEC_getUserGroups();
-        $remoteGroup = DB_getItem($_TABLES['groups'], 'grp_id',
-                                  "grp_name = 'Remote Users'");
+        $remoteGroup = SEC_getGroupIdFromName('Remote Users');
         if (! empty($remoteGroup)) {
             $thisUsersGroups[] = $remoteGroup;
         }
@@ -326,7 +322,7 @@ function edituser($uid = '', $msg = '')
                           'inline' => true
         );
 
-        $sql = "SELECT grp_id, grp_name, grp_descr FROM {$_TABLES['groups']} WHERE " . $whereGroups;
+        $sql = "SELECT grp_id, grp_name, grp_descr FROM {$_TABLES['groups']} WHERE grp_owner = 0 AND " . $whereGroups;
         $query_arr = array('table' => 'groups',
                            'sql' => $sql,
                            'query_fields' => array('grp_name'),
@@ -612,8 +608,7 @@ function saveusers ($uid, $username, $fullname, $passwd, $passwd_conf, $email, $
         // check that the user is allowed to change group assignments
         if (is_array($groups) && SEC_hasRights('group.assign')) {
             if (! SEC_inGroup('Root')) {
-                $rootgrp = DB_getItem($_TABLES['groups'], 'grp_id',
-                                      "grp_name = 'Root'");
+                $rootgrp = SEC_getGroupIdFromName('Root');
                 if (in_array($rootgrp, $groups)) {
                     COM_accessLog("User {$_USER['username']} ({$_USER['uid']}) just tried to give Root permissions to user $username.");
                     echo COM_refresh($_CONF['site_admin_url'] . '/index.php');
@@ -623,8 +618,7 @@ function saveusers ($uid, $username, $fullname, $passwd, $passwd_conf, $email, $
 
             // make sure the Remote Users group is in $groups
             if (SEC_inGroup('Remote Users', $uid)) {
-                $remUsers = DB_getItem($_TABLES['groups'], 'grp_id',
-                                       "grp_name = 'Remote Users'");
+                $remUsers = SEC_getGroupIdFromName('Remote Users');
                 if (! in_array($remUsers, $groups)) {
                     $groups[] = $remUsers;
                 }
@@ -641,13 +635,11 @@ function saveusers ($uid, $username, $fullname, $passwd, $passwd_conf, $email, $
             DB_query("DELETE FROM {$_TABLES['group_assignments']} WHERE (ug_uid = $uid) AND " . $whereGroup);
 
             // make sure to add user to All Users and Logged-in Users groups
-            $allUsers = DB_getItem($_TABLES['groups'], 'grp_id',
-                                   "grp_name = 'All Users'");
+            $allUsers = SEC_getGroupIdFromName('All Users');
             if (! in_array($allUsers, $groups)) {
                 $groups[] = $allUsers;
             }
-            $logUsers = DB_getItem($_TABLES['groups'], 'grp_id',
-                                   "grp_name = 'Logged-in Users'");
+            $logUsers = SEC_getGroupIdFromName('Logged-in Users');
             if (! in_array($logUsers, $groups)) {
                 $groups[] = $logUsers;
             }

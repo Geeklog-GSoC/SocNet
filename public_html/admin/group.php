@@ -92,8 +92,7 @@ function editgroup($grp_id = '')
         !SEC_groupIsRemoteUserAndHaveAccess($grp_id, $thisUsersGroups)) {
         $retval .= COM_startBlock($LANG_ACCESS['groupeditor'], '',
                            COM_getBlockTemplate('_msg_block', 'header'));
-        if (!SEC_inGroup('Root') && (DB_getItem($_TABLES['groups'],
-                'grp_name', "grp_id = $grp_id") == 'Root')) {
+        if (!SEC_inGroup('Root') && (SEC_getGroupName($grp_id) == 'Root')) {
             $retval .= $LANG_ACCESS['canteditroot'];
             COM_accessLog("User {$_USER['username']} tried to edit the Root group with insufficient privileges.");
         } else {
@@ -131,7 +130,7 @@ function editgroup($grp_id = '')
     $group_templates->set_var('show_all', $showall);
 
     if (! empty($grp_id)) {
-        $result = DB_query("SELECT grp_id,grp_name,grp_descr,grp_gl_core,grp_default FROM {$_TABLES['groups']} WHERE grp_id ='$grp_id'");
+        $result = DB_query("SELECT grp_id,grp_name,grp_descr,grp_gl_core,grp_default,grp_owner FROM {$_TABLES['groups']} WHERE grp_id ='$grp_id'");
         $A = DB_fetchArray($result);
         if ($A['grp_gl_core'] > 0) {
             $group_templates->set_var('chk_adminuse', 'checked="checked"');
@@ -143,6 +142,7 @@ function editgroup($grp_id = '')
         // new group, so it's obviously not a core group
         $A['grp_gl_core'] = 0;
         $A['grp_default'] = 0;
+        $A['grp_owner'] = 0;
     }
 
     $token = SEC_createToken();
@@ -169,6 +169,17 @@ function editgroup($grp_id = '')
         $group_templates->set_var('group_core', 0);
     }
 
+    if ($A['grp_owner'] > 0) {
+        $group_templates->set_var('group_owner', $A['grp_owner']);
+        $group_templates->set_var('hide_owneroption', '');
+        $group_templates->set_var('lang_groupowner', $LANG_ACCESS['groupowner']);
+        $group_templates->set_var('group_owner_name', COM_getDisplayName($A['grp_owner']));
+    } else {
+        $group_templates->set_var('group_owner', 0);
+        $group_templates->set_var('hide_owneroption',
+                                  ' style="display:none;"');
+    }
+
     if ($A['grp_gl_core'] != 1) {
         $group_templates->set_var('groupname_inputtype', 'text');
         $group_templates->set_var('groupname_static', '');
@@ -177,8 +188,7 @@ function editgroup($grp_id = '')
         $group_templates->set_var('groupname_static', $A['grp_name']);
     }
     if (isset($A['grp_name'])) {
-        $group_templates->set_var('group_name', $A['grp_name']);
-
+        $group_templates->set_var('group_name', htmlspecialchars($A['grp_name']));
         switch ($A['grp_name']) {
         case 'All Users':
         case 'Logged-in Users':
@@ -197,7 +207,7 @@ function editgroup($grp_id = '')
     }
 
     if (isset($A['grp_descr'])) {
-        $group_templates->set_var('group_description', $A['grp_descr']);
+        $group_templates->set_var('group_description', htmlspecialchars($A['grp_descr']));
     } else {
         $group_templates->set_var('group_description', '');
     }
@@ -246,7 +256,7 @@ function editgroup($grp_id = '')
     if (empty($groupoptions)) {
         // make sure to list only those groups of which the Group Admin
         // is a member
-        $whereGroups = '(grp_id IN (' . implode (',', $thisUsersGroups) . '))';
+        $whereGroups = '(grp_owner = 0 AND grp_id IN (' . implode (',', $thisUsersGroups) . '))';
 
         $header_arr = array(
                         array('text' => $LANG28[86], 'field' => ($A['grp_gl_core'] == 1 ? 'disabled-checkbox' : 'checkbox'), 'sort' => false),
@@ -293,7 +303,7 @@ function editgroup($grp_id = '')
     }
 
     $group_templates->set_var('rights_options',
-                              printrights($grp_id, $A['grp_gl_core']));
+                              printrights($grp_id, $A['grp_gl_core'] || ($A['grp_owner'] > 0)));
     $group_templates->set_var('gltoken_name', CSRF_TOKEN);
     $group_templates->set_var('gltoken', $token);
     $group_templates->parse('output','editor');
@@ -559,8 +569,7 @@ function savegroup($grp_id, $grp_name, $grp_descr, $grp_admin, $grp_gl_core, $gr
         }
 
         // group names have to be unique, so check if this one exists already
-        $g_id = DB_getItem ($_TABLES['groups'], 'grp_id',
-                            "grp_name = '$grp_name'");
+        $g_id = SEC_getGroupIdFromName($grp_name);
         if ($g_id > 0) {
             if (empty($grp_id) || ($grp_id != $g_id)) {
                 // there already is a group with that name - complain
@@ -584,8 +593,7 @@ function savegroup($grp_id, $grp_name, $grp_descr, $grp_admin, $grp_gl_core, $gr
             DB_save($_TABLES['groups'],
                     'grp_name,grp_descr,grp_gl_core,grp_default',
                     "'$grp_name','$grp_descr',$grp_gl_core,$grp_default");
-            $grp_id = DB_getItem($_TABLES['groups'], 'grp_id',
-                                 "grp_name = '$grp_name'");
+            $grp_id = SEC_getGroupIdFromName($grp_name);
             $new_group = true;
         } else {
             if ($grp_applydefault == 1) {
@@ -751,12 +759,13 @@ function listusers ($grp_id)
     require_once $_CONF['path_system'] . 'lib-admin.php';
 
     $retval = '';
-
+    $grp_owner = DB_getItem($_TABLES['groups'], 'grp_owner', "grp_id=$grp_id");
     $thisUsersGroups = SEC_getUserGroups ();
     if (!empty ($grp_id) &&
         ($grp_id > 0) &&
         !in_array ($grp_id, $thisUsersGroups) &&
-        !SEC_groupIsRemoteUserAndHaveAccess( $grp_id, $thisUsersGroups)) {
+        !SEC_groupIsRemoteUserAndHaveAccess( $grp_id, $thisUsersGroups) &&
+            !SEC_hasRights('group.useradmin') && $grp_owner > 0) {
         $retval .= COM_startBlock ($LANG_ACCESS['usergroupadmin'], '',
                            COM_getBlockTemplate ('_msg_block', 'header'));
         $retval .= $LANG_ACCESS['cantlistgroup'];
@@ -791,8 +800,7 @@ function listusers ($grp_id)
         $form_url .= '&amp;chk_showall=1';
     }
 
-    $groupname = DB_getItem ($_TABLES['groups'], 'grp_name',
-                             "grp_id = '$grp_id'");
+    $groupname = SEC_getGroupName($grp_id);
     $headline = sprintf ($LANG_ACCESS['usersingroup'], $groupname);
 
     $url = $_CONF['site_admin_url'] . '/group.php';
@@ -801,9 +809,13 @@ function listusers ($grp_id)
     }
     $menu_arr = array (
                     array('url'  => $url,
-                          'text' => $LANG28[38]),
-                    array('url'  => $_CONF['site_admin_url'],
-                          'text' => $LANG_ADMIN['admin_home']));
+                          'text' => $LANG28[38]));
+    if ($grp_owner > 0 && isset($_CONF['allow_user_groups']) && $_CONF['allow_user_groups'] > 0) {
+        $menu_arr[] = array('url' => $_CONF['site_admin_url'] .  '/group.php?mode=usergroups&uid=' . $grp_owner,
+                            'text' => $LANG28[91]);
+    }
+    $menu_arr[] = array('url'  => $_CONF['site_admin_url'],
+                        'text' => $LANG_ADMIN['admin_home']);
 
     $retval .= COM_startBlock($headline, '',
                               COM_getBlockTemplate('_admin_block', 'header'));
@@ -850,7 +862,7 @@ function listusers ($grp_id)
 }
 
 /**
-* Display a list of (all) groups
+* Display a list of (all system) groups
 *
 * @param    boolean     $show_all_groups    include admin groups if true
 * @return   string                          HTML of the group list
@@ -882,12 +894,15 @@ function listgroups($show_all_groups = false)
         $edit_url .= '&amp;chk_showall=1';
     }
 
-    $menu_arr = array (
-        array('url' => $edit_url,
-              'text' => $LANG_ADMIN['create_new']),
-        array('url' => $_CONF['site_admin_url'],
-              'text' => $LANG_ADMIN['admin_home'])
-    );
+    $menu_arr = array ( array('url' => $_CONF['site_admin_url'] . '/group.php?mode=edit',
+                              'text' => $LANG_ADMIN['create_new']) );
+    if (isset($_CONF['allow_user_groups']) && $_CONF['allow_user_groups'] > 0) {
+        $menu_arr[] = array('url' => $_CONF['site_admin_url'] .  '/group.php?mode=usergroups',
+                            'text' => $LANG28[91]);
+    }
+
+    $menu_arr[] = array('url' => $_CONF['site_admin_url'],
+                        'text' => $LANG_ADMIN['admin_home']);
 
     $retval .= COM_startBlock($LANG_ACCESS['groupmanager'], '',
                               COM_getBlockTemplate('_admin_block', 'header'));
@@ -921,14 +936,14 @@ function listgroups($show_all_groups = false)
         $filter .= '<label for="chk_showall"><input id="chk_showall" type="checkbox" name="chk_showall" value="1" checked="checked"' . XHTML . '>';
         $query_arr = array(
             'table' => 'groups',
-            'sql' => "SELECT * FROM {$_TABLES['groups']} WHERE 1=1",
+            'sql' => "SELECT * FROM {$_TABLES['groups']} WHERE grp_owner = 0",
             'query_fields' => array('grp_name', 'grp_descr'),
             'default_filter' => $grpFilter);
     } else {
         $filter .= '<label for="chk_showall"><input id="chk_showall" type="checkbox" name="chk_showall" value="1"' . $checked . XHTML . '>';
         $query_arr = array(
             'table' => 'groups',
-            'sql' => "SELECT * FROM {$_TABLES['groups']} WHERE (grp_gl_core = 0 OR grp_name IN ('All Users','Logged-in Users'))",
+            'sql' => "SELECT * FROM {$_TABLES['groups']} WHERE grp_owner = 0 AND (grp_gl_core = 0 OR grp_name IN ('All Users','Logged-in Users'))",
             'query_fields' => array('grp_name', 'grp_descr'),
             'default_filter' => $grpFilter);
     }
@@ -936,6 +951,95 @@ function listgroups($show_all_groups = false)
 
     $retval .= ADMIN_list('groups', 'ADMIN_getListField_groups', $header_arr,
                           $text_arr, $query_arr, $defsort_arr, $filter);
+    $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
+
+    return $retval;
+}
+
+/**
+* Display a list of user groups based on user id
+*
+* @param    int     $uid    User whose groups are to be fetched
+*
+*/
+function listgroupsbyuser($uid = 0)
+{
+    global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_ACCESS, $LANG28, $_IMAGE_TYPE, $_USER;
+
+    require_once $_CONF['path_system'] . 'lib-admin.php';
+
+    if ($uid <= 1) $uid = $_USER['uid'];
+    
+    if (!SEC_hasRights('group.useradmin') || $uid <= 1) {
+        $retval .= COM_startBlock ($LANG_ACCESS['usergroupadmin'], '',
+                           COM_getBlockTemplate ('_msg_block', 'header'));
+        $retval .= $LANG_ACCESS['cantviewgroup'];
+        $retval .= COM_endBlock (COM_getBlockTemplate ('_msg_block', 'footer'));
+
+        return $retval;
+    }
+
+    $retval = '';
+
+    $header_arr = array(      // display 'text' and use table field 'field'
+        array('text' => $LANG_ADMIN['edit'], 'field' => 'edit', 'sort' => false),
+        array('text' => $LANG_ACCESS['groupname'], 'field' => 'grp_name', 'sort' => true),
+        array('text' => $LANG_ACCESS['description'], 'field' => 'grp_descr', 'sort' => true),
+        array('text' => $LANG_ACCESS['listusers'], 'field' => 'list', 'sort' => false)
+    );
+
+    $defsort_arr = array('field' => 'grp_name', 'direction' => 'asc');
+
+    $form_url = $_CONF['site_admin_url'] . '/group.php?mode=usergroups';
+    if ($show_all_groups) {
+        $form_url .= '?chk_showall=1';
+    }
+
+    $menu_arr = Array(
+                    array('url' => $_CONF['site_admin_url'] .  '/group.php',
+                          'text' => $LANG28[38]),
+                    array('url' => $_CONF['site_admin_url'],
+                          'text' => $LANG_ADMIN['admin_home']) );
+
+    $retval .= COM_startBlock($LANG_ACCESS['groupmanager'], '',
+                              COM_getBlockTemplate('_admin_block', 'header'));
+
+    $retval .= ADMIN_createMenu(
+        $menu_arr,
+        $LANG_ACCESS['newgroupmsg'],
+        $_CONF['layout_url'] . '/images/icons/group.' . $_IMAGE_TYPE
+    );
+
+    $text_arr = array(
+        'has_extras' => true,
+        'form_url'   => $form_url
+    );
+
+    $filter = '<span style="padding-right:20px;">';
+
+    $checked ='';
+    if ($show_all_groups) {
+        $checked = ' checked="checked"';
+    }
+    $userlist = '<label for="uid">' . $LANG28[3] . '</label><select name="uid">';
+    $userres = DB_query("SELECT uid, username, fullname, remoteusername, remoteservice FROM {$_TABLES['users']}");
+    while ($A = DB_fetchArray($userres)) {
+        if ($uid <= 1) continue;
+        $selected = $uid == $A['uid'] ? ' selected="selected"' : '';
+        $userlist .= '<option value="' . $A['uid'] . '"'. $selected . '>' 
+                  . COM_getDisplayName($A['uid'], $A['username'], $A['fullname'], $A['remoteusername'], $A['remoteservice'])
+                  . "</option>" . LB;
+    }
+   $userlist .= '</select>';
+
+    $query_arr = array(
+        'table' => 'groups',
+        'sql' => "SELECT * FROM {$_TABLES['groups']} WHERE grp_owner = $uid ",
+        'query_fields' => array('grp_name', 'grp_descr'),
+        'default_filter' => '');
+
+    $retval .= ADMIN_list('groups', 'ADMIN_getListField_groups', $header_arr,
+                          $text_arr, $query_arr, $defsort_arr, $userlist);
     $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
 
     return $retval;
@@ -1009,10 +1113,9 @@ function editusers($group)
 
     $retval = '';
 
-    $grp_name = DB_getItem($_TABLES['groups'], 'grp_name', "grp_id = $group");
+    $grp_name = SEC_getGroupName($group);
 
     $thisUsersGroups = SEC_getUserGroups();
-    $groupName = DB_getItem($_TABLES['groups'], 'grp_name', "grp_id='$group'");
     if ((!empty($group) && ($group > 0) &&
                 !in_array($group, $thisUsersGroups) &&
                 !SEC_groupIsRemoteUserAndHaveAccess($group, $thisUsersGroups))
@@ -1045,7 +1148,7 @@ function editusers($group)
                           'text' => $LANG_ADMIN['admin_home'])
                 );
 
-    $retval .= COM_startBlock($LANG_ACCESS['usergroupadmin'] . " - $groupName",
+    $retval .= COM_startBlock($LANG_ACCESS['usergroupadmin'] . " - $grp_name",
                         '', COM_getBlockTemplate('_admin_block', 'header'));
 
     $retval .= ADMIN_createMenu($menu_arr, $LANG_ACCESS['editgroupmsg'],
@@ -1156,8 +1259,7 @@ function deleteGroup ($grp_id)
 {
     global $_CONF, $_TABLES, $_USER;
 
-    if (!SEC_inGroup ('Root') && (DB_getItem ($_TABLES['groups'], 'grp_name',
-            "grp_id = $grp_id") == 'Root')) {
+    if (!SEC_inGroup ('Root') && (SEC_getGroupName($grp_id) == 'Root')) {
         COM_accessLog ("User {$_USER['username']} tried to delete the Root group with insufficient privileges.");
 
         return COM_refresh ($_CONF['site_admin_url'] . '/group.php');
@@ -1246,6 +1348,11 @@ if (($mode == $LANG_ADMIN['delete']) && !empty ($LANG_ADMIN['delete'])) {
     $grp_id = COM_applyFilter ($_REQUEST['grp_id'], true);
     $display .= COM_siteHeader ('menu', $LANG_ACCESS['usergroupadmin']);
     $display .= editusers ($grp_id);
+    $display .= COM_siteFooter ();
+} elseif ($mode == 'usergroups') {
+    $uid = COM_applyFilter ($_REQUEST['uid'], true);
+    $display .= COM_siteHeader ('menu', $LANG28[91]);
+    $display .= listgroupsbyuser($uid);
     $display .= COM_siteFooter ();
 } else { // 'cancel' or no mode at all
     $show_all_groups = false;

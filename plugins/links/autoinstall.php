@@ -130,10 +130,8 @@ function plugin_postinstall_links($pi_name)
     $inst_parms = plugin_autoinstall_links($pi_name);
     $pi_admin = key($inst_parms['groups']);
 
-    $admin_group_id = DB_getItem($_TABLES['groups'], 'grp_id',
-                                 "grp_name = '{$pi_admin}'");
-    $blockadmin_id = DB_getItem($_TABLES['groups'], 'grp_id',
-                                "grp_name = 'Block Admin'");
+    $admin_group_id = SEC_getGroupIdFromName($pi_admin);
+    $blockadmin_id = SEC_getGroupIdFromName('Block Admin');
 
     $L_SQL = array();
     $L_SQL[] = "INSERT INTO {$_TABLES['linkcategories']} (cid, pid, category, description, tid, created, modified, group_id, owner_id, perm_owner, perm_group, perm_members, perm_anon) VALUES ('{$_LI_CONF['root']}', 'root', 'Root', 'Website root', '', NOW(), NOW(), #group#, 2, 3, 3, 2, 2)";

@@ -197,7 +197,7 @@ function links_edit_category($cid, $pid)
     } else {
         // nothing, so making a new top-level category
         // get default access rights
-        $A['group_id'] = DB_getItem($_TABLES['groups'], 'grp_id', "grp_name='Links Admin'");
+        $A['group_id'] = SEC_getGroupIdFromName('Links Admin');
         SEC_setDefaultPermissions($A, $_LI_CONF['category_permissions']);
         $A['owner_id'] = $_USER['uid'];
         $A['pid']      = $_LI_CONF['root'];

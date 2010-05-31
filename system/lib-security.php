@@ -88,21 +88,14 @@ if (!defined('CSRF_TOKEN')) {
 *       be used once at the beginning of a page.  The resulting array $_GROUPS can then be
 *       used through out the page.
 *
-* The grp_name is stored in the array key. To avoid name collisions among user groups, any
-* non-zero grp_owner is appended to the group name as $grp_name:$grp_owner. This means the 
-* keys in $_GROUPS must NOT be used to display a group list without further processing.
-*
-* @param    int     $uid            User ID to get information for. If empty current user.
-* @param    string  $filter         Used to limit the type of groups selected.
+* @param        int     $uid            User ID to get information for. If empty current user.
 * @return	array	Associative Array grp_name -> ug_main_grp_id of group ID's user belongs to
 *
 */
-function SEC_getUserGroups($uid='',$filter='')
+function SEC_getUserGroups($uid='')
 {
     global $_TABLES, $_USER, $_SEC_VERBOSE;
-    
-    static $unfiltered_cache = Array();
-    
+
     if ($_SEC_VERBOSE) {
         COM_errorLog("****************in getusergroups(uid=$uid,usergroups=$usergroups,cur_grp_id=$cur_grp_id)***************",1);
     }
@@ -117,20 +110,10 @@ function SEC_getUserGroups($uid='',$filter='')
         }
     }
 
-    if (empty($filter) && array_key_exists($uid, $unfiltered_cache)) {
-        return $unfiltered_cache[$uid];
-    }
-    $sql = "SELECT ug_main_grp_id,grp_name,grp_owner FROM {$_TABLES['group_assignments']},{$_TABLES['groups']}"
-         . " WHERE grp_id = ug_main_grp_id AND ug_uid = $uid";
-    if (!empty($filter))
-        $sql .= " AND ($filter)";
-
-    $result = DB_query($sql,1);
+    $result = DB_query("SELECT ug_main_grp_id,grp_name FROM {$_TABLES["group_assignments"]},{$_TABLES["groups"]}"
+            . " WHERE grp_id = ug_main_grp_id AND ug_uid = $uid",1);
 
     if ($result == -1) {
-        if (empty($filter)) {
-            $unfiltered_cache[$uid] = $groups;
-        }
         return $groups;
     }
 
@@ -170,9 +153,7 @@ function SEC_getUserGroups($uid='',$filter='')
     if ($_SEC_VERBOSE) {
         COM_errorLog("****************leaving getusergroups(uid=$uid)***************",1);
     }
-    if (empty($filter)) {
-        $unfiltered_cache[$uid] = $groups;
-    }
+
     return $groups;
 }
 
@@ -190,12 +171,21 @@ function SEC_getUserGroups($uid='',$filter='')
 function SEC_groupIsRemoteUserAndHaveAccess($groupid, $groups)
 {
     global $_TABLES, $_CONF;
-    if ($groupid == SEC_getGroupIdFromName('Remote Users'))
+    if(!isset($_CONF['remote_users_group_id']))
     {
-        if (in_array(1, $groups) || // root
-            in_array(9, $groups) || // user admin
-            in_array(11, $groups)   // Group admin
-           )
+        $result = DB_query("SELECT grp_id FROM {$_TABLES['groups']} WHERE grp_name='Remote Users'");
+        if( $result )
+        {
+            $row = DB_fetchArray( $result );
+            $_CONF['remote_users_group_id'] = $row['grp_id'];
+        }
+    }
+    if( $groupid == $_CONF['remote_users_group_id'] )
+    {
+        if( in_array( 1, $groups ) || // root
+            in_array( 9, $groups ) || // user admin
+            in_array( 11, $groups ) // Group admin
+          )
         {
             return true;
         } else {
@@ -207,10 +197,10 @@ function SEC_groupIsRemoteUserAndHaveAccess($groupid, $groups)
 }
 
 /**
-* Determines if user belongs to specified SYSTEM group
+* Determines if user belongs to specified group
 *
 * This is part of the Geeklog security implementation. This function
-* looks up whether a user belongs to a specified system group
+* looks up whether a user belongs to a specified group
 *
 * @param        string      $grp_to_verify      Group we want to see if user belongs to
 * @param        int         $uid                ID for user to check. If empty current user.
@@ -857,7 +847,8 @@ function SEC_remoteAuthentication(&$loginname, $passwd, $service, &$uid)
                 // Store full remote account name:
                 DB_query("UPDATE {$_TABLES['users']} SET remoteusername='$remoteusername', remoteservice='$remoteservice', status=3 WHERE uid='$uid'");
                 // Add to remote users:
-                $remote_grp = SEC_getGroupIdFromName('Remote Users');
+                $remote_grp = DB_getItem($_TABLES['groups'], 'grp_id',
+                                         "grp_name='Remote Users'");
                 DB_query("INSERT INTO {$_TABLES['group_assignments']} (ug_main_grp_id,ug_uid) VALUES ($remote_grp, $uid)");
                 return 3; // Remote auth precludes usersubmission,
                           // and integrates user activation, see?
@@ -918,13 +909,9 @@ function SEC_collectRemoteAuthenticationModules()
 function SEC_addUserToGroup($uid, $gname)
 {
     global $_TABLES, $_CONF;
-    
-    if ($uid < 2) return 'ANONYMOUS';
-    if (SEC_inGroup($gname, $uid)) return 'DUPE';
-    
-    $remote_grp = SEC_getGroupIdFromName($gname);
+
+    $remote_grp = DB_getItem ($_TABLES['groups'], 'grp_id', "grp_name='". $gname ."'");
     DB_query ("INSERT INTO {$_TABLES['group_assignments']} (ug_main_grp_id,ug_uid) VALUES ($remote_grp, $uid)");
-    return 'OK';
 }
 
 /**
@@ -1034,28 +1021,23 @@ function SEC_removeFeatureFromDB ($feature_name, $logging = false)
 /**
 * Create a group dropdown
 *
-* Creates the group dropdown menu that's used on pretty much every admin page.
-* Only returns system groups. Socnet will have to provide a similar function for
-* non-admin page group dropdowns.
+* Creates the group dropdown menu that's used on pretty much every admin page
 *
 * @param    int     $group_id   current group id (to be selected)
 * @param    int     $access     access permission
 * @return   string              HTML for the dropdown
 *
 */
-function SEC_getGroupDropdown ($group_id, $access, $blank_opt = '')
+function SEC_getGroupDropdown ($group_id, $access)
 {
     global $_TABLES;
 
     $groupdd = '';
 
     if ($access == 3) {
-        $usergroups = SEC_getUserGroups(0,'grp_owner=0');
+        $usergroups = SEC_getUserGroups ();
 
         $groupdd .= '<select name="group_id">' . LB;
-        if (!empty($blank_opt)) {
-            $groupdd .= '<option value"">' . $blank_opt . '</option>' . LB;
-        }
         foreach ($usergroups as $ug_name => $ug_id) {
             $groupdd .= '<option value="' . $ug_id . '"';
             if ($group_id == $ug_id) {
@@ -1066,105 +1048,14 @@ function SEC_getGroupDropdown ($group_id, $access, $blank_opt = '')
         $groupdd .= '</select>' . LB;
     } else {
         // They can't set the group then
-        $groupdd .= SEC_getGroupName($group_id)
+        $groupdd .= DB_getItem ($_TABLES['groups'], 'grp_name',
+                                "grp_id = '$group_id'")
                  . '<input type="hidden" name="group_id" value="' . $group_id
                  . '"' . XHTML . '>';
     }
 
     return $groupdd;
 }
-
-/**
-  * Returns the id of a group given its name.
-  *
-  * @param      name        string  The name of the group to look up
-  * @param      owner       int     The user_id of the groups owner (default=0, system group)
-  * @return     int
-  */
-function SEC_getGroupIdFromName($name, $owner = 0)
-{
-    global $_TABLES;
-    static $cache = Array();
-
-    if (!isset($cache[$owner][$name]))
-    {
-        $safe_name = addslashes($name);
-        $safe_owner = intval($owner);
-        $cache[$owner][$name] = DB_getItem($_TABLES['groups'], 'grp_id',
-                                "grp_name='$safe_name' AND grp_owner=$safe_owner");
-    }
-    
-    return $cache[$owner][$name];
-}
-
-
-/**
-  * Returns the name of a given group id.
-  * Caches the return value to speed up repeated calls for the same info
-  *
-  * @param      grp_id      int     The group id of the group
-  * @return     string
-  */
-function SEC_getGroupName($grp_id)
-{
-    global $_TABLES;
-    static $cache = Array();
-
-    if (!isset($cache[$grp_id]))
-    {
-        $safe_grpid = intval($grp_id);
-        $cache[$grp_id] = DB_getItem($_TABLES['groups'], 'grp_name',
-                                     "grp_id='$safe_grpid'");
-    }
-    return $cache[$grp_id];
-}
-
-
-/**
-  * Returns the id of a group given its name.
-  *
-  * @param      name        string  The name of the group to look up
-  * @param      owner       int     The user_id of the groups owner (default=0, system group)
-  * @return     int
-  */
-function SEC_getGroupIdFromName($name, $owner = 0)
-{
-    global $_TABLES;
-    static $cache = Array();
-
-    if (!isset($cache[$owner][$name]))
-    {
-        $safe_name = addslashes($name);
-        $safe_owner = intval($owner);
-        $cache[$owner][$name] = DB_getItem($_TABLES['groups'], 'grp_id',
-                                "grp_name='$safe_name' AND grp_owner=$safe_owner");
-    }
-    
-    return $cache[$owner][$name];
-}
-
-
-/**
-  * Returns the name of a given group id.
-  * Caches the return value to speed up repeated calls for the same info
-  *
-  * @param      grp_id      int     The group id of the group
-  * @return     string
-  */
-function SEC_getGroupName($grp_id)
-{
-    global $_TABLES;
-    static $cache = Array();
-
-    if (!isset($cache[$grp_id]))
-    {
-        $safe_grpid = intval($grp_id);
-        $cache[$grp_id] = DB_getItem($_TABLES['groups'], 'grp_name',
-                                     "grp_id='$safe_grpid'");
-    }
-    return $cache[$grp_id];
-}
-
 
 /**
 * Encrypt password

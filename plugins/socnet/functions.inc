@@ -32,10 +32,9 @@ function plugin_autouninstall_socnet ()
  * @param    int/string   $uid       User ID or name to get information for. If empty current user.
  * @param    int/string   $gid       The group we are looking at. Could be passed in as ID or name
  * @param    bool         $id        Whether we are passing in the parameters as ID's or names. True if ID's
- * @return	bool		             Returns whether the user is the group admin
+ * @return	 bool		             Returns whether the user is the group admin
  */
 function isGroupAdmin($uid, $gid,$id) {
-
 	if($id) {
 		$sql = "SELECT grp_owner from {$_TABLES['groups']} WHERE grp_id=$gid AND grp_owner=$uid";
 	}
@@ -48,11 +47,110 @@ function isGroupAdmin($uid, $gid,$id) {
 	$result = DB_query($sql,1);
 	
 	$nrows = DB_numRows($result);
-	if ($_SEC_VERBOSE) {
-        COM_errorLog("got $nrows rows",1);
-    }
     
 	return ($nrows==1);
+}
 
+/*
+ * Returns the ID of the group admin. Returns -1 if there is no admin.
+ * 
+ * @param	 int		$gid       The group that you want to fetch the admin from
+ * 
+ * return    int                     Returns the group admin. Returns -1 if there is no admin
+ */
+function getGroupAdmin($gid) {
+	$sql="SELECT grp_owner FROM {$_TABLES['groups']} WHERE grp_id=$gid";
+	$result = DB_query($sql,1);
+	
+	$data = DB_fetchArray($result);
+	
+	return $data[0];
+}
+
+//modified savegroupusers from group.php to support Socnet
+
+/**
+* Save changes from the form to add/remove users to/from groups
+*
+* @param    int     $groupid        id of the group being changed
+* @param    string  $groupmembers   list of group members
+* @param    int     $grp_owner      id of the new group owner
+* @return   string                  HTML redirect
+*
+*/
+function savegroupusers($groupid, $groupmembers, $grp_owner=-1)
+{
+    global $_CONF, $_TABLES;
+	$grp_owner_valid=true;
+    $retval = '';
+	$curr_owner = DB_getItem($_TABLES['groups'], 'grp_owner', "grp_id=$groupid");
+    $updateUsers = explode("|", $groupmembers);
+    $updateCount = count($updateUsers);
+    if ($updateCount > 0) {
+
+        // Retrieve all existing users in group so we can determine if changes
+        // are needed
+        $activeUsers = array();
+        $query = DB_query("SELECT ug_uid FROM {$_TABLES['group_assignments']} WHERE ug_main_grp_id = $groupid");
+        if (DB_numRows($query) > 0) {
+            while ($A = DB_fetchArray($query, false)) {
+                array_push($activeUsers, $A['ug_uid']);
+            }
+            $deleteGroupUsers = array_diff($activeUsers, $updateUsers);
+            $addGroupUsers = array_diff($updateUsers, $activeUsers);
+            if (is_array($deleteGroupUsers) AND count($deleteGroupUsers) > 0) {
+                foreach ($deleteGroupUsers as $uid) {
+                    $uid = COM_applyFilter($uid, true);
+                    if($grp_owner!=-1) {
+                    	if($grp_owner==$uid)
+                    		$grp_owner_valid=false;
+                    }
+                    else if($curr_owner!=0) {
+                    	if($curr_owner==$uid)
+                    		$grp_owner_valid=false;
+                    }
+                    else
+                    	$grp_owner_valid=false;
+                    if($grp_owner_valid)
+                    	DB_query("DELETE FROM {$_TABLES['group_assignments']} WHERE ug_main_grp_id = $groupid AND ug_uid = $uid");
+                }
+            }
+            if (is_array($addGroupUsers) AND count($addGroupUsers) > 0 AND $grp_owner_valid) {
+                foreach ($addGroupUsers as $uid) {
+                    $uid = COM_applyFilter($uid, true);
+                    DB_query("INSERT INTO {$_TABLES['group_assignments']} (ug_main_grp_id, ug_uid) VALUES ('$groupid', $uid)");
+                }
+            }
+
+        } else {
+        
+
+            // No users, no group owner
+            if($grp_owner==-1)
+            	$grp_owner_valid=false;
+	        if($grp_owner_valid) {
+	            for ($i = 0; $i < $updateCount; $i++) {
+	                $updateUsers[$i] = COM_applyFilter($updateUsers[$i], true);
+	                DB_query("INSERT INTO {$_TABLES['group_assignments']} (ug_main_grp_id, ug_uid) VALUES ('$groupid', '$updateUsers[$i]')");
+	            }
+	
+	      	}
+        }
+
+    }
+    
+    if($grp_owner>0)
+    {
+    	$sql="UPDATE {$_TABLES['groups']} SET grp_owner=$grp_owner WHERE grp_id=$groupid";
+    	$query = DB_query($sql);
+    }
+
+    if (isset($_REQUEST['chk_showall']) && ($_REQUEST['chk_showall'] == 1)) {
+        $retval = COM_refresh($_CONF['site_admin_url'] . '/socnet/socgroups.php?msg=49&chk_showall=1');
+    } else {
+        $retval = COM_refresh($_CONF['site_admin_url'] . '/socnet/socgroups.php?msg=49');
+    }
+
+    return $retval;
 }
 ?>

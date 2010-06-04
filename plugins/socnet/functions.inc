@@ -23,6 +23,64 @@ function plugin_autouninstall_socnet ()
     return $out;
 }
 
+function plugin_getadminoption_socnet()
+{
+    global $_CONF, $_TABLES, $LANG_CAL_1;
+/*
+    if (SEC_hasRights ('calendar.edit')) {
+        $result = DB_query ("SELECT COUNT(*) AS cnt FROM {$_TABLES['events']}" . COM_getPermSQL ());
+        $A = DB_fetchArray ($result);
+        $total_events = $A['cnt'];
+
+        return array ($LANG_CAL_1[16],
+                      $_CONF['site_admin_url'] . '/plugins/socnet/index.php',
+                      $total_events);
+    }
+    */
+    
+    return array ('Socnet',
+                      $_CONF['site_admin_url'] . '/plugins/socnet/index.php',
+                      '');
+}
+
+/**
+* returns the user option for this plugin
+*
+*/
+function plugin_getuseroption_socnet()
+{
+    global $_CONF;
+    $url = $_CONF['site_url'] . '/socnet/index.php?mode=personal';
+    return array ('SocNet Groups', $url, '');
+}
+
+
+/**
+* A user is about to be deleted. Update ownership of any events owned
+* by that user or delete them.
+*
+* @param   uid   int   User id of deleted user
+*
+*/
+function plugin_user_delete_socnet ($uid)
+{
+    global $_TABLES;
+
+    DB_delete ($_TABLES['personal_events'], 'owner_id', $uid);
+
+    if ($_CA_CONF['delete_event'] == 1) {
+        // delete the events
+        DB_delete ($_TABLES['events'], 'owner_id', $uid);
+
+    } else {
+        // assign ownership to a user from the Root group
+        $rootgroup = SEC_getGroupIdFromName('Root');
+        $result = DB_query ("SELECT DISTINCT ug_uid FROM {$_TABLES['group_assignments']} WHERE ug_main_grp_id = $rootgroup ORDER BY ug_uid LIMIT 1");
+        list($rootuser) = DB_fetchArray ($result);
+        DB_query ("UPDATE {$_TABLES['events']} SET owner_id = $rootuser WHERE owner_id = $uid");
+    }
+}
+
 /*
  * Returns true or false whether the user is the group admin
  * 
@@ -152,5 +210,44 @@ function savegroupusers($groupid, $groupmembers, $grp_owner=-1)
     }
 
     return $retval;
+}
+
+/*
+ * Edit the user privacy settings
+ * $perm['enabled'] tells whether or not the user wants to use socnet at all
+ * $perm['private'] tells whether the user wants to keep himself hidden from socnet, but not removed
+ * $perm['invites'] tells whether the user accepts new group invites
+ * $perm['profile'] tells whether the user wants his soc info on this profile shown
+ * 
+ * @param    int		$uid 	  The user id
+ * @param    int		$gid	  The group id
+ * @param	 array		$perm	  The array of permissions
+ */							       
+function editPrivacy($uid,$gid,$perm) {
+	global $_TABLES;
+	$sql="UPDATE {$_TABLES['users_socnetinfo']}, SET enabled = {$perm['enabled']},
+		private = {$perm['private']}, acceptinvites = {$perm['accept']}, show_profile
+		 = {$perm['profile']};";
+	DB_query($sql);
+}
+
+/* Sends an email to the user to join the group, requested by the admin 
+ * 
+ * @param   int    $uid  The User id
+ * @param   int    $gid  The group id
+ * $param   string $message Custom email message. Default is givin if empty
+ */
+function sendJoinRequest($uid, $gid, $message='') {
+	global $_CONF, $_TABLES;
+	/*generate the url */
+	
+	$subject ="{$_CONF['site_name']} group invitation."; 
+	$group = DB_getItem($_TABLES['groups'], 'grp_name', "grp_id=$gid");
+	$email = DB_getItem($_TABLES['users'], 'email', "uid=$uid");
+	if(strlen($message)==0) {
+		$message = "Group $group has requested you join thier group.";
+	}
+	$message .= "\nTo accept this invitation, please <a href='$url'>click here</a>";
+	mail($email,$subject,$message);
 }
 ?>

@@ -237,10 +237,10 @@ function editPrivacy($uid,$gid,$perm) {
  * @param   int    $gid  The group id
  * $param   string $message Custom email message. Default is givin if empty
  */
-function sendJoinRequest($uid, $gid, $message='') {
+function sendGroupJoinRequest($uid, $gid, $message='') {
 	global $_CONF, $_TABLES;
 	/*generate the url */
-	
+	$url='';
 	$subject ="{$_CONF['site_name']} group invitation."; 
 	$group = DB_getItem($_TABLES['groups'], 'grp_name', "grp_id=$gid");
 	$email = DB_getItem($_TABLES['users'], 'email', "uid=$uid");
@@ -248,6 +248,29 @@ function sendJoinRequest($uid, $gid, $message='') {
 		$message = "Group $group has requested you join thier group.";
 	}
 	$message .= "\nTo accept this invitation, please <a href='$url'>click here</a>";
-	mail($email,$subject,$message);
+	//mail($email,$subject,$message); use geeklog way of sending mail
+}
+
+/* Sends a group join request to the group admin
+ * 
+ * @param    int 	$uid  		 The User id
+ * @param    int 	$gid   	 	 The Group id
+ * @param    string $message     A custom message to the group admin
+ */
+function sendUserJoinRequest($uid,$gid,$message='') {
+	global $_CONF, $_TABLES;
+	/*generate the url */
+	$url='';
+	$result = DB_query("SELECT grp_name, grp_owner FROM {$_TABLES['groups']} WHERE grp_id=$gid");
+	$A = DB_fetchArray($result, false);
+	list($groupname,$grp_owner) = $A;
+	$username = DB_getItem($_TABLES['users'], 'username', "uid=$uid");
+	$subject = "$username has sent a request to join your group $groupname";
+	$grp_email = DB_getItem($_TABLES['users'], 'email', "uid=$grp_owner");
+	if($message=='') {
+			$message = "User $username has requested to join your group, $groupname.";
+		}
+	$message .= "\nTo accept this join request, please <a href='$url'>click here</a>";
+	//mail($grp_email,$subject,$message); use geeklog way of sending email
 }
 ?>

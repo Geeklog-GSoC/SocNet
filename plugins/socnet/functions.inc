@@ -136,7 +136,7 @@ function getGroupAdmin($gid) {
 * @return   string                  HTML redirect
 *
 */
-function savegroupusers($groupid, $groupmembers, $grp_owner=-1)
+function soc_savegroupusers($groupid, $groupmembers, $grp_owner=-1)
 {
     global $_CONF, $_TABLES;
 	$grp_owner_valid=true;
@@ -212,6 +212,222 @@ function savegroupusers($groupid, $groupmembers, $grp_owner=-1)
     return $retval;
 }
 
+/**
+ * Modified from group.php to support socnet
+* Save a group to the database
+*
+* @param    string  $grp_id         ID of group to save
+* @param    string  $grp_name       Group Name
+* @param    string  $grp_descr      Description of group
+* @param    boolean $grp_admin      Flag that indicates this is an admin use group
+* @param    boolean $grp_gl_core    Flag that indicates if this is a core Geeklog group
+* @param    boolean $grp_default    Flag that indicates if this is a default group
+* @param    boolean $grp_applydefault  Flag that indicates whether to apply a change in $grp_default to all existing user accounts
+* @param    array   $features       Features the group has access to
+* @param    array   $groups         Groups this group will belong to
+* @return   string                  HTML refresh or error message
+*
+*/
+function soc_savegroup($grp_id, $grp_name, $grp_descr, $grp_admin, $grp_gl_core, $grp_default, $grp_applydefault, $features, $groups)
+{
+    global $_CONF, $_TABLES, $_USER, $LANG_ACCESS, $_GROUP_VERBOSE;
+
+    $retval = '';
+    if (!empty($grp_name) && !empty($grp_descr)) {
+        $GroupAdminGroups = SEC_getUserGroups();
+        if (!empty ($grp_id) &&
+            ($grp_id > 0) &&
+            !in_array ($grp_id, $GroupAdminGroups) &&
+            !SEC_groupIsRemoteUserAndHaveAccess($grp_id, $GroupAdminGroups)) {
+            COM_accessLog ("User {$_USER['username']} tried to edit group '$grp_name' ($grp_id) with insufficient privileges.");
+
+            return COM_refresh ($_CONF['site_admin_url'] . '/group.php');
+        }
+
+        if ($grp_gl_core == 1 AND !is_array ($features)) {
+            COM_errorLog ("Sorry, no valid features were passed to this core group ($grp_id) and saving could cause problem...bailing.");
+
+            return COM_refresh ($_CONF['site_admin_url'] . '/group.php');
+        }
+
+        // group names have to be unique, so check if this one exists already
+        $g_id = SEC_getGroupIdFromName($grp_name);
+        if ($g_id > 0) {
+            if (empty($grp_id) || ($grp_id != $g_id)) {
+                // there already is a group with that name - complain
+                $retval .= COM_siteHeader ('menu', $LANG_ACCESS['groupeditor']);
+                $retval .= COM_startBlock ($LANG_ACCESS['groupexists'], '',
+                           COM_getBlockTemplate ('_msg_block', 'header'));
+                $retval .= $LANG_ACCESS['groupexistsmsg'];
+                $retval .= COM_endBlock (COM_getBlockTemplate ('_msg_block', 'footer'));
+                $retval .= editgroup ($grp_id);
+                $retval .= COM_siteFooter ();
+
+                return $retval;
+            }
+        }
+
+        $grp_descr = COM_stripslashes($grp_descr);
+        $grp_descr = addslashes($grp_descr);
+
+        $grp_applydefault_add = true;
+        if (empty($grp_id)) {
+            DB_save($_TABLES['groups'],
+                    'grp_name,grp_descr,grp_gl_core,grp_default',
+                    "'$grp_name','$grp_descr',$grp_gl_core,$grp_default");
+            $grp_id = SEC_getGroupIdFromName($grp_name);
+            $new_group = true;
+        } else {
+            if ($grp_applydefault == 1) {
+                // check if $grp_default changed
+                $old_default = DB_getItem($_TABLES['groups'], 'grp_default',
+                                          "grp_id = $grp_id");
+                if ($old_default == $grp_default) {
+                    // no change required
+                    $grp_applydefault = 0;
+                } elseif ($old_default == 1) {
+                    $grp_applydefault_add = false;
+                }
+            }
+
+            DB_save($_TABLES['groups'],
+                    'grp_id,grp_name,grp_descr,grp_gl_core,grp_default',
+                    "$grp_id,'$grp_name','$grp_descr',$grp_gl_core,$grp_default");
+            $new_group = false;
+        }
+
+        if (empty($grp_id) || ($grp_id < 1)) {
+            // "this shouldn't happen"
+            COM_errorLog("Internal error: invalid group id");
+            $retval .= COM_siteHeader('menu', $LANG_ACCESS['groupeditor']);
+            $retval .= COM_showMessage(95);
+            $retval .= COM_siteFooter();
+
+            return $retval;
+        }
+
+        // Use the field grp_gl_core to indicate if this non-core GL Group
+        // is an Admin related group
+        if (($grp_gl_core != 1) AND ($grp_id > 1)) {
+            if ($grp_admin == 1) {
+                DB_query("UPDATE {$_TABLES['groups']} SET grp_gl_core=2 WHERE grp_id=$grp_id");
+            } else {
+                DB_query("UPDATE {$_TABLES['groups']} SET grp_gl_core=0 WHERE grp_id=$grp_id");
+            }
+        }
+
+        // now save the features
+        DB_delete($_TABLES['access'], 'acc_grp_id', $grp_id);
+        $num_features = count($features);
+        if (SEC_inGroup('Root')) {
+            foreach ($features as $f) {
+                DB_query ("INSERT INTO {$_TABLES['access']} (acc_ft_id,acc_grp_id) VALUES ($f,$grp_id)");
+            }
+        } else {
+            $GroupAdminFeatures = SEC_getUserPermissions();
+            $availableFeatures = explode(',', $GroupAdminFeatures);
+            foreach ($features as $f) {
+                if (in_array($f, $availableFeatures)) {
+                    DB_query("INSERT INTO {$_TABLES['access']} (acc_ft_id,acc_grp_id) VALUES ($f,$grp_id)");
+                }
+            }
+        }
+        if ($_GROUP_VERBOSE) {
+            COM_errorLog('groups = ' . $groups);
+            COM_errorLog("deleting all group_assignments for group $grp_id/$grp_name",1);
+        }
+
+        DB_delete($_TABLES['group_assignments'], 'ug_grp_id', $grp_id);
+        if (! empty($groups)) {
+            foreach ($groups as $g) {
+                if (in_array($g, $GroupAdminGroups)) {
+                    if ($_GROUP_VERBOSE) {
+                        COM_errorLog("adding group_assignment $g for $grp_name",1);
+                    }
+                    $sql = "INSERT INTO {$_TABLES['group_assignments']} (ug_main_grp_id, ug_grp_id) VALUES ($g,$grp_id)";
+                    DB_query($sql);
+                }
+            }
+        }
+
+        // Make sure Root group belongs to any new group
+        if (DB_getItem ($_TABLES['group_assignments'], 'COUNT(*)',
+                "ug_main_grp_id = $grp_id AND ug_grp_id = 1") == 0) {
+            DB_query("INSERT INTO {$_TABLES['group_assignments']} (ug_main_grp_id, ug_grp_id) VALUES ($grp_id, 1)");
+        }
+
+        // make sure this Group Admin belongs to the new group
+        if (!SEC_inGroup ('Root')) {
+            if (DB_count ($_TABLES['group_assignments'], 'ug_uid',
+            "(ug_uid = {$_USER['uid']}) AND (ug_main_grp_id = $grp_id)") == 0) {
+                DB_query ("INSERT INTO {$_TABLES['group_assignments']} (ug_main_grp_id, ug_uid) VALUES ($grp_id,{$_USER['uid']})");
+            }
+        }
+
+        if ($grp_applydefault == 1) {
+            applydefaultgroup($grp_id, $grp_applydefault_add);
+        }
+
+        if ($new_group) {
+            PLG_groupChanged($grp_id, 'new');
+        } else {
+            PLG_groupChanged($grp_id, 'edit');
+        }
+        if (isset($_REQUEST['chk_showall']) && ($_REQUEST['chk_showall'] == 1)) {
+            return COM_refresh($_CONF['site_admin_url'] . '/group.php?msg=49&chk_showall=1');
+        } else {
+            return COM_refresh($_CONF['site_admin_url'] . '/group.php?msg=49');
+        }
+    } else {
+        $retval .= COM_siteHeader ('menu', $LANG_ACCESS['groupeditor']);
+        $retval .= COM_startBlock ($LANG_ACCESS['missingfields'], '',
+                           COM_getBlockTemplate ('_msg_block', 'header'));
+        $retval .= $LANG_ACCESS['missingfieldsmsg'];
+        $retval .= COM_endBlock (COM_getBlockTemplate ('_msg_block', 'footer'));
+        $retval .= editgroup ($grp_id);
+        $retval .= COM_siteFooter ();
+
+        return $retval;
+    }
+}
+
+/**
+* Delete a group, modified from group.php to be used by regular users to delete their groups
+*
+* @param    int     $grp_id     id of group to delete
+* @return   string              HTML redirect
+*
+*/
+function soc_deleteGroup ($grp_id)
+{
+    global $_CONF, $_TABLES, $_USER;
+
+    if (!SEC_inGroup ('Root') && (SEC_getGroupName($grp_id) == 'Root')) {
+        COM_accessLog ("User {$_USER['username']} tried to delete the Root group with insufficient privileges.");
+
+        return COM_refresh ($_CONF['site_admin_url'] . '/group.php');
+    }
+
+    $GroupAdminGroups = SEC_getUserGroups ();
+    if (!in_array ($grp_id, $GroupAdminGroups) && !SEC_groupIsRemoteUserAndHaveAccess($grp_id, $GroupAdminGroups)) {
+        COM_accessLog ("User {$_USER['username']} tried to delete group $grp_id with insufficient privileges.");
+
+        return COM_refresh ($_CONF['site_admin_url'] . '/group.php');
+    }
+
+    DB_delete ($_TABLES['access'], 'acc_grp_id', $grp_id);
+    DB_delete ($_TABLES['group_assignments'], 'ug_grp_id', $grp_id);
+    DB_delete ($_TABLES['group_assignments'], 'ug_main_grp_id', $grp_id);
+    DB_delete ($_TABLES['groups'], 'grp_id', $grp_id);
+
+    PLG_groupChanged ($grp_id, 'delete');
+    if (isset($_REQUEST['chk_showall']) && ($_REQUEST['chk_showall'] == 1)) {
+        return COM_refresh($_CONF['site_admin_url'] . '/group.php?msg=50&chk_showall=1');
+    } else {
+        return COM_refresh($_CONF['site_admin_url'] . '/group.php?msg=50');
+    }
+}
+
 /*
  * Edit the user privacy settings
  * $perm['enabled'] tells whether or not the user wants to use socnet at all
@@ -273,4 +489,33 @@ function sendUserJoinRequest($uid,$gid,$message='') {
 	$message .= "\nTo accept this join request, please <a href='$url'>click here</a>";
 	//mail($grp_email,$subject,$message); use geeklog way of sending email
 }
+
+/*
+ * 
+ */
+function hasPermission($user,$gid,$feature) {
+//calls SEC_getUserPermissions
+} 
+
+/**	 Hooks **/
+
+/**
+* Callback function when an item was saved
+*
+* @param    string  $id     (unused) ID of item being saved
+* @param    string  $type   type of item ('article', 'staticpages', ...)
+* @param    string  $old_id (unused) previous ID of item, if != $id
+* @return   void
+* @see      PLG_itemSaved
+*
+*/
+function plugin_itemsaved_socnet($id, $type, $old_id)
+{
+    global $_TABLES;
+
+}
+
+function plugin_user_delete_socnet(){};
+
+function plugin_user_create_socnet(){};
 ?>

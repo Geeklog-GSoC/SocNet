@@ -1,9 +1,14 @@
 <?php 
 
+
+/* Geeklog Plugin API implemenetations */
+
+
 //Some functions are in the core
 
-function plugin_autouninstall_socnet ()
-{
+/* Uninstall the socnet plugin */
+
+function plugin_autouninstall_socnet () {
     $out = array();
     
     // Unregister the plugin with Geeklog
@@ -23,6 +28,10 @@ function plugin_autouninstall_socnet ()
     return $out;
 }
 
+/**
+* returns the administrative option for this plugin
+*
+*/
 function plugin_getadminoption_socnet()
 {
     global $_CONF, $_TABLES, $LANG_CAL_1;
@@ -54,33 +63,6 @@ function plugin_getuseroption_socnet()
     return array ('SocNet Groups', $url, '');
 }
 
-
-/**
-* A user is about to be deleted. Update ownership of any events owned
-* by that user or delete them.
-*
-* @param   uid   int   User id of deleted user
-*
-*/
-function plugin_user_delete_socnet ($uid)
-{
-    global $_TABLES;
-
-    DB_delete ($_TABLES['personal_events'], 'owner_id', $uid);
-
-    if ($_CA_CONF['delete_event'] == 1) {
-        // delete the events
-        DB_delete ($_TABLES['events'], 'owner_id', $uid);
-
-    } else {
-        // assign ownership to a user from the Root group
-        $rootgroup = SEC_getGroupIdFromName('Root');
-        $result = DB_query ("SELECT DISTINCT ug_uid FROM {$_TABLES['group_assignments']} WHERE ug_main_grp_id = $rootgroup ORDER BY ug_uid LIMIT 1");
-        list($rootuser) = DB_fetchArray ($result);
-        DB_query ("UPDATE {$_TABLES['events']} SET owner_id = $rootuser WHERE owner_id = $uid");
-    }
-}
-
 /*
  * Returns true or false whether the user is the group admin
  * 
@@ -93,6 +75,7 @@ function plugin_user_delete_socnet ($uid)
  * @return	 bool		             Returns whether the user is the group admin
  */
 function isGroupAdmin($uid, $gid,$id) {
+	global $_TABLES;
 	if($id) {
 		$sql = "SELECT grp_owner from {$_TABLES['groups']} WHERE grp_id=$gid AND grp_owner=$uid";
 	}
@@ -117,6 +100,7 @@ function isGroupAdmin($uid, $gid,$id) {
  * return    int                     Returns the group admin. Returns -1 if there is no admin
  */
 function getGroupAdmin($gid) {
+	global $_TABLES;
 	$sql="SELECT grp_owner FROM {$_TABLES['groups']} WHERE grp_id=$gid";
 	$result = DB_query($sql,1);
 	
@@ -456,15 +440,15 @@ function editPrivacy($uid,$gid,$perm) {
 function sendGroupJoinRequest($uid, $gid, $message='') {
 	global $_CONF, $_TABLES;
 	/*generate the url */
-	$url='';
+	
 	$subject ="{$_CONF['site_name']} group invitation."; 
-	$group = DB_getItem($_TABLES['groups'], 'grp_name', "grp_id=$gid");
+	$groupname = DB_getItem($_TABLES['groups'], 'grp_name', "grp_id=$gid");
 	$email = DB_getItem($_TABLES['users'], 'email', "uid=$uid");
-	if(strlen($message)==0) {
-		$message = "Group $group has requested you join thier group.";
+	if($message=='') {
+		$message = "Group $groupname has requested you join thier group.";
 	}
 	$message .= "\nTo accept this invitation, please <a href='$url'>click here</a>";
-	//mail($email,$subject,$message); use geeklog way of sending mail
+	//mail($email,$subject,$message);
 }
 
 /* Sends a group join request to the group admin
@@ -515,7 +499,31 @@ function plugin_itemsaved_socnet($id, $type, $old_id)
 
 }
 
-function plugin_user_delete_socnet(){};
+/**
+* A user is about to be deleted. Update ownership of any events owned
+* by that user or delete them.
+*
+* @param   uid   int   User id of deleted user
+*
+*/
+function plugin_user_delete_socnet ($uid)
+{
+    global $_TABLES;
+
+    DB_delete ($_TABLES['personal_events'], 'owner_id', $uid);
+
+    if ($_CA_CONF['delete_event'] == 1) {
+        // delete the events
+        DB_delete ($_TABLES['events'], 'owner_id', $uid);
+
+    } else {
+        // assign ownership to a user from the Root group
+        $rootgroup = SEC_getGroupIdFromName('Root');
+        $result = DB_query ("SELECT DISTINCT ug_uid FROM {$_TABLES['group_assignments']} WHERE ug_main_grp_id = $rootgroup ORDER BY ug_uid LIMIT 1");
+        list($rootuser) = DB_fetchArray ($result);
+        DB_query ("UPDATE {$_TABLES['events']} SET owner_id = $rootuser WHERE owner_id = $uid");
+    }
+}
 
 function plugin_user_create_socnet(){};
 ?>

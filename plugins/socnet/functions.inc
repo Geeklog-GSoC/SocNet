@@ -273,7 +273,7 @@ function soc_savegroup($grp_id, $grp_name, $grp_descr, $grp_admin, $grp_gl_core,
             DB_save($_TABLES['groups'],
                     'grp_name,grp_descr,grp_gl_core,grp_default,grp_owner',
                     "'$grp_name','$grp_descr',$grp_gl_core,$grp_default,'{$_USER['uid']}'");
-            $grp_id = SEC_getGroupIdFromName($grp_name);
+            $grp_id = SEC_getGroupIdFromName($grp_name,$_USER['uid']);
             $new_group = true;
         } else {
             if ($grp_applydefault == 1) {
@@ -537,9 +537,7 @@ function soc_listgroups($show_all_groups = false)
     }
 
     $menu_arr = array ( array('url' => $_CONF['site_url'] . '/socnet/index.php?mode=edit',
-                              'text' => $SOCNET_User['create_new']),
-					    array('url' => $_CONF['site_url'] . '/socnet/index.php?mode=delete',
-					                              'text' => $SOCNET_User['delete']) );
+                              'text' => $SOCNET_User['create_new']) );
 
 
 
@@ -573,7 +571,7 @@ function soc_listgroups($show_all_groups = false)
         'query_fields' => array('grp_name', 'grp_descr'));
 
 
-   $retval .= ADMIN_list('groups', 'ADMIN_getListField_groups', $header_arr,
+   $retval .= ADMIN_list('groups', 'ADMIN_getListField_socnet', $header_arr,
                          $text_arr, $query_arr, $defsort_arr, $filter);
     $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
 
@@ -868,9 +866,9 @@ function soc_deleteGroup ($grp_id)
 
     PLG_groupChanged ($grp_id, 'delete');
     if (isset($_REQUEST['chk_showall']) && ($_REQUEST['chk_showall'] == 1)) {
-        return COM_refresh($_CONF['site_url'] . '/group.php?msg=50&chk_showall=1');
+        return COM_refresh($_CONF['site_url'] . '/socnet/index.php?msg=50&chk_showall=1');
     } else {
-        return COM_refresh($_CONF['site_url'] . '/group.php?msg=50');
+        return COM_refresh($_CONF['site_url'] . '/socnet/index.php?msg=50');
     }
 }
 

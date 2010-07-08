@@ -59,15 +59,16 @@ $_GROUP_VERBOSE = false;
 
 $display = '';
 
+
 // Make sure user has rights to access this page
-if (!SEC_hasRights('group.edit')) {
+if (!SEC_hasRights('group.edit,socnet.groupadmin','OR')) {
     $display .= COM_siteHeader('menu', $MESSAGE[30])
              . COM_showMessageText($MESSAGE[29], $MESSAGE[30])
              . COM_siteFooter();
     COM_accessLog("User {$_USER['username']} tried to illegally access the group administration screen.");
     COM_output($display);
     exit;
-}
+} 
 
 /**
 * Shows the group editor form
@@ -967,94 +968,6 @@ function listgroups($show_all_groups = false)
     return $retval;
 }
 
-/**
-* Display a list of user groups based on user id
-*
-* @param    int     $uid    User whose groups are to be fetched
-*
-*/
-function listgroupsbyuser($uid = 0)
-{
-    global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_ACCESS, $LANG28, $_IMAGE_TYPE, $_USER;
-
-    require_once $_CONF['path_system'] . 'lib-admin.php';
-
-    if ($uid <= 1) $uid = $_USER['uid'];
-    
-    if (!SEC_hasRights('group.useradmin') || $uid <= 1) {
-        $retval .= COM_startBlock ($LANG_ACCESS['usergroupadmin'], '',
-                           COM_getBlockTemplate ('_msg_block', 'header'));
-        $retval .= $LANG_ACCESS['cantviewgroup'];
-        $retval .= COM_endBlock (COM_getBlockTemplate ('_msg_block', 'footer'));
-
-        return $retval;
-    }
-
-    $retval = '';
-
-    $header_arr = array(      // display 'text' and use table field 'field'
-        array('text' => $LANG_ADMIN['edit'], 'field' => 'edit', 'sort' => false),
-        array('text' => $LANG_ACCESS['groupname'], 'field' => 'grp_name', 'sort' => true),
-        array('text' => $LANG_ACCESS['description'], 'field' => 'grp_descr', 'sort' => true),
-        array('text' => $LANG_ACCESS['listusers'], 'field' => 'list', 'sort' => false)
-    );
-
-    $defsort_arr = array('field' => 'grp_name', 'direction' => 'asc');
-
-    $form_url = $_CONF['site_admin_url'] . '/group.php?mode=usergroups';
-    if ($show_all_groups) {
-        $form_url .= '?chk_showall=1';
-    }
-
-    $menu_arr = Array(
-                    array('url' => $_CONF['site_admin_url'] .  '/group.php',
-                          'text' => $LANG28[38]),
-                    array('url' => $_CONF['site_admin_url'],
-                          'text' => $LANG_ADMIN['admin_home']) );
-
-    $retval .= COM_startBlock($LANG_ACCESS['groupmanager'], '',
-                              COM_getBlockTemplate('_admin_block', 'header'));
-
-    $retval .= ADMIN_createMenu(
-        $menu_arr,
-        $LANG_ACCESS['newgroupmsg'],
-        $_CONF['layout_url'] . '/images/icons/group.' . $_IMAGE_TYPE
-    );
-
-    $text_arr = array(
-        'has_extras' => true,
-        'form_url'   => $form_url
-    );
-
-    $filter = '<span style="padding-right:20px;">';
-
-    $checked ='';
-    if ($show_all_groups) {
-        $checked = ' checked="checked"';
-    }
-    $userlist = '<label for="uid">' . $LANG28[3] . '</label><select name="uid">';
-    $userres = DB_query("SELECT uid, username, fullname, remoteusername, remoteservice FROM {$_TABLES['users']}");
-    while ($A = DB_fetchArray($userres)) {
-        if ($uid <= 1) continue;
-        $selected = $uid == $A['uid'] ? ' selected="selected"' : '';
-        $userlist .= '<option value="' . $A['uid'] . '"'. $selected . '>' 
-                  . COM_getDisplayName($A['uid'], $A['username'], $A['fullname'], $A['remoteusername'], $A['remoteservice'])
-                  . "</option>" . LB;
-    }
-   $userlist .= '</select>';
-
-    $query_arr = array(
-        'table' => 'groups',
-        'sql' => "SELECT * FROM {$_TABLES['groups']} WHERE grp_owner = $uid ",
-        'query_fields' => array('grp_name', 'grp_descr'),
-        'default_filter' => '');
-
-    $retval .= ADMIN_list('groups', 'ADMIN_getListField_groups', $header_arr,
-                          $text_arr, $query_arr, $defsort_arr, $userlist);
-    $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
-
-    return $retval;
-}
 
 /**
 * Display a list of user groups based on user id
@@ -1385,97 +1298,100 @@ function deleteGroup ($grp_id)
     }
 }
 
-// MAIN
-$mode = '';
-if (isset($_REQUEST['mode'])) {
-    $mode = $_REQUEST['mode'];
+//Don't load this for Socnet admins
+if (SEC_hasRights('group.edit')) {	
+	// MAIN
+	$mode = '';
+	if (isset($_REQUEST['mode'])) {
+	    $mode = $_REQUEST['mode'];
+	}
+	
+	if (($mode == $LANG_ADMIN['delete']) && !empty ($LANG_ADMIN['delete'])) {
+	    $grp_id = COM_applyFilter ($_REQUEST['grp_id'], true);
+	    if (!isset ($grp_id) || empty ($grp_id) || ($grp_id == 0)) {
+	        COM_errorLog ('Attempted to delete group grp_id=' . $grp_id);
+	        $display .= COM_refresh ($_CONF['site_admin_url'] . '/group.php');
+	    } elseif (SEC_checkToken()) {
+	        $display .= deleteGroup ($grp_id);
+	    } else {
+	        COM_accessLog("User {$_USER['username']} tried to illegally delete group $grp_id and failed CSRF checks.");
+	        echo COM_refresh($_CONF['site_admin_url'] . '/index.php');
+	    }
+	} elseif (($mode == $LANG_ADMIN['save']) && !empty($LANG_ADMIN['save']) && SEC_checkToken()) {
+	    $grp_gl_core = COM_applyFilter($_POST['grp_gl_core'], true);
+	    $grp_default = 0;
+	    if (isset($_POST['chk_grpdefault'])) {
+	        $grp_default = 1;
+	    }
+	    $grp_applydefault = 0;
+	    if (isset($_POST['chk_applydefault'])) {
+	        $grp_applydefault = 1;
+	    }
+	    $chk_grpadmin = '';
+	    if (isset($_POST['chk_grpadmin'])) {
+	        $chk_grpadmin = COM_applyFilter($_POST['chk_grpadmin']);
+	    }
+	    $features = array();
+	    if (isset($_POST['features'])) {
+	        $features = $_POST['features'];
+	    }
+	    $groups = array();
+	    if (isset($_POST['groups'])) {
+	        $groups = $_POST['groups'];
+	    }
+	    $display .= savegroup(COM_applyFilter($_POST['grp_id'], true),
+	                          COM_applyFilter($_POST['grp_name']),
+	                          $_POST['grp_descr'], $chk_grpadmin, $grp_gl_core,
+	                          $grp_default, $grp_applydefault, $features, $groups);
+	} elseif (($mode == 'savegroupusers') && SEC_checkToken()) {
+	    $grp_id = COM_applyFilter($_REQUEST['grp_id'], true);
+	    $display .= savegroupusers($grp_id, $_POST['groupmembers']);
+	} elseif ($mode == 'edit') {
+	    $grp_id = 0;
+	    if (isset ($_REQUEST['grp_id'])) {
+	        $grp_id = COM_applyFilter ($_REQUEST['grp_id'], true);
+	    }
+	    $display .= COM_siteHeader ('menu', $LANG_ACCESS['groupeditor']);
+	    $display .= editgroup ($grp_id);
+	    $display .= COM_siteFooter ();
+	} elseif ($mode == 'listusers') {
+	    $grp_id = COM_applyFilter ($_REQUEST['grp_id'], true);
+	    $display .= COM_siteHeader ('menu', $LANG_ACCESS['groupmembers']);
+	    $display .= listusers ($grp_id);
+	    $display .= COM_siteFooter ();
+	} elseif ($mode == 'editusers') {
+	    $grp_id = COM_applyFilter ($_REQUEST['grp_id'], true);
+	    $display .= COM_siteHeader ('menu', $LANG_ACCESS['usergroupadmin']);
+	    $display .= editusers ($grp_id);
+	    $display .= COM_siteFooter ();
+	} elseif ($mode == 'usergroups') {
+	    $uid = COM_applyFilter ($_REQUEST['uid'], true);
+	    $display .= COM_siteHeader ('menu', $LANG28[91]);
+	    $display .= listgroupsbyuser($uid);
+	    $display .= COM_siteFooter ();
+	} elseif ($mode == 'usergroups') {
+	    $uid = COM_applyFilter ($_REQUEST['uid'], true);
+	    $display .= COM_siteHeader ('menu', $LANG28[91]);
+	    $display .= listgroupsbyuser($uid);
+	    $display .= COM_siteFooter ();
+	} else { // 'cancel' or no mode at all
+	    $show_all_groups = false;
+	    if (isset($_POST['q'])) {
+	        // check $_POST only, as $_GET['chk_showall'] may also be set
+	        if (isset($_POST['chk_showall']) && ($_POST['chk_showall'] == 1)) {
+	            $show_all_groups = true;
+	        }
+	    } elseif (isset($_REQUEST['chk_showall']) &&
+	            ($_REQUEST['chk_showall'] == 1)) {
+	        $show_all_groups = true;
+	    }
+	    $display .= COM_siteHeader('menu', $LANG28[38]);
+	    $display .= COM_showMessageFromParameter();
+	    $display .= listgroups($show_all_groups);
+	    $display .= COM_siteFooter();
+	}
+	
+	COM_output($display);
 }
-
-if (($mode == $LANG_ADMIN['delete']) && !empty ($LANG_ADMIN['delete'])) {
-    $grp_id = COM_applyFilter ($_REQUEST['grp_id'], true);
-    if (!isset ($grp_id) || empty ($grp_id) || ($grp_id == 0)) {
-        COM_errorLog ('Attempted to delete group grp_id=' . $grp_id);
-        $display .= COM_refresh ($_CONF['site_admin_url'] . '/group.php');
-    } elseif (SEC_checkToken()) {
-        $display .= deleteGroup ($grp_id);
-    } else {
-        COM_accessLog("User {$_USER['username']} tried to illegally delete group $grp_id and failed CSRF checks.");
-        echo COM_refresh($_CONF['site_admin_url'] . '/index.php');
-    }
-} elseif (($mode == $LANG_ADMIN['save']) && !empty($LANG_ADMIN['save']) && SEC_checkToken()) {
-    $grp_gl_core = COM_applyFilter($_POST['grp_gl_core'], true);
-    $grp_default = 0;
-    if (isset($_POST['chk_grpdefault'])) {
-        $grp_default = 1;
-    }
-    $grp_applydefault = 0;
-    if (isset($_POST['chk_applydefault'])) {
-        $grp_applydefault = 1;
-    }
-    $chk_grpadmin = '';
-    if (isset($_POST['chk_grpadmin'])) {
-        $chk_grpadmin = COM_applyFilter($_POST['chk_grpadmin']);
-    }
-    $features = array();
-    if (isset($_POST['features'])) {
-        $features = $_POST['features'];
-    }
-    $groups = array();
-    if (isset($_POST['groups'])) {
-        $groups = $_POST['groups'];
-    }
-    $display .= savegroup(COM_applyFilter($_POST['grp_id'], true),
-                          COM_applyFilter($_POST['grp_name']),
-                          $_POST['grp_descr'], $chk_grpadmin, $grp_gl_core,
-                          $grp_default, $grp_applydefault, $features, $groups);
-} elseif (($mode == 'savegroupusers') && SEC_checkToken()) {
-    $grp_id = COM_applyFilter($_REQUEST['grp_id'], true);
-    $display .= savegroupusers($grp_id, $_POST['groupmembers']);
-} elseif ($mode == 'edit') {
-    $grp_id = 0;
-    if (isset ($_REQUEST['grp_id'])) {
-        $grp_id = COM_applyFilter ($_REQUEST['grp_id'], true);
-    }
-    $display .= COM_siteHeader ('menu', $LANG_ACCESS['groupeditor']);
-    $display .= editgroup ($grp_id);
-    $display .= COM_siteFooter ();
-} elseif ($mode == 'listusers') {
-    $grp_id = COM_applyFilter ($_REQUEST['grp_id'], true);
-    $display .= COM_siteHeader ('menu', $LANG_ACCESS['groupmembers']);
-    $display .= listusers ($grp_id);
-    $display .= COM_siteFooter ();
-} elseif ($mode == 'editusers') {
-    $grp_id = COM_applyFilter ($_REQUEST['grp_id'], true);
-    $display .= COM_siteHeader ('menu', $LANG_ACCESS['usergroupadmin']);
-    $display .= editusers ($grp_id);
-    $display .= COM_siteFooter ();
-} elseif ($mode == 'usergroups') {
-    $uid = COM_applyFilter ($_REQUEST['uid'], true);
-    $display .= COM_siteHeader ('menu', $LANG28[91]);
-    $display .= listgroupsbyuser($uid);
-    $display .= COM_siteFooter ();
-} elseif ($mode == 'usergroups') {
-    $uid = COM_applyFilter ($_REQUEST['uid'], true);
-    $display .= COM_siteHeader ('menu', $LANG28[91]);
-    $display .= listgroupsbyuser($uid);
-    $display .= COM_siteFooter ();
-} else { // 'cancel' or no mode at all
-    $show_all_groups = false;
-    if (isset($_POST['q'])) {
-        // check $_POST only, as $_GET['chk_showall'] may also be set
-        if (isset($_POST['chk_showall']) && ($_POST['chk_showall'] == 1)) {
-            $show_all_groups = true;
-        }
-    } elseif (isset($_REQUEST['chk_showall']) &&
-            ($_REQUEST['chk_showall'] == 1)) {
-        $show_all_groups = true;
-    }
-    $display .= COM_siteHeader('menu', $LANG28[38]);
-    $display .= COM_showMessageFromParameter();
-    $display .= listgroups($show_all_groups);
-    $display .= COM_siteFooter();
-}
-
-COM_output($display);
 
 ?>

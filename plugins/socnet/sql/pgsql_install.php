@@ -1,7 +1,7 @@
 <?php 
 
 $_SQL[] = "
-	CREATE TABLE {$_TABLES['user_socnetinfo']} (
+	CREATE TABLE {$_TABLES['users_socnetinfo']} (
 	 uid INT NOT NULL,
 	 enabled SMALLINT NOT NULL DEFAULT  '1',
 	 private SMALLINT NOT NULL DEFAULT  '1',

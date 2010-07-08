@@ -47,6 +47,7 @@ function plugin_autoinstall_socnet($pi_name)
 {
     $pi_name         = 'socnet';
     $pi_display_name = 'Social Networking Plugin';
+    $pi_admin        = $pi_display_name . ' Admin';
 
     $info = array(
         'pi_name'         => $pi_name,
@@ -55,9 +56,29 @@ function plugin_autoinstall_socnet($pi_name)
         'pi_gl_version'   => '1.7.0',
         'pi_homepage'     => 'http://www.geeklog.net/',
     );
+    
+    $groups = array(
+        $pi_admin => 'Has full access to ' . $pi_display_name . ' features'
+    );
+    
+    $features = array(
+        $pi_name . '.groupadmin'  => 'Owns a Socnet Group'
+    );
+    
+    $tables = array(
+        'users_socnetinfo'
+    );
+    
+    $mappings = array(
+        $pi_name . '.groupadmin'    => array($pi_admin)
+    );
 
     $inst_parms = array(
         'info'      => $info,
+        'groups'    => $groups,
+  	    'features'  => $features,
+    	'mappings'	=>$mappings,
+    	'tables'	=> $tables
     );
 
     return $inst_parms;
@@ -125,6 +146,8 @@ function plugin_compatible_with_this_version_socnet($pi_name)
 */
 function plugin_postinstall_socnet($pi_name)
 {
+	global $_TABLES;
+	$_TABLES[] = 'users_socnetinfo';
     return true;
 }
 

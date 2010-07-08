@@ -1,7 +1,6 @@
 <?php 
-
 $_SQL[] = "
-	CREATE TABLE {$_TABLES['user_socnetinfo']} (
+	CREATE TABLE {$_TABLES['users_socnetinfo']} (
 	 uid INT NOT NULL,
 	 enabled TINYINT NOT NULL DEFAULT  '1',
 	 private TINYINT NOT NULL DEFAULT  '1',

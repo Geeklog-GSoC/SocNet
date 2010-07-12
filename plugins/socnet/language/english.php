@@ -44,5 +44,25 @@ $SOCNET_User = array(
     'create_new'  =>  'Create a new group',
     'delete'  =>  'Delete a group',
     'viewallgroups' =>  'Show All Socnet Groups');
+    
+$LANG_confignames['socnet'] = array(
+    'socnetloginrequired' => 'Socnet Login Required?',
+    'displayallmembers' => 'Display All Members During Admin Group Request',
+    'addadmintoallgroups' => 'Add Site Admin To All SocNet Groups?'
+);
 
+$LANG_configsubgroups['socnet'] = array(
+'sg_main' => 'Main Settings'
+);
+
+$LANG_fs['socnet'] = array(
+    'fs_main' => 'General Calendar Settings',
+);
+
+// Note: entries 0, 1, 6, 9, 12 are the same as in $LANG_configselects['Core']
+$LANG_configselects['socnet'] = array(
+    0 => array('True' => 1, 'False' => 0),
+    1 => array('True' => 1, 'False' => 0),
+    2 => array('True' => 1, 'False' => 0)
+);
 ?>

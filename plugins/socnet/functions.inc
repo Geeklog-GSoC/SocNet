@@ -13,6 +13,16 @@ if (file_exists($langfile)) {
     require($plugin_path . 'language/english.php');
 }
 
+/*
+* Check and see if we need to load the plugin configuration
+*/
+if (!isset($socnet_config['socnetloginrequired'])) {
+    require_once $_CONF['path_system'] . 'classes/config.class.php';
+
+    $socnet_config = config::get_instance();
+    $_SOC_CONF = $socnet_config->get_config('socnet');
+}
+
 /* Geeklog Plugin API implemenetations */
 
 //Some functions are in the core

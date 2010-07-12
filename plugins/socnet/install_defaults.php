@@ -62,13 +62,15 @@ function plugin_initconfig_socnet()
 {
     global $_CONF;
    
-    $c = config::get_instance();
-    if (!$c->group_exists('socnet')) {
-    	$c->add('sg_main', 'Main settings', 'subgroup', 0, 0, NULL, 0, true, 'socnet');
-        $c->add('fs_main', 'Genereal Socnet Settings', 'fieldset', 0, 0, NULL, 0, true, 'socnet');
-        $c->add('displayallmembersduringrequest', 0,
+    $soc = config::get_instance();
+    if (!$soc->group_exists('socnet')) {
+    	$soc->add('sg_main', NULL, 'subgroup', 0, 0, NULL, 0, true, 'socnet');
+        $soc->add('fs_main', NULL, 'fieldset', 0, 0, NULL, 0, true, 'socnet');
+        $soc->add('socnetloginrequired', 0,
+                'select', 0, 0, 0, 0, true, 'socnet');
+        $soc->add('displayallmembers', 0,
                 'select', 0, 0, 0, 10, true, 'socnet');
-        $c->add('addsiteadmintoallgroups', 0,
+        $soc->add('addadmintoallgroups', 0,
                 'select', 0, 0, 0, 10, true, 'socnet');
     }
     

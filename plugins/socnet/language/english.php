@@ -42,6 +42,7 @@ $SOCNET_User = array(
     'newgroupmsg' => 'To modify or delete a group, click on that group\'s edit icon below. To create a new group,
      click on "Create New" above.',
     'create_new'  =>  'Create a new group',
-    'delete'  =>  'Delete a group');
+    'delete'  =>  'Delete a group',
+    'viewallgroups' =>  'Show All Socnet Groups');
 
 ?>

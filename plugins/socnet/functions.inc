@@ -1,8 +1,7 @@
 <?php 
 
 /* Load the tables into the plugin */
-$prefix = substr($_TABLES['groups'],0,strpos($_TABLES['groups'],'_'));
-$_TABLES['users_socnetinfo'] = $prefix.'_users_socnetinfo';
+$_TABLES['users_socnetinfo']= $_DB_table_prefix . 'users_socnetinfo';
 
 /* Load the language file */ 
 $plugin_path = $_CONF['path'] . 'plugins/socnet/';
@@ -258,7 +257,7 @@ function soc_savegroup($grp_id, $grp_name, $grp_descr, $grp_admin, $grp_gl_core,
                            COM_getBlockTemplate ('_msg_block', 'header'));
                 $retval .= $LANG_ACCESS['groupexistsmsg'];
                 $retval .= COM_endBlock (COM_getBlockTemplate ('_msg_block', 'footer'));
-                $retval .= editgroup ($grp_id);
+                $retval .= soc_editgroup ($grp_id);
                 $retval .= COM_siteFooter ();
 
                 return $retval;
@@ -382,7 +381,7 @@ function soc_savegroup($grp_id, $grp_name, $grp_descr, $grp_admin, $grp_gl_core,
                            COM_getBlockTemplate ('_msg_block', 'header'));
         $retval .= $LANG_ACCESS['missingfieldsmsg'];
         $retval .= COM_endBlock (COM_getBlockTemplate ('_msg_block', 'footer'));
-        $retval .= editgroup ($grp_id);
+        $retval .= soc_editgroup ($grp_id);
         $retval .= COM_siteFooter ();
 
         return $retval;
@@ -399,7 +398,6 @@ function soc_savegroup($grp_id, $grp_name, $grp_descr, $grp_admin, $grp_gl_core,
 function soc_listusers ($grp_id)
 {
     global $_CONF, $_TABLES, $LANG28, $LANG_ACCESS, $LANG_ADMIN, $_IMAGE_TYPE;
-
     require_once $_CONF['path_system'] . 'lib-admin.php';
 
     $retval = '';
@@ -522,9 +520,9 @@ function soc_listgroups($show_all_groups = false)
         array('text' => $LANG_ADMIN['edit'], 'field' => 'edit', 'sort' => false),
         array('text' => $LANG_ACCESS['groupname'], 'field' => 'grp_name', 'sort' => true),
         array('text' => $LANG_ACCESS['description'], 'field' => 'grp_descr', 'sort' => true),
-        array('text' => $LANG_ACCESS['coregroup'], 'field' => 'grp_gl_core', 'sort' => true),
         array('text' => $LANG28[88], 'field' => 'grp_default', 'sort' => true),
-        array('text' => $LANG_ACCESS['listusers'], 'field' => 'list', 'sort' => false)
+        array('text' => $LANG_ACCESS['listusers'], 'field' => 'list', 'sort' => false),
+        array('text' => $LANG_ACCESS['sendrequest'], 'field' => 'request', 'sort' => false)
     );
 
     $defsort_arr = array('field' => 'grp_name', 'direction' => 'asc');
@@ -831,6 +829,109 @@ function soc_editgroup($grp_id = '')
 }
 
 /**
+* Allow easy addition/removal of users to/from a group
+*
+* @param    int     $group  Group ID
+* @return   string          HTML form
+*
+*/
+function soc_editusers($group)
+{
+    global $_CONF, $_TABLES, $_USER, $LANG_ACCESS, $LANG_ADMIN, $LANG28,
+           $_IMAGE_TYPE, $plugin_path,$SOCNET_User;
+
+    require_once $_CONF['path_system'] . 'lib-admin.php';
+
+    $retval = '';
+
+    $grp_name = SEC_getGroupName($group);
+
+    $thisUsersGroups = SEC_getUserGroups();
+    if ((!empty($group) && ($group > 0) &&
+                !in_array($group, $thisUsersGroups) &&
+                !SEC_groupIsRemoteUserAndHaveAccess($group, $thisUsersGroups))
+            || (($grp_name == 'All Users') ||
+                ($grp_name == 'Logged-in Users'))) {
+        $retval .= COM_startBlock($LANG_ACCESS['usergroupadmin'], '',
+                                  COM_getBlockTemplate('_msg_block', 'header'));
+        if (!SEC_inGroup('Root') && ($grp_name == 'Root')) {
+            $retval .= $LANG_ACCESS['canteditroot'];
+            COM_accessLog("User {$_USER['username']} tried to edit the Root group with insufficient privileges.");
+        } else {
+            $retval .= $LANG_ACCESS['canteditgroup'];
+        }
+        $retval .= COM_endBlock(COM_getBlockTemplate('_msg_block', 'footer'));
+
+        return $retval;
+    }
+
+    $group_listing_url = $_CONF['site_url'] . '/socnet/index.php';
+    $showall = 0;
+    if (isset($_REQUEST['chk_showall']) && ($_REQUEST['chk_showall'] == 1)) {
+        $group_listing_url .= '?chk_showall=1';
+        $showall = 1;
+    }
+
+    $menu_arr = array(
+                    array('url'  => $group_listing_url,
+                          'text' => $SOCNET_User['viewallgroups'])
+                );
+
+    $retval .= COM_startBlock($LANG_ACCESS['usergroupadmin'] . " - $grp_name",
+                        '', COM_getBlockTemplate('_admin_block', 'header'));
+
+    $retval .= ADMIN_createMenu($menu_arr, $LANG_ACCESS['editgroupmsg'],
+                $_CONF['layout_url'] . '/images/icons/group.' . $_IMAGE_TYPE);
+
+    $groupmembers = new Template($plugin_path . 'templates/');
+    $groupmembers->set_file(array('groupmembers' => 'groupmembers.thtml'));
+    $groupmembers->set_var('xhtml', XHTML);
+    $groupmembers->set_var('plugin_url', $plugin_path);
+    $groupmembers->set_var('site_url', $_CONF['site_url']);
+    $groupmembers->set_var('site_admin_url', $_CONF['site_admin_url']);
+    $groupmembers->set_var('layout_url', $_CONF['layout_url']);
+    $groupmembers->set_var('group_listing_url', $group_listing_url);
+    $groupmembers->set_var('phpself', $_CONF['site_url'] . '/socnet/index.php');
+    $groupmembers->set_var('lang_adminhome', $LANG_ACCESS['adminhome']);
+    $groupmembers->set_var('lang_instructions', $LANG_ACCESS['editgroupmsg']);
+    $groupmembers->set_var('LANG_sitemembers',$LANG_ACCESS['availmembers']);
+    $groupmembers->set_var('LANG_grpmembers',$LANG_ACCESS['groupmembers']);
+    $groupmembers->set_var('group_list', grp_selectUsers($group));
+    $groupmembers->set_var('LANG_remove',$LANG_ACCESS['remove']);
+    $groupmembers->set_var('lang_save', $LANG_ADMIN['save']);
+    $groupmembers->set_var('lang_cancel', $LANG_ADMIN['cancel']);
+    $groupmembers->set_var('lang_grouplist', $LANG28[38]);
+    $groupmembers->set_var('show_all', $showall);
+    $groupmembers->set_var('group_id',$group);
+    $groupmembers->set_var('gltoken_name', CSRF_TOKEN);
+    $groupmembers->set_var('gltoken', SEC_createToken());
+    $groupmembers->parse('output', 'groupmembers');
+    $retval .= $groupmembers->finish($groupmembers->get_var('output'));
+
+    $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
+
+    return $retval;
+}
+/*Show the group request form
+ * 
+ */
+function sendGroupJoinlList($grp_id) {
+	global $plugin_path;
+	
+	$groupmembers = new Template($plugin_path . 'templates/');
+    $groupmembers->set_file(array('grouprequest' => 'groupRequestForm.thtml'));
+    $groupmembers->set_var('group_id',$grp_id);
+    $groupmembers->set_var('gltoken_name', CSRF_TOKEN);
+    $groupmembers->set_var('group_list', grp_selectUsers($grp_id));
+    $groupmembers->set_var('gltoken', SEC_createToken());
+    $groupmembers->parse('output', 'grouprequest');
+    $retval .= $groupmembers->finish($groupmembers->get_var('output'));
+
+    $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
+    return $retval;
+}
+
+/**
 * Delete a group, modified from group.php to be used by regular users to delete their groups
 *
 * @param    int     $grp_id     id of group to delete
@@ -891,7 +992,7 @@ function editPrivacy($uid,$gid,$perm) {
 	DB_query($sql);
 }
 
-/* Sends an email to the user to join the group, requested by the admin 
+/* Sends an email to the user to join the group, requested by the group admin 
  * 
  * @param   int    $uid  The User id
  * @param   int    $gid  The group id

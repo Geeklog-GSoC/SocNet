@@ -833,7 +833,14 @@ function ADMIN_getListField_socnet($fieldname, $fieldvalue, $A, $icon_arr, $sele
                 $retval = $LANG_ACCESS['no'];
             }
             break;
+            
+		case 'request':
+            $url = $_CONF['site_url'] . '/socnet/index.php?mode=sendRequestList&amp;grp_id='
+                 . $A['grp_id'];
 
+            $retval = COM_createLink($icon_arr['edit'], $url);
+            break;
+            
         case 'grp_default':
             if ($A['grp_default'] != 0) {
                 $retval = $LANG_ACCESS['yes'];

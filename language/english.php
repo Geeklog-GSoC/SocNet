@@ -1308,6 +1308,7 @@ $LANG_ACCESS = array(
     'canteditroot' => 'You have tried to edit the Root group but you are not in the Root group yourself therefore your access to this group is denied.  Please contact the system administrator if you feel this is an error.',
     'listusers' => 'Members',
     'listthem' => 'list',
+	'sendrequest' => 'Send Group Request',
     'usersingroup' => 'Users in group "%s"',
     'usergroupadmin' => 'User Group Administration',
     'add' => 'Add',

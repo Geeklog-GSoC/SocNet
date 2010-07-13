@@ -484,7 +484,7 @@ function ADMIN_list($component, $fieldfunction, $header_arr, $text_arr,
 
     # SQL
     $sql .= "$filter_str $order_sql $limit;";
-    // echo $sql;
+     echo $sql;
     $result = DB_query($sql);
     $nrows = DB_numRows($result);
     $r = 1; # r is the counter for the actual displayed rows for correct coloring

@@ -1262,6 +1262,99 @@ function savegroupusers($groupid, $groupmembers)
 }
 
 /**
+* Shows user groups
+*
+*
+*/
+function listusergroups() {
+global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_ACCESS, $LANG28, $_IMAGE_TYPE;
+
+    require_once $_CONF['path_system'] . 'lib-admin.php';
+
+    $retval = '';
+
+    $header_arr = array(      // display 'text' and use table field 'field'
+        array('text' => $LANG_ADMIN['edit'], 'field' => 'edit', 'sort' => false),
+        array('text' => $LANG_ACCESS['groupname'], 'field' => 'grp_name', 'sort' => true),
+        array('text' => $LANG_ACCESS['description'], 'field' => 'grp_descr', 'sort' => true),
+        array('text' => $LANG28[88], 'field' => 'grp_default', 'sort' => true),
+        array('text' => $LANG_ACCESS['listusers'], 'field' => 'list', 'sort' => false)
+    );
+
+    $defsort_arr = array('field' => 'grp_name', 'direction' => 'asc');
+
+    $form_url = $_CONF['site_admin_url'] . '/group.php';
+    $edit_url = $_CONF['site_admin_url'] . '/group.php?mode=edit';
+    if ($show_all_groups) {
+        $form_url .= '?chk_showall=1';
+        $edit_url .= '&amp;chk_showall=1';
+    }
+
+    $menu_arr = array ( array('url' => $_CONF['site_admin_url'] . '/group.php?mode=edit',
+                              'text' => $LANG_ADMIN['create_new']) );
+    if (isset($_CONF['allow_user_groups']) && $_CONF['allow_user_groups'] > 0) {
+        $menu_arr[] = array('url' => $_CONF['site_admin_url'] .  '/group.php?mode=usergroups',
+                            'text' => $LANG28[91]);
+    }
+
+    $menu_arr[] = array('url' => $_CONF['site_admin_url'],
+                        'text' => $LANG_ADMIN['admin_home']);
+
+    $retval .= COM_startBlock($LANG_ACCESS['groupmanager'], '',
+                              COM_getBlockTemplate('_admin_block', 'header'));
+
+    $retval .= ADMIN_createMenu(
+        $menu_arr,
+        $LANG_ACCESS['newgroupmsg'],
+        $_CONF['layout_url'] . '/images/icons/group.' . $_IMAGE_TYPE
+    );
+
+    $text_arr = array(
+        'has_extras' => true,
+        'form_url'   => $form_url
+    );
+
+    $filter = '<span style="padding-right:20px;">';
+
+    $checked ='';
+    if ($show_all_groups) {
+        $checked = ' checked="checked"';
+    }
+
+    if (SEC_inGroup('Root')) {
+        $grpFilter = '';
+    } else {
+        $thisUsersGroups = SEC_getUserGroups ();
+        $grpFilter = 'AND (grp_id IN (' . implode (',', $thisUsersGroups) . '))';
+    }
+
+    if ($show_all_groups) {
+        $filter .= '<label for="chk_showall"><input id="chk_showall" type="checkbox" name="chk_showall" value="1" checked="checked"' . XHTML . '>';
+        $query_arr = array(
+            'table' => 'groups',
+            'sql' => "SELECT * FROM {$_TABLES['groups']} WHERE grp_owner = 0",
+            'query_fields' => array('grp_name', 'grp_descr'),
+            'default_filter' => $grpFilter);
+    } else {
+        $filter .= '<label for="chk_showall"><input id="chk_showall" type="checkbox" name="chk_showall" value="1"' . $checked . XHTML . '>';
+        $query_arr = array(
+            'table' => 'groups',
+            'sql' => "SELECT * FROM {$_TABLES['groups']} WHERE grp_owner >1",
+            'query_fields' => array('grp_name', 'grp_descr'),
+            'default_filter' => $grpFilter);
+    }
+    $filter .= $LANG28[48] . '</label></span>';
+
+    $retval .= ADMIN_list('groups', 'ADMIN_getListField_usergroups', $header_arr,
+                          $text_arr, $query_arr, $defsort_arr, $filter);
+    $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
+
+    return $retval;
+	
+    
+}
+
+/**
 * Delete a group
 *
 * @param    int     $grp_id     id of group to delete
@@ -1367,12 +1460,12 @@ if (SEC_hasRights('group.edit')) {
 	} elseif ($mode == 'usergroups') {
 	    $uid = COM_applyFilter ($_REQUEST['uid'], true);
 	    $display .= COM_siteHeader ('menu', $LANG28[91]);
-	    $display .= listgroupsbyuser($uid);
+	    $display .= listusergroups();
 	    $display .= COM_siteFooter ();
 	} elseif ($mode == 'usergroups') {
 	    $uid = COM_applyFilter ($_REQUEST['uid'], true);
 	    $display .= COM_siteHeader ('menu', $LANG28[91]);
-	    $display .= listgroupsbyuser($uid);
+	    $display .= listusergroups();
 	    $display .= COM_siteFooter ();
 	} else { // 'cancel' or no mode at all
 	    $show_all_groups = false;

@@ -484,7 +484,7 @@ function ADMIN_list($component, $fieldfunction, $header_arr, $text_arr,
 
     # SQL
     $sql .= "$filter_str $order_sql $limit;";
-     echo $sql;
+     //echo $sql;
     $result = DB_query($sql);
     $nrows = DB_numRows($result);
     $r = 1; # r is the counter for the actual displayed rows for correct coloring
@@ -1405,8 +1405,6 @@ function ADMIN_getListField_usergroups($fieldname, $fieldvalue, $A, $icon_arr, $
         $thisUsersGroups = SEC_getUserGroups();
     }
 
-    if (in_array($A['grp_id'], $thisUsersGroups ) ||
-          SEC_groupIsRemoteUserAndHaveAccess($A['grp_id'], $thisUsersGroups)) {
         switch($fieldname) {
         case 'checkbox':
             $checked = '';
@@ -1429,12 +1427,36 @@ function ADMIN_getListField_usergroups($fieldname, $fieldvalue, $A, $icon_arr, $
         case 'grp_name':
             $retval = ucwords($fieldvalue);
             break;
+            
+        case 'grp_default':
+            if ($A['grp_default'] != 0) {
+                $retval = $LANG_ACCESS['yes'];
+            } else {
+                $retval = $LANG_ACCESS['no'];
+            }
+            break;
+            
+        case 'list':
+            $url = $_CONF['site_admin_url'] . '/group.php?mode=';
+            if ($show_all_groups) {
+                $param = '&amp;grp_id=' . $A['grp_id'] . '&amp;chk_showall=1';
+            } else {
+                $param = '&amp;grp_id=' . $A['grp_id'];
+            }
+
+            $retval = COM_createLink($icon_arr['list'],
+                                     $url . 'listusers' . $param);
+            if (($A['grp_name'] != 'All Users') &&
+                    ($A['grp_name'] != 'Logged-in Users')) {
+                $retval .= '&nbsp;&nbsp;' . COM_createLink($icon_arr['edit'],
+                                                $url . 'editusers' . $param);
+            }
+            break;
 
         default:
             $retval = $fieldvalue;
             break;
         }
-    }
 
     return $retval;
 }

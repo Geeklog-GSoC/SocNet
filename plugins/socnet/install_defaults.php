@@ -51,44 +51,28 @@ if (strpos(strtolower($_SERVER['PHP_SELF']), 'install_defaults.php') !== FALSE) 
 */
 
 /**
-* Initialize XMLSitemap plugin configuration
+* Initialize Socnet plugin configuration
 *
 * Creates the database entries for the configuation if they don't already
-* exist.  Initial values will be taken from $_XMLSMAP_DEFAULT.
+* exist.
 *
 * @return   boolean     TRUE: success; FALSE: an error occurred
 */
 function plugin_initconfig_socnet()
 {
-    global $_SOCNET_DEFAULT;
-    
-    $me = 'socnet';
-    /*
+    global $_CONF;
+   
     $c = config::get_instance();
-    if (!$c->group_exists($me)) {
-        $c->add('sg_main', NULL, 'subgroup', 0, 0, NULL, 0, TRUE, $me);
-        $c->add('fs_main', NULL, 'fieldset', 0, 0, NULL, 0, TRUE, $me);
-        $c->add('sitemap_file', $_SOCNET_DEFAULT['sitemap_file'], 'text',
-            0, 0, NULL, 10, TRUE, $me);
-        $c->add('mobile_sitemap_file', $_SOCNET_DEFAULT['mobile_sitemap_file'],
-            'text', 0, 0, NULL, 20, FALSE, $me);
-        $c->add('types', $_SOCNET_DEFAULT['types'], '%text', 0, 0, NULL, 30,
-            TRUE, $me);
-        $c->add('exclude', $_SOCNET_DEFAULT['exclude'], '%text', 0, 0, NULL,
-            40, TRUE, $me);
-        
-        // Priorities
-        $c->add('fs_pri', NULL, 'fieldset', 0, 1, NULL, 0, TRUE, $me);
-        $c->add('priorities', $_SOCNET_DEFAULT['priorities'], '*text', 0, 1,
-             NULL, 50, TRUE, $me);
-        
-        // Frequencies
-        $c->add('fs_freq', NULL, 'fieldset', 0, 2, NULL, 0, TRUE, $me);
-        $c->add('frequencies', $_SOCNET_DEFAULT['frequencies'], '@select', 0,
-            2, 20, 60, TRUE, $me);
+    if (!$c->group_exists('socnet')) {
+    	$c->add('sg_main', 'Main settings', 'subgroup', 0, 0, NULL, 0, true, 'socnet');
+        $c->add('fs_main', 'Genereal Socnet Settings', 'fieldset', 0, 0, NULL, 0, true, 'socnet');
+        $c->add('displayallmembersduringrequest', 0,
+                'select', 0, 0, 0, 10, true, 'socnet');
+        $c->add('addsiteadmintoallgroups', 0,
+                'select', 0, 0, 0, 10, true, 'socnet');
     }
-    */
-    return TRUE;
+    
+    return TRUE; 
 }
 
 ?>

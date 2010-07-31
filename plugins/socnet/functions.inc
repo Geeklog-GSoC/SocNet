@@ -2,6 +2,7 @@
 
 /* Load the tables into the plugin */
 $_TABLES['users_socnetinfo']= $_DB_table_prefix . 'users_socnetinfo';
+$_TABLES['request_codes']= $_DB_table_prefix . 'request_codes';
 
 /* Load the language file */ 
 $plugin_path = $_CONF['path'] . 'plugins/socnet/';
@@ -132,6 +133,25 @@ function getGroupAdmin($gid) {
 	return $data[0];
 }
 
+/*
+ * Returns all users to be used in the select dropdown
+ * 
+ * @param   int 	The group ID
+ * return 	string 	Returns all users to be used in the select dropdown
+ */
+function getAllUsers($grp_id) {
+	global $_TABLES;
+	$options='';
+	$sql="SELECT uid,username FROM {$_TABLES['users']}";
+		
+	$result = DB_query($sql);
+	$A = DB_fetchArray($result);
+	foreach($A as $row) {
+		$options.="<option value='{$row['uid']}>{$row['username']}</option>";
+	}
+	return $options;
+}
+
 //modified savegroupusers from group.php to support Socnet
 
 /**
@@ -237,7 +257,7 @@ function soc_savegroupusers($groupid, $groupmembers, $grp_owner=-1)
 */
 function soc_savegroup($grp_id, $grp_name, $grp_descr, $grp_admin, $grp_gl_core, $grp_default, $grp_applydefault, $features, $groups)
 {
-    global $_CONF, $_TABLES, $_USER, $LANG_ACCESS, $_GROUP_VERBOSE;
+    global $_CONF, $_TABLES, $_USER, $LANG_ACCESS, $_GROUP_VERBOSE,$_SOC_CONF;
 
     $retval = '';
     if (!empty($grp_name) && !empty($grp_descr)) {
@@ -356,11 +376,13 @@ function soc_savegroup($grp_id, $grp_name, $grp_descr, $grp_admin, $grp_gl_core,
                 }
             }
         }
-
-        // Make sure Root group belongs to any new group
-        if (DB_getItem ($_TABLES['group_assignments'], 'COUNT(*)',
-                "ug_main_grp_id = $grp_id AND ug_grp_id = 1") == 0) {
-            DB_query("INSERT INTO {$_TABLES['group_assignments']} (ug_main_grp_id, ug_grp_id) VALUES ($grp_id, 1)");
+		
+        if($_SOC_CONF['addadmintoallgroups']==1) {
+	        // Make sure Root group belongs to any new group
+	        if (DB_getItem ($_TABLES['group_assignments'], 'COUNT(*)',
+	                "ug_main_grp_id = $grp_id AND ug_grp_id = 1") == 0) {
+	            DB_query("INSERT INTO {$_TABLES['group_assignments']} (ug_main_grp_id, ug_grp_id) VALUES ($grp_id, 1)");
+	        }
         }
 
         // make sure this Group Admin belongs to the new group
@@ -545,7 +567,9 @@ function soc_listgroups($show_all_groups = false)
     }
 
     $menu_arr = array ( array('url' => $_CONF['site_url'] . '/socnet/index.php?mode=edit',
-                              'text' => $SOCNET_User['create_new']) );
+                              'text' => $SOCNET_User['create_new']),
+    array('url' => $_CONF['site_url'] . '/socnet/index.php?mode=sendUserJoinList',
+                              'text' => $SOCNET_User['join_group']) );
 
 
 
@@ -923,22 +947,89 @@ function soc_editusers($group)
     return $retval;
 }
 /*Show the group request form
- * 
+ * @param 	 int  			$grp_id
+ * @return   string         HTML form
  */
 function sendGroupJoinlList($grp_id) {
-	global $plugin_path;
+	global $plugin_path,$_SOC_CONF;
+	
+	$showall = $_SOC_CONF['displayallmembers'];
 	
 	$groupmembers = new Template($plugin_path . 'templates/');
     $groupmembers->set_file(array('grouprequest' => 'groupRequestForm.thtml'));
     $groupmembers->set_var('group_id',$grp_id);
     $groupmembers->set_var('gltoken_name', CSRF_TOKEN);
     $groupmembers->set_var('group_list', grp_selectUsers($grp_id));
+    $groupmembers->set_var('available_list', grp_selectUsers($grp_id,$showall));
     $groupmembers->set_var('gltoken', SEC_createToken());
     $groupmembers->parse('output', 'grouprequest');
     $retval .= $groupmembers->finish($groupmembers->get_var('output'));
-
     $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
     return $retval;
+}
+
+/* Show the join group request from for the user
+ * @return  	 string 	HTML form
+ */
+function sendUserJoinlList() {
+	global $plugin_path,$_SOC_CONF;
+	
+	$showall = $_SOC_CONF['displayallmembers'];
+	
+	$groupmembers = new Template($plugin_path . 'templates/');
+    $groupmembers->set_file(array('userRequest' => 'userRequestForm.thtml'));
+    $groupmembers->set_var('gltoken_name', CSRF_TOKEN);
+    $groupmembers->set_var('gltoken', SEC_createToken());
+    $groupmembers->parse('output', 'userRequest');
+    $retval .= $groupmembers->finish($groupmembers->get_var('output'));
+    $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
+    return $retval;
+}
+
+/*
+ * 
+ */
+function completeUserRequest($hash) {
+	
+}
+
+function completeGroupRequest($hash) {
+	/* get details of this hash */
+	$sql = "SELECT * FROM {$_TABLES['request_codes']} WHERE sid='$hash'";
+ 	$result = DB_query($sql);
+ 	if(DB_numRows($result)==1) {
+	 	$A = DB_fetchArray($result);
+	 	/* check if user exists */
+	 	$sql = "SELECT uid FROM {$_TABLES['users']} WHERE uid={$A['uid']}";
+	 	$result = DB_query($sql);
+	 	if(DB_numRows($result)!=1) {
+	 		$display.='There has been a problem with the group request. No such user exists';
+	 		return COM_refresh ($_CONF['site_url'] . '/socnet/index.php?msg=49');
+	 	}
+	 	/*check if the group exists */
+	 	$sql="SELECT grp_id FROM {$_TABLES['groups']} WHERE grp_id={$A['gid']}";
+	 	$result = DB_query($sql);
+	 	if(DB_numRows($result)!=1) {
+	 		$display.='There has been a problem with the group request. No such group exists';
+	 		return COM_refresh ($_CONF['site_url'] . '/socnet/index.php?msg=49');
+	 	}
+	 	/* add the user to the group */
+		DB_query("INSERT INTO {$_TABLES['group_assignments']} (ug_main_grp_id, ug_uid) VALUES ('{$A['gid']}', '{$A['uid']}')");
+		/* email the admin that the user has succesfully joined the group */
+		$result = DB_query("SELECT grp_name, grp_owner FROM {$_TABLES['groups']} WHERE grp_id={$A['gid']}");
+		$B = DB_fetchArray($result, false);
+		$username = DB_getItem($_TABLES['users'], 'username', "uid={$A['uid']}");
+		$subject = COM_emailEscape("$username has successfully joined your group {$B['groupname']}");
+		$grp_email = DB_getItem($_TABLES['users'], 'email', "uid={$B['grp_owner']}");
+ 		if(COM_isEmail($grp_email))
+		{
+			$message = "User $username has joined your group, $groupname.";
+			COM_mail($grp_email,$subject,$message);
+		}
+	 	return COM_refresh ($_CONF['site_url'] . '/socnet/index.php?msg=49');
+ 	}
+ 	else 
+ 		return COM_refresh ($_CONF['site_url'] . '/socnet/index.php?msg=49');
 }
 
 /**
@@ -1004,24 +1095,40 @@ function editPrivacy($uid,$gid,$perm) {
 
 /* Sends an email to the user to join the group, requested by the group admin 
  * 
- * @param   int    $uid  The User id
+ * @param   array    $uid  The User id
  * @param   int    $gid  The group id
  * $param   string $message Custom email message. Default is givin if empty
  */
-function sendGroupJoinRequest($uid, $gid, $message='') {
+function sendGroupJoinRequest($uid_arr, $gid, $message='') {
 	global $_CONF, $_TABLES;
-	/* check if user's privacy allows you to request group join */
-	
-	/*generate the url */
-	
-	$subject ="{$_CONF['site_name']} group invitation."; 
-	$groupname = DB_getItem($_TABLES['groups'], 'grp_name', "grp_id=$gid");
-	$email = DB_getItem($_TABLES['users'], 'email', "uid=$uid");
-	if($message=='') {
-		$message = "Group $groupname has requested you join thier group.";
+	if(!is_array($uid_arr))
+		return;
+	foreach($uid_arr as $uid) {
+		/* check if user's privacy allows you to request group join */
+		$sql="SELECT enabled, acceptinvites FROM {$_TABLES['users_socnetinfo']}";
+		$result = DB_query($sql);
+		$A = DB_fetchArray($result);
+		if($A['enabled']==1 && $A['acceptinvites']==1)
+		{
+			/*generate the url */
+			$hash = hash('sha256',memory_get_usage().rand().time());
+			$sql = "INSERT INTO {$_TABLES['request_codes']}(sid,uid,gid) VALUES('$hash','$uid','$gid');";
+			DB_query($sql);
+			$url = $_CONF['site_url'].'/socnet/index.php?mode=completeGroupRequest&hash='.$hash;
+			
+			$subject = COM_emailEscape("{$_CONF['site_name']} group invitation."); 
+			$groupname = DB_getItem($_TABLES['groups'], 'grp_name', "grp_id=$gid");
+			$email = DB_getItem($_TABLES['users'], 'email', "uid=$uid");
+			if(COM_isEmail($email))
+			{
+				if($message=='') {
+					$message = "Group $groupname has requested you join thier group.";
+				}
+				$message .= "\nTo accept this invitation, please <a href='$url'>click here</a>";
+				COM_mail($email,$subject,$message);
+			}
+		}
 	}
-	$message .= "\nTo accept this invitation, please <a href='$url'>click here</a>";
-	//mail($email,$subject,$message);
 }
 
 /* Sends a group join request to the group admin
@@ -1029,22 +1136,30 @@ function sendGroupJoinRequest($uid, $gid, $message='') {
  * @param    int 	$uid  		 The User id
  * @param    int 	$gid   	 	 The Group id
  * @param    string $message     A custom message to the group admin
+ * @return   string 			 HTML redirect
  */
 function sendUserJoinRequest($uid,$gid,$message='') {
 	global $_CONF, $_TABLES;
 	/*generate the url */
-	$url='';
+	$hash = hash('sha256',memory_get_usage().rand().time());
+	$sql = "INSERT INTO {$_TABLES['request_codes']}(sid,uid,gid) VALUES('$hash','$uid','$gid');";
+	DB_query($sql);
+	$url = $_CONF['site_url'].'/socnet/index.php?mode=completeUserRequest&hash='.$hash;
+	
 	$result = DB_query("SELECT grp_name, grp_owner FROM {$_TABLES['groups']} WHERE grp_id=$gid");
 	$A = DB_fetchArray($result, false);
-	list($groupname,$grp_owner) = $A;
 	$username = DB_getItem($_TABLES['users'], 'username', "uid=$uid");
-	$subject = "$username has sent a request to join your group $groupname";
-	$grp_email = DB_getItem($_TABLES['users'], 'email', "uid=$grp_owner");
-	if($message=='') {
-			$message = "User $username has requested to join your group, $groupname.";
-		}
-	$message .= "\nTo accept this join request, please <a href='$url'>click here</a>";
-	//mail($grp_email,$subject,$message); use geeklog way of sending email
+	$subject = COM_emailEscape("$username has sent a request to join your group {$A['grp_name']}");
+	$grp_email = DB_getItem($_TABLES['users'], 'email', "uid={$A['grp_owner']}");
+	if(COM_isEmail($grp_email))
+	{
+		if($message=='') {
+				$message = "User $username has requested to join your group, $groupname.";
+			}
+		$message .= "\nTo accept this join request, please <a href='$url'>click here</a>";
+		COM_mail($grp_email,$subject,$message);
+	}
+	return COM_refresh ($_CONF['site_url'] . '/socnet/index.php?msg=49');
 }
 
 /*Abstraction permission checker for Socnet

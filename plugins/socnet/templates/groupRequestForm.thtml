@@ -1,0 +1,19 @@
+<div align="left">Current Users in Group: <br>
+<select multiple="multiple" size="5" style="width: 15em; height: 10em; padding: 0px;">{group_list}</select>
+</div><br>
+<div align="center">Available Users
+<form method=POST action="index.php?mode=sendRequest">
+	<input type='hidden' name='grp_id' value='{group_id}'/>
+	<select multiple="multiple" size="10" name="usernames[]"
+	style="width: 15em; height: 20em; padding: 0px;" 
+	>{available_list}</select>
+	<input type='hidden' name='type' value='selectform'/>
+	<input type='submit' value='Request selected users to join this group'/></form>
+</div>
+
+Find a User
+<div><form method=POST action="index.php?mode=sendRequest">
+	<input type='hidden' name='grp_id' value='{group_id}'/>
+	<input type='text' name='username' value='Enter Username'/>
+	<input type='hidden' name='type' value='inputform'/>
+	<input type='submit' value='Request user to join this group'/></form></div>

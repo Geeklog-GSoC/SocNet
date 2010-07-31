@@ -66,7 +66,8 @@ function plugin_autoinstall_socnet($pi_name)
     );
     
     $tables = array(
-        'users_socnetinfo'
+        'users_socnetinfo',
+    	'request_codes'
     );
     
     $mappings = array(
@@ -148,6 +149,7 @@ function plugin_postinstall_socnet($pi_name)
 {
 	global $_TABLES;
 	$_TABLES[] = 'users_socnetinfo';
+	$_TABLES[] = 'request_codes';
     return true;
 }
 

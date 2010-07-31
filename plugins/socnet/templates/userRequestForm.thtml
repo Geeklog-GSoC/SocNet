@@ -1,0 +1,7 @@
+Find a Group
+<div><form method=POST action="index.php?mode=sendUserJoinRequest">
+	<input type='text' name='groupname' value='Enter Group Name'/><br>
+	<textarea rows="3" cols="40" name='message'>
+	Enter a custom message for the group admin. </textarea>	
+	<input type='hidden' name='type' value='inputform'/>
+	<input type='submit' value='Request to join this group'/></form></div>

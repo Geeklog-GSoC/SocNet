@@ -1,0 +1,52 @@
+<script type="text/javascript">
+function moveSelectedOptions(from,to) {
+    // Unselect matching options, if required
+    if (arguments.length>3) {
+        var regex = arguments[3];
+        if (regex != "") {
+            unSelectMatchingOptions(from,regex);
+            }
+        }
+    // Delete them from original
+    for (var i=(from.options.length-1); i>=0; i--) {
+        var o = from.options[i];
+        if (o.selected) {
+            from.options[i] = null;
+            }
+        }
+    if ((arguments.length<3) || (arguments[2]==true)) {
+        sortSelect(from);
+        }
+    from.selectedIndex = -1;
+    }
+    </script>
+
+    <form name="groupusers" action="{phpself}" method="post" style="margin:0px;">
+        <table cellspacing="0" cellpadding="0" class="pluginBG" style="width:100%; padding:15px; padding-left:350px;">
+            <tr>
+                <td class="blocktitle" style="text-align:center; padding:5px 5px 5px 100px;">{LANG_grpmembers}</th>
+            </tr>
+            <tr>
+               
+                <td>
+                    <input type="button" name="left"  value="{LANG_remove}" onclick="moveSelectedOptions(this.form['fieldTo'],this.form['fieldFrom'],false)"{xhtml}>
+                    <br{xhtml}><br{xhtml}>
+                </td>
+                <td width="40%" style="padding-left:5px;">
+                    <select multiple="multiple" size="10" name="fieldTo" style="width: 15em; height: 20em; padding: 0px;" ondblclick="moveSelectedOptions(this.form['fieldTo'],this.form['fieldFrom'],false)">{group_list}</select>
+                </td>
+            </tr>
+            <tr>
+                <td class="aligncenter" colspan="3"><br{xhtml}>
+                    <input type="hidden" name="mode" value="savegroupusers"{xhtml}>
+                    <input type="hidden" name="groupmembers"{xhtml}>
+                    <input type="hidden" name="grp_id" value="{group_id}"{xhtml}>
+                    <input type="hidden" name="chk_showall" value="{show_all}"{xhtml}>
+                    <input type="button" value="{lang_cancel}" onclick="javascript:history.go(-1)"{xhtml}>&nbsp;&nbsp;
+                    <input type="submit" value="{lang_save}" onclick="return setUsers(this.form)"{xhtml}>
+                    <input type="hidden" name="{gltoken_name}" value="{gltoken}"{xhtml}>
+                </td>
+            </tr>
+        </table>
+    </form>
+

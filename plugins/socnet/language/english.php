@@ -42,12 +42,13 @@ $SOCNET_User = array(
     'newgroupmsg' => 'To modify or delete a group, click on that group\'s edit icon below. To create a new group,
      click on "Create New" above.',
     'create_new'  =>  'Create a new group',
+    'join_group'  =>  'Join a Socnet group',
     'delete'  =>  'Delete a group',
     'viewallgroups' =>  'Show All Socnet Groups');
     
 $LANG_confignames['socnet'] = array(
     'socnetloginrequired' => 'Socnet Login Required?',
-    'displayallmembers' => 'Display All Members During Admin Group Request',
+    'displayallmembers' => 'Display All Members During Group Request',
     'addadmintoallgroups' => 'Add Site Admin To All SocNet Groups?'
 );
 

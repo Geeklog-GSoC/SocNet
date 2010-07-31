@@ -7,6 +7,15 @@ $_SQL[] = "
 	 acceptinvites TINYINT NOT NULL DEFAULT  '1',
 	 show_profile TINYINT NOT NULL DEFAULT  '1',
 	PRIMARY KEY (uid)
-) ENGINE = MYISAM ;"
+) ENGINE = MYISAM ;";
+
+$_SQL[] = "
+	CREATE TABLE {$_TABLES['request_codes']} (
+	 uid INT NOT NULL,
+	 sid varchar(64) NOT NULL,
+	 gid INT NOT NULL,
+	 created TIMESTAMP NOT NULL DEFAULT NOW(),
+	PRIMARY KEY (sid)
+) ENGINE = MYISAM ;";
 
 ?>

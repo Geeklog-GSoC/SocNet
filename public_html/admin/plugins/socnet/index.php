@@ -4,6 +4,7 @@ require_once('../../../lib-common.php');
 
 //check for security
 
+
 $display = COM_siteHeader();
 $T = new Template($_CONF['path'] . 'plugins/socnet/templates');
 $T->set_file('page', 'admin.thtml');

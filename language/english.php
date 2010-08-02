@@ -1256,7 +1256,8 @@ $MESSAGE = array(
     100 => 'The plugin file you uploaded was not a GZip or Zip compressed archive.',
     101 => 'There are no topics (that you have access to). You need at least one topic to be able to submit stories.',
     400 => 'Not all required fields have been passed validation', // Error codes in the 400 range reserved for CUSTOM membership
-    401 => 'Please enter Fullname'
+    401 => 'Please enter Fullname',
+    402 => 'The group you entered is not a valid Socnet group'
 );
 
 ###############################################################################

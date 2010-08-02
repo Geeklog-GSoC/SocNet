@@ -1264,7 +1264,6 @@ function savegroupusers($groupid, $groupmembers)
 /**
 * Shows user groups
 *
-*
 */
 function listusergroups() {
 global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_ACCESS, $LANG28, $_IMAGE_TYPE;

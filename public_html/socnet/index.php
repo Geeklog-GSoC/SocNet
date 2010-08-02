@@ -8,7 +8,7 @@ if (!in_array('calendar', $_PLUGINS)) {
 }
 
 if (COM_isAnonUser() &&
-    (($_CONF['loginrequired'] == 1) || ($_CA_CONF['calendarloginrequired'] == 1))) {
+    (($_CONF['loginrequired'] == 1) || ($_SOC_CONF['calendarloginrequired'] == 1))) {
     $display .= COM_siteHeader('menu', $LANG_CAL_1[41]);
     $display .= SEC_loginRequiredForm();
     $display .= COM_siteFooter();
@@ -66,6 +66,9 @@ $mode = '';
 if (isset($_REQUEST['mode'])) {
     $mode = $_REQUEST['mode'];
 }
+else 
+	$mode='view';
+	
 	if (($mode == $LANG_ADMIN['delete']) && !empty ($LANG_ADMIN['delete'])) {
     $grp_id = COM_applyFilter ($_REQUEST['grp_id'], true);
     if (!isset ($grp_id) || empty ($grp_id) || ($grp_id == 0)) {
@@ -128,12 +131,56 @@ if (isset($_REQUEST['mode'])) {
 	$display .= COM_siteHeader ('menu', $LANG_ACCESS['usergroupadmin']);
 	$display .= sendGroupJoinlList($grp_id);
 	$display .= COM_siteFooter ();
-} elseif($mode== 'sendRequest') {
-	$grp_id = COM_applyFilter ($_REQUEST['grp_id'], true);
+}	
+ elseif($mode== 'sendUserJoinList') {
 	$display .= COM_siteHeader ('menu', $LANG_ACCESS['usergroupadmin']);
-	$display .= sendGroupJoinRequest($grp_id);
+	$display .= COM_showMessageFromParameter();
+	$display .= sendUserJoinlList();
 	$display .= COM_siteFooter ();
-} 
+} elseif($mode== 'sendGroupRequest') {
+	$grp_id = COM_applyFilter ($_REQUEST['grp_id'], true);
+	$type = COM_applyFilter ($_REQUEST['type'], false);
+	$uid_arr = array();
+	if($type=='inputform') {
+		$username = COM_applyFilter ($_REQUEST['username'], false);
+		/* check to see if the user exists */
+		$sql="SELECT uid FROM {$_TABLES['users']} WHERE username='$username'";
+		$result = DB_query($sql);
+		if(DB_numRows($result)==1) {
+			$A = DB_fetchArray($result);
+			$uid = $A['uid'];
+			$uid_arr[] = $uid;
+		}
+	}
+	else {
+		$uids = $_POST['usernames'];
+		foreach($uids as $uid) {
+			$uid = COM_applyFilter ($uid, true);
+			$uid_arr[] = $uid;
+		}
+	}
+	$display .= COM_siteHeader ('menu', $LANG_ACCESS['usergroupadmin']);
+	$display .= sendGroupJoinRequest($uid_arr,$grp_id);
+	$display .= COM_siteFooter ();
+}
+ elseif($mode=='completeGroupRequest') {
+ 	$hash = COM_applyFilter ($_REQUEST['hash'], false);
+ 	completeGroupRequest($hash);
+ }
+ elseif($mode=='sendUserJoinRequest') {
+ 	$grp_name = COM_applyFilter ($_REQUEST['groupname'], false);
+ 	$gid = DB_getItem($_TABLES['groups'], 'grp_id', "grp_name='$grp_name'");
+ 	if($gid<5) { //the entered group does not exist, go back
+ 		echo COM_refresh ($_CONF['site_url'] . '/socnet/index.php?msg=402&mode=sendUserJoinList');
+ 	}
+ 	$message = COM_applyFilter ($_REQUEST['message'], false);
+ 	$uid = $_USER['uid'];
+ 	sendUserJoinRequest($uid,$gid,$message);
+ }
+ elseif($mode=='completeUserRequest') {
+ 	$hash = COM_applyFilter ($_REQUEST['hash'], false);
+ 	completeUserRequest($hash);
+ }
  else { // 'cancel' or no mode at all
     $show_all_groups = false;
     if (isset($_POST['q'])) {

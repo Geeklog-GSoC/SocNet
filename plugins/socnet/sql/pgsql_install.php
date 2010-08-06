@@ -2,7 +2,7 @@
 
 $_SQL[] = "
 	CREATE TABLE {$_TABLES['users_socnetinfo']} (
-	 uid INT NOT NULL,
+	 uid SERIAL,
 	 enabled SMALLINT NOT NULL DEFAULT  '1',
 	 private SMALLINT NOT NULL DEFAULT  '1',
 	 acceptinvites SMALLINT NOT NULL DEFAULT  '1',
@@ -12,10 +12,20 @@ $_SQL[] = "
 
 $_SQL[] = "
 	CREATE TABLE {$_TABLES['request_codes']} (
-	 uid INT NOT NULL,
+	 uid SERIAL,
 	 sid varchar(64) NOT NULL,
 	 gid INT NOT NULL,
 	 created TIMESTAMP NOT NULL DEFAULT NOW(),
 	PRIMARY KEY (sid)
+);";
+
+$_SQL[] = "
+	CREATE TABLE {$_TABLES['socnet_perm']} (
+	 id SERIAL,
+	 pi_type varchar(64) NOT NULL,
+	 perm_arr varchar(128) NOT NULL,
+	 cont_id INT NOT NULL,
+	 grp_id INT NOT NULL,
+	PRIMARY KEY (id)
 );";
 ?>

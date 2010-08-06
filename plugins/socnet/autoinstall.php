@@ -67,7 +67,8 @@ function plugin_autoinstall_socnet($pi_name)
     
     $tables = array(
         'users_socnetinfo',
-    	'request_codes'
+    	'request_codes',
+    	'socnet_perm'
     );
     
     $mappings = array(

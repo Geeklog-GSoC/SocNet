@@ -3,10 +3,14 @@
 /* Load the tables into the plugin */
 $_TABLES['users_socnetinfo']= $_DB_table_prefix . 'users_socnetinfo';
 $_TABLES['request_codes']= $_DB_table_prefix . 'request_codes';
+$_TABLES['socnet_perm']= $_DB_table_prefix . 'socnet_perm';
 
 /* Load the language file */ 
 $plugin_path = $_CONF['path'] . 'plugins/socnet/';
 $langfile = $plugin_path . 'language/' . $_CONF['language'] . '.php';
+
+/* Load the Socnet Permissions class */
+require('soc_perm.php');
 
 if (file_exists($langfile)) {
     require($langfile);
@@ -946,6 +950,18 @@ function soc_editusers($group)
 
     return $retval;
 }
+
+/*
+ * Display the Socnet permissions form for the user
+ * @param 		 String			$template_path 		 Path to a custom template location
+ * @param		 String 		$template_file		 The alternative template file
+ * 
+ * @return 		String								 The form
+ */
+function soc_display_perm($template_path='',$template_file='permissions.thtml'){
+	
+}
+
 /*Show the group request form
  * @param 	 int  			$grp_id
  * @return   string         HTML form

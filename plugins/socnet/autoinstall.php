@@ -66,9 +66,9 @@ function plugin_autoinstall_socnet($pi_name)
     );
     
     $tables = array(
-        'users_socnetinfo',
-    	'request_codes',
-    	'socnet_perm'
+        'soc_usersocnetinfo',
+    	'soc_accesscodes',
+    	'soc_permissions'
     );
     
     $mappings = array(
@@ -149,8 +149,8 @@ function plugin_compatible_with_this_version_socnet($pi_name)
 function plugin_postinstall_socnet($pi_name)
 {
 	global $_TABLES;
-	$_TABLES[] = 'users_socnetinfo';
-	$_TABLES[] = 'request_codes';
+	$_TABLES[] = 'soc_users_socnetinfo';
+	$_TABLES[] = 'soc_accesscodes';
     return true;
 }
 

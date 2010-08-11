@@ -1,7 +1,7 @@
 <?php 
 
 $_SQL[] = "
-	CREATE TABLE {$_TABLES['users_socnetinfo']} (
+	CREATE TABLE {$_TABLES['soc_usersocnetinfo']} (
 	 uid SERIAL,
 	 enabled SMALLINT NOT NULL DEFAULT  '1',
 	 private SMALLINT NOT NULL DEFAULT  '1',
@@ -11,7 +11,7 @@ $_SQL[] = "
 );";
 
 $_SQL[] = "
-	CREATE TABLE {$_TABLES['request_codes']} (
+	CREATE TABLE {$_TABLES['soc_accesscodes']} (
 	 uid SERIAL,
 	 sid varchar(64) NOT NULL,
 	 gid INT NOT NULL,
@@ -20,7 +20,7 @@ $_SQL[] = "
 );";
 
 $_SQL[] = "
-	CREATE TABLE {$_TABLES['socnet_perm']} (
+	CREATE TABLE {$_TABLES['soc_permissions']} (
 	 id SERIAL,
 	 pi_type varchar(64) NOT NULL,
 	 perm_arr varchar(128) NOT NULL,

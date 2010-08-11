@@ -59,12 +59,12 @@ class soc_perm {
 			print_r($this->groups);
 			foreach($this->groups as $grp_id) {
 				if($pkey=='') {
-					$sql="INSERT INTO {$_TABLES['socnet_perm']}(pi_type,perm_arr,cont_id,grp_id) VALUES
+					$sql="INSERT INTO {$_TABLES['soc_permissions']}(pi_type,perm_arr,cont_id,grp_id) VALUES
 					 ('$pi_type','$perm_arr','{$this->cont_id}','$grp_id');";
 					DB_query($sql);
 				}
 				else 
-					DB_save($_TABLES['socnet_perm'],"uid,pi_type,perm_arr,cont_id,grp_id","'$pkey','$pi_type','$perm_arr','{$this->cont_id}','$grp_id'");
+					DB_save($_TABLES['soc_permissions'],"uid,pi_type,perm_arr,cont_id,grp_id","'$pkey','$pi_type','$perm_arr','{$this->cont_id}','$grp_id'");
 			}
 		}
 		else {
@@ -111,7 +111,7 @@ class soc_perm {
 			$this->groups = $this->user_groups;
 		}
 		/* build the query string */
-		$sql="SELECT perm_arr FROM {$_TABLES['socnet_perm']} WHERE ";
+		$sql="SELECT perm_arr FROM {$_TABLES['soc_permissions']} WHERE ";
 		if($this->cont_id!=0)
 			$sql .="cont_id={$this->cont_id} AND ";
 		if (count($this->groups)>0) {

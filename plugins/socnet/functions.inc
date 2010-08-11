@@ -1,21 +1,21 @@
 <?php 
 
 /* Load the tables into the plugin */
-$_TABLES['users_socnetinfo']= $_DB_table_prefix . 'users_socnetinfo';
-$_TABLES['request_codes']= $_DB_table_prefix . 'request_codes';
-$_TABLES['socnet_perm']= $_DB_table_prefix . 'socnet_perm';
+$_TABLES['soc_usersocnetinfo']= $_DB_table_prefix . 'soc_usersocnetinfo';
+$_TABLES['soc_accesscodes']= $_DB_table_prefix . 'soc_accesscodes';
+$_TABLES['soc_permissions']= $_DB_table_prefix . 'soc_permissions';
 
 /* Load the language file */ 
 $plugin_path = $_CONF['path'] . 'plugins/socnet/';
 $langfile = $plugin_path . 'language/' . $_CONF['language'] . '.php';
 
 /* Load the Socnet Permissions class */
-require('soc_perm.php');
+require_once($plugin_path . 'soc_perm.php');
 
 if (file_exists($langfile)) {
-    require($langfile);
+    require_once($langfile);
 } else {
-    require($plugin_path . 'language/english.php');
+    require_once($plugin_path . 'language/english.php');
 }
 
 /*
@@ -42,7 +42,7 @@ function plugin_autouninstall_socnet () {
     // Unregister the plugin with Geeklog
     $out = array (
         /* give the name of the tables, without $_TABLES[] */
-        'tables' => array('users_socnetinfo'),
+        'tables' => array('soc_usersocnetinfo'),
         /* give the full name of the group, as in the db */
         'groups' => array($pi_admin),
         /* give the full name of the feature, as in the db */
@@ -75,9 +75,7 @@ function plugin_getadminoption_socnet()
     }
     */
     
-    return array ('Socnet',
-                      $_CONF['site_url'] . '/socnet/index.php',
-                      '');
+
 }
 
 /**
@@ -1011,7 +1009,7 @@ function completeUserRequest($hash) {
 
 function completeGroupRequest($hash) {
 	/* get details of this hash */
-	$sql = "SELECT * FROM {$_TABLES['request_codes']} WHERE sid='$hash'";
+	$sql = "SELECT * FROM {$_TABLES['soc_accesscodes']} WHERE sid='$hash'";
  	$result = DB_query($sql);
  	if(DB_numRows($result)==1) {
 	 	$A = DB_fetchArray($result);
@@ -1103,7 +1101,7 @@ function soc_deleteGroup ($grp_id)
  */							       
 function editPrivacy($uid,$gid,$perm) {
 	global $_TABLES;
-	$sql="UPDATE {$_TABLES['users_socnetinfo']}, SET enabled = {$perm['enabled']},
+	$sql="UPDATE {$_TABLES['soc_usersocnetinfo']}, SET enabled = {$perm['enabled']},
 		private = {$perm['private']}, acceptinvites = {$perm['accept']}, show_profile
 		 = {$perm['profile']};";
 	DB_query($sql);
@@ -1121,14 +1119,14 @@ function sendGroupJoinRequest($uid_arr, $gid, $message='') {
 		return;
 	foreach($uid_arr as $uid) {
 		/* check if user's privacy allows you to request group join */
-		$sql="SELECT enabled, acceptinvites FROM {$_TABLES['users_socnetinfo']}";
+		$sql="SELECT enabled, acceptinvites FROM {$_TABLES['soc_usersocnetinfo']}";
 		$result = DB_query($sql);
 		$A = DB_fetchArray($result);
 		if($A['enabled']==1 && $A['acceptinvites']==1)
 		{
 			/*generate the url */
 			$hash = hash('sha256',memory_get_usage().rand().time());
-			$sql = "INSERT INTO {$_TABLES['request_codes']}(sid,uid,gid) VALUES('$hash','$uid','$gid');";
+			$sql = "INSERT INTO {$_TABLES['soc_accesscodes']}(sid,uid,gid) VALUES('$hash','$uid','$gid');";
 			DB_query($sql);
 			$url = $_CONF['site_url'].'/socnet/index.php?mode=completeGroupRequest&hash='.$hash;
 			
@@ -1158,7 +1156,7 @@ function sendUserJoinRequest($uid,$gid,$message='') {
 	global $_CONF, $_TABLES;
 	/*generate the url */
 	$hash = hash('sha256',memory_get_usage().rand().time());
-	$sql = "INSERT INTO {$_TABLES['request_codes']}(sid,uid,gid) VALUES('$hash','$uid','$gid');";
+	$sql = "INSERT INTO {$_TABLES['soc_accesscodes']}(sid,uid,gid) VALUES('$hash','$uid','$gid');";
 	DB_query($sql);
 	$url = $_CONF['site_url'].'/socnet/index.php?mode=completeUserRequest&hash='.$hash;
 	
@@ -1228,7 +1226,7 @@ function plugin_itemsaved_socnet($id, $type, $old_id)
 function plugin_user_delete_socnet ($uid) {
     global $_TABLES;
 	
-	$sql="DELETE FROM {$_TABLES['users_socnetinfo']} WHERE `uid`=$uid";
+	$sql="DELETE FROM {$_TABLES['soc_usersocnetinfo']} WHERE `uid`=$uid";
 	DB_query($sql);
 	//now delete him from socnet groups
 }
@@ -1236,7 +1234,7 @@ function plugin_user_delete_socnet ($uid) {
 function plugin_user_create_socnet($uid){
 	global $_TABLES;
 
-	$sql="INSERT INTO {$_TABLES['users_socnetinfo']}(`uid`) VALUES($uid)";
+	$sql="INSERT INTO {$_TABLES['soc_usersocnetinfo']}(`uid`) VALUES($uid)";
 	DB_query($sql);
 };
 ?>

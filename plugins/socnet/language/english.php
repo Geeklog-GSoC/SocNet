@@ -4,10 +4,8 @@
 #
 # This is the English language file for the Geeklog Socnet plugin
 #
-# Copyright (C) 2001 Tony Bibbs
-# tony AT tonybibbs DOT com
-# Copyright (C) 2005 Trinity Bays
-# trinity93 AT gmail DOT com
+# Copyright (C) 2010 Stanislav Palatnik
+# yankees27an at gmail dot com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License

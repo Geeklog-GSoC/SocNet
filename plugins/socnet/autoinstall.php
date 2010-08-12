@@ -149,7 +149,7 @@ function plugin_compatible_with_this_version_socnet($pi_name)
 function plugin_postinstall_socnet($pi_name)
 {
 	global $_TABLES;
-	$_TABLES[] = 'soc_users_socnetinfo';
+	$_TABLES[] = 'soc_usersocnetinfo';
 	$_TABLES[] = 'soc_accesscodes';
     return true;
 }

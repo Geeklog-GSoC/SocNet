@@ -2,7 +2,7 @@
 
 require('../lib-common.php');
 
-if (!in_array('calendar', $_PLUGINS)) {
+if (!in_array('socnet', $_PLUGINS)) {
     echo COM_refresh($_CONF['site_url'] . '/index.php');
     exit;
 }
@@ -28,10 +28,10 @@ if (!SEC_hasRights('socnet.groupadmin')) {
 		$sql = "INSERT INTO {$_TABLES['group_assignments']} (`ug_main_grp_id`, `ug_uid`) VALUES (
 		(SELECT grp_id FROM {$_TABLES['groups']} WHERE `grp_name`='Social Networking Plugin Admin'),
 		 {$_USER['uid']})";
-		DB_query($sql,1);
-		$sql="INSERT INTO {$_TABLES['users_socnetinfo']}(`uid`,`private`,`acceptinvites`,`show_profile`) 
+		DB_query($sql);
+		$sql="INSERT INTO {$_TABLES['soc_usersocnetinfo']}(`uid`,`private`,`acceptinvites`,`show_profile`) 
 		VALUES({$_USER['uid']},$private,$invites,$profile)";
-		DB_query($sql,1);
+		DB_query($sql);
 		echo COM_refresh($_CONF['site_url'] . '/socnet/index.php');
 	}
 	else {
@@ -59,8 +59,7 @@ if (!SEC_hasRights('socnet.groupadmin')) {
 } 
 
 
-require'../admin/group.php';
-require('../../plugins/socnet/language/english.php');
+require_once('../admin/group.php');
 
 $mode = '';
 if (isset($_REQUEST['mode'])) {
@@ -180,6 +179,14 @@ else
  elseif($mode=='completeUserRequest') {
  	$hash = COM_applyFilter ($_REQUEST['hash'], false);
  	completeUserRequest($hash);
+ }
+ elseif($mode=='test') {
+ 	$perm = new soc_perm();
+ 	$perm->set_uid(3);
+ 	$perm->set_content_id(5);
+ 	$perm->set_groups('1,2,13'); //user 3 is in groups 2, 13, but not 1
+ 	//$perm->soc_set_security('socnet', 'edit,read,deface');
+ 	echo $perm->soc_get_security('socnet');
  }
  else { // 'cancel' or no mode at all
     $show_all_groups = false;

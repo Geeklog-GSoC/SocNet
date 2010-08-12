@@ -63,19 +63,8 @@ function plugin_autouninstall_socnet () {
 function plugin_getadminoption_socnet()
 {
     global $_CONF, $_TABLES, $LANG_CAL_1;
-/*
-    if (SEC_hasRights ('calendar.edit')) {
-        $result = DB_query ("SELECT COUNT(*) AS cnt FROM {$_TABLES['events']}" . COM_getPermSQL ());
-        $A = DB_fetchArray ($result);
-        $total_events = $A['cnt'];
-
-        return array ($LANG_CAL_1[16],
-                      $_CONF['site_admin_url'] . '/plugins/socnet/index.php',
-                      $total_events);
-    }
-    */
-    
-
+ return array ('Socnet Groups',
+                      $_CONF['site_admin_url'] . '/plugins/socnet/index.php');
 }
 
 /**

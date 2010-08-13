@@ -1404,7 +1404,7 @@ function ADMIN_getListField_trackback($fieldname, $fieldvalue, $A, $icon_arr, $t
  */
 function ADMIN_getListField_usergroups($fieldname, $fieldvalue, $A, $icon_arr, $selected = '')
 {
-    global $thisUsersGroups;
+    global $thisUsersGroups, $_CONF;
 
     $retval = false;
 

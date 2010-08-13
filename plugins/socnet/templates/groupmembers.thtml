@@ -19,6 +19,19 @@ function moveSelectedOptions(from,to) {
         }
     from.selectedIndex = -1;
     }
+
+    function setUsers(f) { 
+	var destVals = new Array(), opt = 0, separator = "|", d = f.fieldTo; 
+	while (d[opt]) 
+        destVals[opt] = d[opt++].value;
+        if(d[opt] > 1) {
+            f.groupmembers.value = separator + destVals.join(separator); 
+        } else {
+            f.groupmembers.value = destVals.join(separator); 
+        }
+        return true; 
+      }
+
     </script>
 
     <form name="groupusers" action="{phpself}" method="post" style="margin:0px;">
@@ -43,7 +56,7 @@ function moveSelectedOptions(from,to) {
                     <input type="hidden" name="grp_id" value="{group_id}"{xhtml}>
                     <input type="hidden" name="chk_showall" value="{show_all}"{xhtml}>
                     <input type="button" value="{lang_cancel}" onclick="javascript:history.go(-1)"{xhtml}>&nbsp;&nbsp;
-                    <input type="submit" value="{lang_save}" onclick="return setUsers(this.form)"{xhtml}>
+                    <input type="submit" value="Save" onclick="return setUsers(this.form)">
                     <input type="hidden" name="{gltoken_name}" value="{gltoken}"{xhtml}>
                 </td>
             </tr>

@@ -19,44 +19,7 @@ if (COM_isAnonUser() &&
 /* Security check to ensure user even belongs on this page */
 $plugin_path = $_CONF['path'] . 'plugins/socnet/';
 
-	
-if (!SEC_hasRights('socnet.groupadmin')) {
-	if($_POST['terms']=='on') { 
-		$invites = ($_POST['invites']=='on')? 1:0;
-		$profile = ($_POST['profile']=='on')? 1:0;
-		$private = ($_POST['private']=='on')? 1:0;
-		$sql = "INSERT INTO {$_TABLES['group_assignments']} (`ug_main_grp_id`, `ug_uid`) VALUES (
-		(SELECT grp_id FROM {$_TABLES['groups']} WHERE `grp_name`='Social Networking Plugin Admin'),
-		 {$_USER['uid']})";
-		DB_query($sql);
-		$sql="INSERT INTO {$_TABLES['soc_usersocnetinfo']}(`uid`,`private`,`acceptinvites`,`show_profile`) 
-		VALUES({$_USER['uid']},$private,$invites,$profile)";
-		DB_query($sql);
-		echo COM_refresh($_CONF['site_url'] . '/socnet/index.php');
-	}
-	else {
-	    $display .= COM_siteHeader('menu', $SOCNET_User[3])
-	             . COM_showMessageText($SOCNET_User[3], $MESSAGE[30]);
-	    $socnetreg = new Template($plugin_path . 'templates/');
-	    $socnetreg->set_file(array('registration' => 'registration.thtml'));
-	    $socnetreg->set_var('xhtml', XHTML);
-	    $socnetreg->set_var('site_url', $_CONF['site_url']);
-	    $socnetreg->set_var('layout_url', $_CONF['layout_url']);
-	    $socnetreg->set_var('group_listing_url', $group_listing_url);
-	    $socnetreg->set_var('phpself', $_CONF['site_url'] . '/socnet/index.php');
-	    $socnetreg->set_var('lang_save', $LANG_ADMIN['save']);
-	    $socnetreg->set_var('lang_cancel', $LANG_ADMIN['cancel']);
-	    $socnetreg->set_var('gltoken_name', CSRF_TOKEN);
-	    $socnetreg->set_var('gltoken', SEC_createToken());
-	    $socnetreg->parse('output', 'registration');
-	    $display .= $socnetreg->finish($socnetreg->get_var('output'))
-	             
-	             . COM_siteFooter();
-	    COM_accessLog("User {$_USER['username']} tried to illegally access the group administration screen.");
-	    COM_output($display);
-	    exit;
-	}
-} 
+soc_is_registered(); //check if the user is in the socnet database
 
 
 require_once('../admin/group.php');
@@ -107,7 +70,7 @@ else
                           $grp_default, $grp_applydefault, $features, $groups);
 } elseif (($mode == 'savegroupusers') && SEC_checkToken()) {
     $grp_id = COM_applyFilter($_REQUEST['grp_id'], true);
-    $display .= soc_savegroupusers($grp_id, $_POST['groupmembers']);
+    $display .= soc_savegroupusers($grp_id, $_REQUEST['groupmembers']);
 } elseif ($mode == 'edit') {
     $grp_id = 0;
     if (isset ($_REQUEST['grp_id'])) {

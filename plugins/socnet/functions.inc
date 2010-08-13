@@ -143,6 +143,44 @@ function getAllUsers($grp_id) {
 	return $options;
 }
 
+function soc_is_registered() {
+	global $_TABLES, $plugin_path, $SOCNET_User, $_CONF, $LANG_ADMIN,$MESSAGE,$_USER;
+	if (!SEC_hasRights('socnet.groupadmin')) {
+	if($_POST['terms']=='on') { 
+		$invites = ($_POST['invites']=='on')? 1:0;
+		$profile = ($_POST['profile']=='on')? 1:0;
+		$private = ($_POST['private']=='on')? 1:0;
+		$sql = "INSERT INTO {$_TABLES['group_assignments']} (`ug_main_grp_id`, `ug_uid`) VALUES (
+		(SELECT grp_id FROM {$_TABLES['groups']} WHERE `grp_name`='Social Networking Plugin Admin'),
+		 {$_USER['uid']})";
+		DB_query($sql);
+		DB_save($_TABLES['soc_usersocnetinfo'],'uid,private,acceptinvites,show_profile',"{$_USER['uid']},$private,$invites,$profile","{$_CONF['site_url']}/socnet/index.php");
+	}
+	else {
+	    $display .= COM_siteHeader('menu', $SOCNET_User[3])
+	             . COM_showMessageText($SOCNET_User[3], $MESSAGE[30]);
+	    $socnetreg = new Template($plugin_path . 'templates/');
+	    $socnetreg->set_file(array('registration' => 'registration.thtml'));
+	    $socnetreg->set_var('xhtml', XHTML);
+	    $socnetreg->set_var('site_url', $_CONF['site_url']);
+	    $socnetreg->set_var('layout_url', $_CONF['layout_url']);
+	    $socnetreg->set_var('group_listing_url', $group_listing_url);
+	    $socnetreg->set_var('phpself', $_CONF['site_url'] . '/socnet/index.php');
+	    $socnetreg->set_var('lang_save', $LANG_ADMIN['save']);
+	    $socnetreg->set_var('lang_cancel', $LANG_ADMIN['cancel']);
+	    $socnetreg->set_var('gltoken_name', CSRF_TOKEN);
+	    $socnetreg->set_var('gltoken', SEC_createToken());
+	    $socnetreg->parse('output', 'registration');
+	    $display .= $socnetreg->finish($socnetreg->get_var('output'))
+	             
+	             . COM_siteFooter();
+	    COM_accessLog("User {$_USER['username']} tried to illegally access the group administration screen.");
+	    COM_output($display);
+	    exit;
+	}
+} 
+}
+
 //modified savegroupusers from group.php to support Socnet
 
 /**

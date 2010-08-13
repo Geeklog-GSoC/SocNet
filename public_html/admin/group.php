@@ -1129,7 +1129,7 @@ function editusers($group)
     $grp_name = SEC_getGroupName($group);
 
     $thisUsersGroups = SEC_getUserGroups();
-    if ((!empty($group) && ($group > 0) &&
+    if ( !SEC_inGroup('Root') && (!empty($group) && ($group > 0) &&
                 !in_array($group, $thisUsersGroups) &&
                 !SEC_groupIsRemoteUserAndHaveAccess($group, $thisUsersGroups))
             || (($grp_name == 'All Users') ||
@@ -1277,13 +1277,13 @@ global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_ACCESS, $LANG28, $_IMAGE_TYPE;
         array('text' => $LANG_ACCESS['groupname'], 'field' => 'grp_name', 'sort' => true),
         array('text' => $LANG_ACCESS['description'], 'field' => 'grp_descr', 'sort' => true),
         array('text' => $LANG28[88], 'field' => 'grp_default', 'sort' => true),
-        array('text' => $LANG_ACCESS['listusers'], 'field' => 'list', 'sort' => false)
+       array('text' => $LANG_ACCESS['listusers'], 'field' => 'list', 'sort' => false)
     );
 
     $defsort_arr = array('field' => 'grp_name', 'direction' => 'asc');
 
     $form_url = $_CONF['site_admin_url'] . '/group.php';
-    $edit_url = $_CONF['site_admin_url'] . '/group.php?mode=edit';
+    echo $edit_url = $_CONF['site_admin_url'] . '/group.php?mode=edit';
     if ($show_all_groups) {
         $form_url .= '?chk_showall=1';
         $edit_url .= '&amp;chk_showall=1';
@@ -1344,7 +1344,7 @@ global $_CONF, $_TABLES, $LANG_ADMIN, $LANG_ACCESS, $LANG28, $_IMAGE_TYPE;
     }
     $filter .= $LANG28[48] . '</label></span>';
 
-    $retval .= ADMIN_list('groups', 'ADMIN_getListField_usergroups', $header_arr,
+    $retval .= ADMIN_list('user_groups', 'ADMIN_getListField_usergroups', $header_arr,
                           $text_arr, $query_arr, $defsort_arr, $filter);
     $retval .= COM_endBlock(COM_getBlockTemplate('_admin_block', 'footer'));
 
@@ -1461,12 +1461,7 @@ if (SEC_hasRights('group.edit')) {
 	    $display .= COM_siteHeader ('menu', $LANG28[91]);
 	    $display .= listusergroups();
 	    $display .= COM_siteFooter ();
-	} elseif ($mode == 'usergroups') {
-	    $uid = COM_applyFilter ($_REQUEST['uid'], true);
-	    $display .= COM_siteHeader ('menu', $LANG28[91]);
-	    $display .= listusergroups();
-	    $display .= COM_siteFooter ();
-	} else { // 'cancel' or no mode at all
+	}  else { // 'cancel' or no mode at all
 	    $show_all_groups = false;
 	    if (isset($_POST['q'])) {
 	        // check $_POST only, as $_GET['chk_showall'] may also be set

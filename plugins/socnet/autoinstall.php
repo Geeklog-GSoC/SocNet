@@ -58,11 +58,13 @@ function plugin_autoinstall_socnet($pi_name)
     );
     
     $groups = array(
-        $pi_admin => 'Has full access to ' . $pi_display_name . ' features'
+        $pi_admin => 'Has full access to ' . $pi_display_name . ' features',
+        $pi_display_name.' User' => 'Is a member of ' . $pi_display_name
     );
     
     $features = array(
-        $pi_name . '.groupadmin'  => 'Owns a Socnet Group'
+        $pi_name . '.groupadmin'  => 'Socnet Group Admin',
+        $pi_name . '.user'  => 'Owns/uses a Socnet Group'
     );
     
     $tables = array(
@@ -72,7 +74,8 @@ function plugin_autoinstall_socnet($pi_name)
     );
     
     $mappings = array(
-        $pi_name . '.groupadmin'    => array($pi_admin)
+        $pi_name . '.groupadmin'    => array($pi_admin),
+        $pi_name . '.user' 				=> array($pi_display_name.' User')
     );
 
     $inst_parms = array(

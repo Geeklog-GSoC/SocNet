@@ -60,11 +60,15 @@ function plugin_autouninstall_socnet () {
 * returns the administrative option for this plugin
 *
 */
+
 function plugin_getadminoption_socnet()
 {
     global $_CONF, $_TABLES, $LANG_CAL_1;
- return array ('Socnet Groups',
-                      $_CONF['site_admin_url'] . '/plugins/socnet/index.php');
+    echo SEC_inGroup('Social Networking Plugin Admin');
+
+    if(SEC_inGroup('Social Networking Plugin Admin')) {
+          return array ('Socnet Groups', $_CONF['site_admin_url'] . '/plugins/socnet/index.php');
+      }
 }
 
 /**
@@ -145,13 +149,13 @@ function getAllUsers($grp_id) {
 
 function soc_is_registered() {
 	global $_TABLES, $plugin_path, $SOCNET_User, $_CONF, $LANG_ADMIN,$MESSAGE,$_USER;
-	if (!SEC_hasRights('socnet.groupadmin')) {
+	if (!SEC_hasRights('socnet.user')) {
 	if($_POST['terms']=='on') { 
 		$invites = ($_POST['invites']=='on')? 1:0;
 		$profile = ($_POST['profile']=='on')? 1:0;
 		$private = ($_POST['private']=='on')? 1:0;
 		$sql = "INSERT INTO {$_TABLES['group_assignments']} (`ug_main_grp_id`, `ug_uid`) VALUES (
-		(SELECT grp_id FROM {$_TABLES['groups']} WHERE `grp_name`='Social Networking Plugin Admin'),
+		(SELECT grp_id FROM {$_TABLES['groups']} WHERE `grp_name`='Social Networking Plugin User'),
 		 {$_USER['uid']})";
 		DB_query($sql);
 		DB_save($_TABLES['soc_usersocnetinfo'],'uid,private,acceptinvites,show_profile',"{$_USER['uid']},$private,$invites,$profile","{$_CONF['site_url']}/socnet/index.php");
@@ -992,16 +996,18 @@ function soc_display_perm($template_path='',$template_file='permissions.thtml'){
  * @return   string         HTML form
  */
 function sendGroupJoinlList($grp_id) {
-	global $plugin_path,$_SOC_CONF;
-	
+	global $plugin_path,$_SOC_CONF, $_USER;
 	$showall = $_SOC_CONF['displayallmembers'];
-	
+	if($showall==0)
+		$avail='';
+	else
+		$avail = grp_selectUsers($grp_id,true);
 	$groupmembers = new Template($plugin_path . 'templates/');
     $groupmembers->set_file(array('grouprequest' => 'groupRequestForm.thtml'));
     $groupmembers->set_var('group_id',$grp_id);
     $groupmembers->set_var('gltoken_name', CSRF_TOKEN);
     $groupmembers->set_var('group_list', grp_selectUsers($grp_id));
-    $groupmembers->set_var('available_list', grp_selectUsers($grp_id,$showall));
+    $groupmembers->set_var('available_list', $avail);
     $groupmembers->set_var('gltoken', SEC_createToken());
     $groupmembers->parse('output', 'grouprequest');
     $retval .= $groupmembers->finish($groupmembers->get_var('output'));

@@ -61,7 +61,7 @@ $display = '';
 
 
 // Make sure user has rights to access this page
-if (!SEC_hasRights('group.edit,socnet.groupadmin','OR')) {
+if (!SEC_hasRights('group.edit,socnet.user','OR')) {
     $display .= COM_siteHeader('menu', $MESSAGE[30])
              . COM_showMessageText($MESSAGE[29], $MESSAGE[30])
              . COM_siteFooter();
